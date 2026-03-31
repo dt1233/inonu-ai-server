@@ -15,13 +15,14 @@
 
 ### Veri Ön İşleme (Data Preprocessing)
 - [ ] 6 -> Scrape edilen verilerdeki tüm gürültüyü (gereksiz boşluk, bozuk HTML tagleri vb.) silecek ve UTF-8 string çıktılar üretecek ortak temizleme fonksiyonlarının kodlanıp aktif edilmesi.
-- [ ] 7 -> Temizlenen metinleri anlam bütünlüğünü bozmayan mantıklı paragraflar/bloklar halinde (500-1000 kelimelik Chunk'lara) ayıracak metin parçalama (Chunking) sisteminin yazılması.
+- [ ] 7 -> (Biloom2'nin tavsiyesi üzerine güncellendi) RAG cevap kalitesini artırmak için temizlenen metinleri sadece karakter sayısına göre değil, anlamsal (Semantic) sınırlarla (paragraf başları \n\n veya cümle sonları .) mantıklı ve hedefe odaklı parçalara bölecek kaliteli bir Chunking sisteminin kodlanması.
 
 ### Veritabanı Altyapısı
 - [ ] 8 -> Hafıza sisteminin iskeleti olacak doğru Vektör Veritabanına (ChromaDB, pgvector, Qdrant vb.) karar verilip, lokalde/sunucuda altyapısının ayağa kaldırılması.
 - [ ] 9 -> Türkçe dil desteği güçlü bir Embedding Modeline (BGE-m3, multilingual-e5-large, OpenAI text-embedding-3-small vb.) karar verilmesi ve benchmark testlerinin yapılması.
 - [ ] 10 -> Chunk edilmiş tüm veri parçalarının seçilen Embedding modeli ile vektörlere dönüştürülüp Vektör Veritabanına aktarılması (import pipeline).
-- [ ] 11 -> Chat geçmişi, sistem logları ve kullanıcı yetkilendirme için operasyonel veritabanı (PostgreSQL veya MongoDB) kurulumunun gerçekleştirilmesi.
+- [ ] 11 -> Tüm üniversite verisinin (Duyurular, Statik İçerikler, Akademik Birimler, Personeller) 3-Katmanlı mimariyle (Ham Veri, Temizlenmiş Metin, Parçalanmış Chunk) tek bir havuzda toplanması için ana NoSQL (MongoDB) veritabanı kurulumunun yapılandırılması.
+- [ ] 11.1 -> Scraper'lardan veritabanına kayıt atarken mükerrer verileri önleyecek 'Upsert' mantığını ve Chunking fonksiyonunu (`chunkify`) yönetecek merkezi bir db_manager.py bağlantı ve eklentisinin (PyMongo) projeye entegre edilmesi.
 
 ### Etiketleme ve Veri Seti Üretimi
 - [ ] 12 -> Veri kalitesini ölçmek ve manuel etiketleme süreci için bir etiketleme platformuna (Label Studio, Argilla) karar verilip kurulması. (Alternatif: JSON/Excel tabanlı form oluşturulması.)
