@@ -3,7 +3,7 @@
 """
 ╔══════════════════════════════════════════════════════════════════╗
 ║        İNÖNÜ ÜNİVERSİTESİ DUYURU SCRAPER                         ║
-║                  Powered by MEGE SOLUTIONS                       ║
+║                                                                  ║
 ╚══════════════════════════════════════════════════════════════════╝
 
 Kullanım:
@@ -81,15 +81,15 @@ def banner() -> None:
     lines = [
         "",
         f"{C.CYAN}{C.BOLD}  ╔══════════════════════════════════════════════════════════════════╗{C.RESET}",
-        f"{C.CYAN}{C.BOLD}  ║    {C.WHITE}██╗███╗   ██╗ ██████╗ ███╗   ██╗██╗   ██╗{C.CYAN}          ║{C.RESET}",
-        f"{C.CYAN}{C.BOLD}  ║    {C.WHITE}██║████╗  ██║██╔═══██╗████╗  ██║██║   ██║{C.CYAN}          ║{C.RESET}",
-        f"{C.CYAN}{C.BOLD}  ║    {C.WHITE}██║██╔██╗ ██║██║   ██║██╔██╗ ██║██║   ██║{C.CYAN}          ║{C.RESET}",
-        f"{C.CYAN}{C.BOLD}  ║    {C.WHITE}██║██║╚██╗██║██║   ██║██║╚██╗██║██║   ██║{C.CYAN}          ║{C.RESET}",
-        f"{C.CYAN}{C.BOLD}  ║    {C.WHITE}██║██║ ╚████║╚██████╔╝██║ ╚████║╚██████╔╝{C.CYAN}          ║{C.RESET}",
-        f"{C.CYAN}{C.BOLD}  ║      {C.DIM}╚═╝╚═╝  ╚═══╝ ╚═════╝ ╚═╝  ╚═══╝ ╚═════╝{C.CYAN}           ║{C.RESET}",
-        f"{C.CYAN}{C.BOLD}  ║                                                                        ║{C.RESET}",
-        f"{C.CYAN}{C.BOLD}  ║    {C.YELLOW}  Powered by   {C.GREEN}M E G E {C.CYAN}                  ║{C.RESET}",
-        f"{C.CYAN}{C.BOLD}  ║                {C.DIM}İnönü Üniversitesi {C.RESET}",
+        f"{C.CYAN}{C.BOLD}  ║    {C.WHITE}██╗███╗   ██╗ ██████╗ ███╗   ██╗██╗   ██╗{C.CYAN}                    ║{C.RESET}",
+        f"{C.CYAN}{C.BOLD}  ║    {C.WHITE}██║████╗  ██║██╔═══██╗████╗  ██║██║   ██║{C.CYAN}                    ║{C.RESET}",
+        f"{C.CYAN}{C.BOLD}  ║    {C.WHITE}██║██╔██╗ ██║██║   ██║██╔██╗ ██║██║   ██║{C.CYAN}                    ║{C.RESET}",
+        f"{C.CYAN}{C.BOLD}  ║    {C.WHITE}██║██║╚██╗██║██║   ██║██║╚██╗██║██║   ██║{C.CYAN}                    ║{C.RESET}",
+        f"{C.CYAN}{C.BOLD}  ║    {C.WHITE}██║██║ ╚████║╚██████╔╝██║ ╚████║╚██████╔╝{C.CYAN}                    ║{C.RESET}",
+        f"{C.CYAN}{C.BOLD}  ║    {C.DIM}╚═╝╚═╝  ╚═══╝ ╚═════╝ ╚═╝  ╚═══╝ ╚═════╝ {C.CYAN}                   ║{C.RESET}",
+        f"{C.CYAN}{C.BOLD}  ║                                                                  ║{C.RESET}",
+        f"{C.CYAN}{C.BOLD}  ║    {C.YELLOW}mert ege sungur  {C.GREEN}meges.com.tr{C.CYAN}                      ║{C.RESET}",
+        f"{C.CYAN}{C.BOLD}  ║    {C.DIM}İnönü Üniversitesi Öğrenci DB Scraper{C.CYAN}            ║{C.RESET}",
         f"{C.CYAN}{C.BOLD}  ╚══════════════════════════════════════════════════════════════════╝{C.RESET}",
         "",
     ]
@@ -518,7 +518,7 @@ def _summary(new_count: int, pdf_count: int, t0: float, total_db: int) -> None:
     print()
     print(f"  {C.CYAN}{'═' * 62}{C.RESET}")
     print(f"  {C.GREEN}{C.BOLD}  ✔  İşlem başarıyla tamamlandı.{C.RESET}  "
-          f"{C.DIM}— MEGE SOLUTIONS{C.RESET}")
+          f"{C.DIM}{C.RESET}")
     print(f"  {C.CYAN}{'═' * 62}{C.RESET}")
     print()
 
