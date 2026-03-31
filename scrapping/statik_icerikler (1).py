@@ -2,8 +2,8 @@
 # -*- coding: utf-8 -*-
 """
 ╔══════════════════════════════════════════════════════════════════╗
-║     İNÖNÜ ÜNİVERSİTESİ STATİK İÇERİK SCRAPER                   ║
-║                  Powered by MEGE SOLUTIONS                       ║
+║     İNÖNÜ ÜNİVERSİTESİ STATİK İÇERİK SCRAPER                    ║
+║                  Powered by meges.com.tr                         ║
 ╚══════════════════════════════════════════════════════════════════╝
 
 Kullanım:
@@ -20,7 +20,10 @@ from datetime import datetime, timezone
 from typing import Optional
 
 import requests
+import urllib3
 from bs4 import BeautifulSoup
+
+urllib3.disable_warnings(urllib3.exceptions.InsecureRequestWarning)
 
 # ─────────────────────────────────────────────────────────────────
 # BÖLÜM 0 │ Terminal renk & loglama yardımcıları
@@ -62,9 +65,15 @@ def banner() -> None:
     lines = [
         "",
         f"{C.CYAN}{C.BOLD}  ╔══════════════════════════════════════════════════════════════════╗{C.RESET}",
-        f"{C.CYAN}{C.BOLD}  ║  {C.WHITE}STATİK İÇERİK SCRAPER{C.CYAN}                                         ║{C.RESET}",
-        f"{C.CYAN}{C.BOLD}  ║  {C.YELLOW}Personel · Dersler · Misyon · Oryantasyon · İç Kontrol{C.CYAN}        ║{C.RESET}",
-        f"{C.CYAN}{C.BOLD}  ║  {C.GREEN}MEGE SOLUTIONS{C.CYAN} — İnönü Üniversitesi                            ║{C.RESET}",
+        f"{C.CYAN}{C.BOLD}  ║    {C.WHITE}██╗███╗   ██╗ ██████╗ ███╗   ██╗██╗   ██╗{C.CYAN}          ║{C.RESET}",
+        f"{C.CYAN}{C.BOLD}  ║    {C.WHITE}██║████╗  ██║██╔═══██╗████╗  ██║██║   ██║{C.CYAN}          ║{C.RESET}",
+        f"{C.CYAN}{C.BOLD}  ║    {C.WHITE}██║██╔██╗ ██║██║   ██║██╔██╗ ██║██║   ██║{C.CYAN}          ║{C.RESET}",
+        f"{C.CYAN}{C.BOLD}  ║    {C.WHITE}██║██║╚██╗██║██║   ██║██║╚██╗██║██║   ██║{C.CYAN}          ║{C.RESET}",
+        f"{C.CYAN}{C.BOLD}  ║    {C.WHITE}██║██║ ╚████║╚██████╔╝██║ ╚████║╚██████╔╝{C.CYAN}          ║{C.RESET}",
+        f"{C.CYAN}{C.BOLD}  ║      {C.DIM}╚═╝╚═╝  ╚═══╝ ╚═════╝ ╚═╝  ╚═══╝ ╚═════╝{C.CYAN}           ║{C.RESET}",
+        f"{C.CYAN}{C.BOLD}  ║                                                                        ║{C.RESET}",
+        f"{C.CYAN}{C.BOLD}  ║    {C.YELLOW}mert ege sungur {C.GREEN}meges.com.tr{C.CYAN}             ║{C.RESET}",
+        f"{C.CYAN}{C.BOLD}  ║                {C.DIM}İnönü Üniversitesi {C.CYAN}          ║{C.RESET}",
         f"{C.CYAN}{C.BOLD}  ╚══════════════════════════════════════════════════════════════════╝{C.RESET}",
         "",
     ]
@@ -143,6 +152,12 @@ SOURCES: list[dict] = [
         "url":   "https://panel.inonu.edu.tr/servlet/content?id=24677&lang=tr",
         "type":  "json",
     },
+    {
+        "key":   "sss",
+        "label": "Sıkça Sorulan Sorular",
+        "url":   "https://panel.inonu.edu.tr/servlet/menu?type=inside&id=1636",
+        "type":  "sss",
+    },
 ]
 
 
@@ -157,6 +172,7 @@ def http_get(url: str) -> Optional[requests.Response]:
             headers=HEADERS,
             timeout=REQUEST_TIMEOUT,
             allow_redirects=True,
+            verify=False,
         )
         response.raise_for_status()
         return response
@@ -398,6 +414,112 @@ def parse_staff_api(response: requests.Response) -> list[dict]:
     return result
 
 
+def fetch_sss_data(parent_id: int) -> dict:
+    """
+    Menü altındaki Sıkça Sorulan Sorular liste/içeriklerini çoklu istek atarak toplar.
+
+    Akış:
+      1) /servlet/menu?type=inside&id=1636  → Kategori listesi (id + translate)
+      2) Her kategori id'si için /servlet/content?id={id}&lang=tr → İçerik
+         Content API şu formatta döner:
+         [{"id": ..., "title": "...", "text": "<html>...", "created": "..."}]
+      3) text alanındaki HTML düz metne çevrilir.
+    """
+    menu_url = f"{BASE_URL}/servlet/menu?type=inside&id={parent_id}"
+    log("FETCH", f"SSS Menü ağacı çekiliyor: {C.DIM}{menu_url}{C.RESET}")
+    menu_resp = http_get(menu_url)
+
+    if not menu_resp:
+        return {}
+
+    try:
+        menu_items = menu_resp.json()
+    except Exception:
+        return {}
+
+    all_data = {}
+
+    def parse_content_items(data):
+        """
+        /servlet/content dönen JSON listesini parse eder.
+        Her öğe: {"id": ..., "title": "...", "text": "<html>..."}
+        text alanı HTML → düz metne çevrilir.
+        """
+        if not isinstance(data, list):
+            return data
+
+        results = []
+        for item in data:
+            if not isinstance(item, dict):
+                continue
+
+            title = (item.get("title") or "").strip()
+
+            # text alanı HTML içerir → düz metne çevir
+            raw_html = item.get("text") or ""
+            clean_text, pdf_links = html_to_text(raw_html)
+
+            entry = {
+                "id":     item.get("id", ""),
+                "baslik": title,
+                "icerik": clean_text,
+            }
+            if pdf_links:
+                entry["pdf_links"] = pdf_links
+
+            results.append(entry)
+        return results
+
+    def get_faq_content(cid):
+        url = f"{BASE_URL}/servlet/content?id={cid}&lang=tr"
+        resp = http_get(url)
+        if not resp:
+            return None
+        try:
+            return resp.json()
+        except Exception:
+            return None
+
+    # Ana içerik (parent_id kendisi, örn: 1636)
+    log("FETCH", f"SSS Ana içerik çekiliyor: id={C.BOLD}{parent_id}{C.RESET}")
+    main_content = get_faq_content(parent_id)
+    if main_content:
+        all_data[str(parent_id)] = {
+            "baslik": "Sıkça Sorulan Sorular (Genel)",
+            "content": parse_content_items(main_content)
+        }
+
+    # Alt menü içerikleri — her kategori için content endpoint'ine istek at
+    for item in menu_items:
+        cid = item.get("id")
+        if not cid or cid == parent_id:
+            # parent_id kendisini atla (zaten yukarıda çektik)
+            continue
+
+        try:
+            tr_name = json.loads(item.get("translate", "{}")).get("tr", str(cid))
+        except Exception:
+            tr_name = str(cid)
+
+        log("FETCH", f"SSS Kategori: {C.BOLD}{tr_name}{C.RESET} (id={cid})")
+        content = get_faq_content(cid)
+        if content:
+            parsed = parse_content_items(content)
+            all_data[str(cid)] = {
+                "baslik": tr_name,
+                "content": parsed
+            }
+            # Kısa önizleme
+            if isinstance(parsed, list):
+                for p in parsed[:1]:
+                    preview = (p.get("icerik") or "")[:100]
+                    if preview:
+                        log("OK", f"  → {C.DIM}{preview}...{C.RESET}")
+        time.sleep(REQUEST_DELAY)
+
+    return all_data
+
+
 # ─────────────────────────────────────────────────────────────────
 # BÖLÜM 5 │ Her kaynağı işleyen ana fonksiyon
 # ─────────────────────────────────────────────────────────────────
@@ -421,6 +543,29 @@ def process_source(source: dict) -> dict:
     }
 
     log("FETCH", f"{C.BOLD}{label}{C.RESET}  ←  {C.DIM}{url}{C.RESET}")
+
+    if stype == "sss":
+        # SSS için çoklu ağ isteği yapıldığı için akış farklı
+        parent_id = 1636
+        if "id=" in url:
+            try:
+                parent_id = int(url.split("id=")[1].split("&")[0])
+            except:
+                pass
+                
+        sss_data = fetch_sss_data(parent_id)
+        if not sss_data:
+            record["error"] = "SSS verisi çekilemedi"
+            log("ERROR", f"{label} alınamadı.")
+            return record
+
+        record["content"] = sss_data
+        
+        cats = len(sss_data)
+        item_count = sum(len(v.get("content", [])) if isinstance(v.get("content"), list) else 1 for v in sss_data.values())
+        record["extra"] = {"categories": cats, "total_questions": item_count}
+        log("OK", f"{C.GREEN}{label}{C.RESET} → {C.BOLD}{cats}{C.RESET} kategori, {C.CYAN}{item_count} soru{C.RESET}")
+        return record
 
     response = http_get(url)
     if response is None:
