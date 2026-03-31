@@ -1,0 +1,190 @@
+Bölüm Adı: Acil Tıp Anabilim Dalı | URL: aciltip | ID: 396
+Bölüm Adı: Adalet Meslek Yüksekokulu | URL: adalet | ID: 36
+Bölüm Adı: Adli Tıp Anabilim Dalı | URL: adli.tip | ID: 356
+Bölüm Adı: Ağız Diş Çene ve Radyolojisi Anabilimdalı | URL: agiz.dis.cene | ID: 241
+Bölüm Adı: Ağız Diş ve Çene Cerrahisi | URL: agiz.dis.cerrahi | ID: 242
+Bölüm Adı: Aile Hekimliği Anabilim Dalı | URL: aile.hekimligi | ID: 357
+Bölüm Adı: Alevilik Araştırmaları Enstitüsü | URL: alevilik | ID: 38
+Bölüm Adı: Algoloji (Ağrı) Bilim Dalı | URL: algoloji | ID: 438
+Bölüm Adı: Anatomi Anabilim Dalı | URL: anatomi | ID: 372
+Bölüm Adı: Anestezi | URL: anestezi | ID: 724
+Bölüm Adı: Anesteziyoloji ve Reanimasyon Anabilim Dalı | URL: Anesteziyoloji | ID: 397
+Bölüm Adı: Antrenörlük Eğitimi | URL: antrenorluk | ID: 251
+Bölüm Adı: Arıcılık Geliştirme UAM | URL: aricilik | ID: 163
+Bölüm Adı: Arkeoloji Bölümü | URL: arkeoloji | ID: 347
+Bölüm Adı: Arslantepe Arkeoloji Çalışmaları Uygulama ve Araştırma Merkezi | URL: inuarsam | ID: 445
+Bölüm Adı: Avrasya Alevilik - Bektaşilik Uygulama ve Araştırma Merkezi | URL: alevilikaum | ID: 168
+Bölüm Adı: Batı Dilleri ve Edebiyatları Bölümü | URL: batidilleri | ID: 336
+Bölüm Adı: Beden Eğitimi ve Spor Öğretmenliği | URL: beden.egitimi | ID: 252
+Bölüm Adı: Beslenme ve Diyetetik Bölümü | URL: beslenmevediyetetik | ID: 294
+Bölüm Adı: Beyin ve Sinir Cerrahisi Anabilim Dalı | URL: beyinvesinir | ID: 398
+Bölüm Adı: Bilgisayar Mühendisliği Bölümü | URL: bilgisayar | ID: 135
+Bölüm Adı: Bilgisayar Teknolojileri Bölümü | URL: bilgisayartek | ID: 298
+Bölüm Adı: Bilimsel Araştırma Projeleri (BAP) Birimi | URL: bap | ID: 111
+Bölüm Adı: Bilimsel ve Teknolojik Araştırma Merkezi | URL: ibtam | ID: 147
+Bölüm Adı: Biyofizik Anabilim Dalı | URL: biyofizik | ID: 373
+Bölüm Adı: Biyoistatistik ve Tıp Bilişimi Anabilim Dalı | URL: biyoistatistik | ID: 374
+Bölüm Adı: Biyokimya ve Biyomalzemeler Araştırma Laboratuvarı | URL: bateslab | ID: 449
+Bölüm Adı: Biyoloji Bölümü | URL: biyoloji | ID: 334
+Bölüm Adı: Biyomedikal Mühendisliği Bölümü | URL: biyomedikal | ID: 136
+Bölüm Adı: Büro Hizmetleri ve Sekreterlik Bölümü | URL: bhsekreterlik | ID: 647
+Bölüm Adı: Çalışma Ekonomisi ve Endüstri İlişkileri Bölümü | URL: ceko | ID: 237
+Bölüm Adı: Cerrahi Hastalıklar Hemşireliği | URL: cerrahihastaliklari | ID: 749
+Bölüm Adı: Çocuk Bakımı ve Gençlik Hizmetleri Bölümü | URL: cocuk.bakimi | ID: 395
+Bölüm Adı: Çocuk Cerrahisi Anabilim Dalı | URL: cocukcerrahisi | ID: 399
+Bölüm Adı: Çocuk Gelişimi Bölümü | URL: cocukgelisim | ID: 293
+Bölüm Adı: Çocuk Sağlığı ve Hastalıkları | URL: cocuk.sagligi | ID: 358
+Bölüm Adı: Çocuk Sağlığı ve Hastalıkları Hemşireliği Anabilim Dalı | URL: cocuksag.hemsireligi | ID: 444
+Bölüm Adı: Çocuk Üniversitesi | URL: inucocuk | ID: 151
+Bölüm Adı: Çocuk ve Ergen Ruh Sağlığı ve Hastalıkları Anabilim Dalı | URL: cocuk.psikiyatrisi | ID: 359
+Bölüm Adı: Coğrafya Bölümü | URL: cografya | ID: 189
+Bölüm Adı: Deney Hayvanları Üretim ve Araştırma Merkezi | URL: deneyhayvanlari | ID: 327
+Bölüm Adı: Deri ve Zührevi Hastalıkları Anabilim Dalı | URL: dermatoloji | ID: 360
+Bölüm Adı: Dil Konuşma ve Terapisi | URL: dilkonusmaterapisi | ID: 608
+Bölüm Adı: Dişçilik Hizmetleri Bölümü | URL: discilik.hizmetleri | ID: 394
+Bölüm Adı:  Doğum Kadın Sağlığı ve Hastalıkları Hemşireliği | URL: dogumkadinsagligi | ID: 758
+Bölüm Adı: Ebelik Bölümü | URL: ebelik | ID: 297
+Bölüm Adı: Eczacılık Meslek Bilimleri Bölümü | URL: eczacilik.meslek | ID: 229
+Bölüm Adı: Eczacılık Teknolojisi Bölümü | URL: eczacilik.teknolojisi | ID: 231
+Bölüm Adı: Eczane Hizmetleri Programı | URL: eczane.hizmetleri | ID: 393
+Bölüm Adı: Eğitimde Ölçme ve Değerlendirme | URL: egitimdeolcme | ID: 259
+Bölüm Adı: Eğitim Programları ve Öğretim | URL: egitimprogramlari | ID: 256
+Bölüm Adı: Eğitim Yönetimi | URL: egitimyonetimi | ID: 257
+Bölüm Adı: Ekonometri Bölümü | URL: ekonometri | ID: 239
+Bölüm Adı: Elektrik-Elektronik Mühendisliği Bölümü | URL: elektrikelektronik | ID: 139
+Bölüm Adı: Elektrik ve Enerji Bölümü | URL: elektrikveenerji | ID: 301
+Bölüm Adı: Elektronik ve Otomasyon Bölümü | URL: elektronikveotomasyon | ID: 302
+Bölüm Adı: Endodonti | URL: endodonti | ID: 243
+Bölüm Adı: Enerji Bilimi ve Teknolojileri Ana Bilim Dalı | URL: enerjibilimiveteknolojileri | ID: 417
+Bölüm Adı: Enfeksiyon Hastalıkları ve Klinik Mikrobiyoloji Anabilim Dalı | URL: enfeksiyon.hastaliklari | ID: 361
+Bölüm Adı: Engelli Çocuklar AUM | URL: ecaum | ID: 148
+Bölüm Adı: Engellilerde Beden Eğitimi ve Spor Eğitimi | URL: egzersiz.spor | ID: 254
+Bölüm Adı: Farsça Konuşan Ülkeler Filoloji Sempozyumu | URL: filolojisempozyumu | ID: 588
+Bölüm Adı: Felsefe Bölümü | URL: felsefe | ID: 323
+Bölüm Adı: Felsefe ve Din Bilimleri Bölümü | URL: felsefevedinbilimleri | ID: 339
+Bölüm Adı: Fen Bilgisi Öğretmenliği | URL: efen | ID: 129
+Bölüm Adı: Finans Bankacılık ve Sigortacılık Bölümü | URL: finansbsb | ID: 287
+Bölüm Adı: Fizik Bölümü | URL: fizik | ID: 335
+Bölüm Adı: Fiziksel Tıp ve Rehabilitasyon Anabilim Dalı | URL: fiziksel.tip | ID: 362
+Bölüm Adı: Fizyoloji Anabilim Dalı | URL: fizyoloji | ID: 376
+Bölüm Adı: Fizyoterapi ve Rehabilitasyon Bölümü  | URL: fizyoterapivereh | ID: 295
+Bölüm Adı: Gastronomi ve Mutfak Sanatları Bölümü | URL: gmsbolumu | ID: 655
+Bölüm Adı: Gazetecilik Bölümü | URL: gazetecilik | ID: 299
+Bölüm Adı: Geleneksel Türk Sanatları Bölümü | URL: g.turkelsanatlari | ID: 206
+Bölüm Adı: Genel Cerrahi Anabilim Dalı | URL: genelcerrahi | ID: 400
+Bölüm Adı: Gerontoloji | URL: Gerontoloji | ID: 609
+Bölüm Adı: Gıda İşleme Bölümü | URL: gidaisleme | ID: 303
+Bölüm Adı: Gıda Mühendisliği Bölümü | URL: gida | ID: 195
+Bölüm Adı: Göğüs Cerrahisi Anabilim Dalı | URL: goguscerrahisi | ID: 401
+Bölüm Adı: Göğüs Hastalıkları Anabilim Dalı | URL: gogus.hastaliklari | ID: 363
+Bölüm Adı: Göz Hastalıkları Anabilim Dalı | URL: gozhastaliklari | ID: 402
+Bölüm Adı: Grafik Tasarım Bölümü | URL: grafik | ID: 202
+Bölüm Adı: Halkla İlişkiler ve Tanıtım Bölümü | URL: hit | ID: 292
+Bölüm Adı: Halk Sağlığı Anabilim Dalı | URL: halk.sagligi | ID: 364
+Bölüm Adı: Halk Sağlığı Hemşireliği | URL: halksagligi | ID: 759
+Bölüm Adı: Hemşirelik Esasları | URL: hemsirelikesaslari | ID: 770
+Bölüm Adı: Hemşirelikte Yönetim | URL: hemsirelikyonetim | ID: 772
+Bölüm Adı: Histoloji ve Embriyoloji Anabilim Dalı | URL: histoloji | ID: 375
+Bölüm Adı: Hukuk Bölümü | URL: hukukmyo | ID: 648
+Bölüm Adı: İç Hastalıkları Anabilim Dalı | URL: ic.hastaliklari | ID: 365
+Bölüm Adı: İç Hastalıkları Hemşireliği | URL: ichastaliklari | ID: 773
+Bölüm Adı: İktisat Bölümü | URL: iktisat | ID: 240
+Bölüm Adı: İlk ve Acil Yardım | URL: ilkveacilyardim | ID: 738
+Bölüm Adı: İngilizce Öğretmenliği | URL: ingilizceogretmenligi | ID: 200
+Bölüm Adı: İnönü University ERA-MIN3 POTASSIAL | URL: era-min3-potassial | ID: 511
+Bölüm Adı: İnşaat Bölümü | URL: insaatbolumu | ID: 304
+Bölüm Adı: İnşaat Mühendisliği Bölümü | URL: insaat | ID: 138
+Bölüm Adı: İNÜHABER | URL: inuhaber | ID: 470
+Bölüm Adı: İslam Tarihi ve Sanatları Bölümü | URL: islamtarihivesanatlari | ID: 340
+Bölüm Adı: İşletme Bölümü | URL: isletme | ID: 234
+Bölüm Adı: iso2 | URL: iso2 | ID: 20
+Bölüm Adı: Kadın Hastalıkları ve Doğum Anabilim Dalı | URL: kadinhastaliklari | ID: 403
+Bölüm Adı: Kalp ve Damar Cerrahisi Anabilim Dalı | URL: kalpdamar | ID: 404
+Bölüm Adı: Kamu Hukuku Bölümü | URL: kamuhukuku | ID: 352
+Bölüm Adı: Karaciğer Nakli Enstitüsü | URL: karaciger | ID: 41
+Bölüm Adı: Kardiyoloji Anabilim Dalı | URL: kardiyoloji | ID: 366
+Bölüm Adı: Kataliz Uygulama ve Araştırma Merkezi | URL: kataliz | ID: 164
+Bölüm Adı: Kimya Bölümü | URL: kimyabolumu | ID: 194
+Bölüm Adı: Kimya Mühendisliği Bölümü | URL: kimya | ID: 140
+Bölüm Adı: Kulak Burun Boğaz Hastalıkları Anabilim Dalı | URL: kbb | ID: 405
+Bölüm Adı: Maden Mühendisliği Bölümü | URL: maden | ID: 134
+Bölüm Adı: Makine Mühendisliği Bölümü | URL: makine | ID: 137
+Bölüm Adı: Makine ve Metal Teknolojileri Bölümü | URL: makinevemetaltek | ID: 305
+Bölüm Adı: Maliye Bölümü | URL: maliye | ID: 236
+Bölüm Adı: Matematik Bölümü | URL: matematik | ID: 190
+Bölüm Adı: Matematik Eğitimi | URL: ilkogretimmatematik | ID: 128
+Bölüm Adı: Mimarlık ve Şehir Planlama Bölümü | URL: msplanlama | ID: 288
+Bölüm Adı: Moleküler Biyoloji ve Genetik Bölümü | URL: mbgb | ID: 185
+Bölüm Adı: Muhasebe ve Vergi Bölümü | URL: muhasebe | ID: 410
+Bölüm Adı: Mülkiyet Koruma ve Güvenlik Bölümü | URL: mulkiyetkoruma | ID: 289
+Bölüm Adı: Müzik Bilimleri Bölümü | URL: muzikbilimleri | ID: 205
+Bölüm Adı: Müzik Bölümü | URL: muzik.bolumu | ID: 391
+Bölüm Adı: Müzik Öğretmenliği Bölümü | URL: muzik | ID: 183
+Bölüm Adı: Nöroloji Anabilim Dalı | URL: noroloji | ID: 367
+Bölüm Adı: Nükleer Tıp Anabilim Dalı | URL: nukleer.tip | ID: 368
+Bölüm Adı: Odyoloji Bölümü | URL: odyolojibol | ID: 296
+Bölüm Adı: Öğretim Teknolojileri | URL: ogretimteknolojileri | ID: 641
+Bölüm Adı: Okul Öncesi Öğretmenliği | URL: okuloncesi | ID: 198
+Bölüm Adı: Ölçme ve Değerlendirme Koordinatörlüğü | URL: olcmevedegerlendirme | ID: 475
+Bölüm Adı: Onkoloji Hemşireliği | URL: onkolojihemsireligi | ID: 777
+Bölüm Adı: Ortodonti | URL: ortodonti | ID: 248
+Bölüm Adı: Ortopedi ve Travmatoloji Anabilim Dalı | URL: ortopeditravmatoloji | ID: 406
+Bölüm Adı: Özel Eğitim Öğretmenliği | URL: ozelegitim | ID: 130
+Bölüm Adı: Özel Hukuk Bölümü | URL: ozelhukuk | ID: 353
+Bölüm Adı: Patoloji Teknikleri | URL: patolojiteknikleri | ID: 743
+Bölüm Adı: Pedodonti (Çocuk Diş Hekimliği) | URL: pedodonti | ID: 245
+Bölüm Adı: Periodontoloji Anabilim Dalı  | URL: periodontoloji | ID: 246
+Bölüm Adı: Peyzaj Mimarlığı Bölümü | URL: peyzaj | ID: 207
+Bölüm Adı: Plastik, Rekonstrüktif ve Estetik Cerrahi Anabilim Dalı | URL: plastik | ID: 407
+Bölüm Adı: Protetik Diş Tedavisi | URL: protetik | ID: 247
+Bölüm Adı: Psikiyatri Hemşireliği | URL: psikiyatrihemsireligi | ID: 774
+Bölüm Adı: Psikoloji Bölümü | URL: psikoloji | ID: 346
+Bölüm Adı: Radyasyon Onkolojisi Anabilim Dalı | URL: radyasyon.onkolojisi | ID: 370
+Bölüm Adı: Radyoloji Anabilim Dalı | URL: radyoloji | ID: 371
+Bölüm Adı: Radyo, Televizyon ve Sinema Bölümü | URL: rts | ID: 300
+Bölüm Adı: Rehberlik ve Psikolojik Danışmanlık | URL: pdr | ID: 258
+Bölüm Adı: Resim Bölümü | URL: resimbolumu | ID: 228
+Bölüm Adı: Resim-İş Öğretmenliği Bölümü | URL: resimis | ID: 132
+Bölüm Adı: Restoratif Diş Tedavisi | URL: restoratif | ID: 244
+Bölüm Adı: Ruh Sağlığı ve Hastalıkları Anabilim Dalı | URL: psikiyatri | ID: 369
+Bölüm Adı: Sağlık Bakım Hizmetleri Bölümü | URL: saglik.bakim | ID: 409
+Bölüm Adı: Seramik Bölümü | URL: seramik | ID: 203
+Bölüm Adı: Siyaset Bilimi ve Kamu Yönetimi Bölümü | URL: sbky | ID: 233
+Bölüm Adı: Siyaset Bilimi ve Uluslararası İlişkiler | URL: uli | ID: 235
+Bölüm Adı: Sınıf Öğretmenliği | URL: sinifogretmenligi | ID: 199
+Bölüm Adı: Sosyal Bilgiler Öğretmenliği | URL: sosyalbilgiler | ID: 249
+Bölüm Adı: Sosyal Bilimler Enstitüsü | URL: sobe | ID: 43
+Bölüm Adı: Sosyoloji Bölümü | URL: sosyoloji | ID: 322
+Bölüm Adı: Spinal Musküler Atrofi Sempozyumu | URL: spinalsempozyumu | ID: 491
+Bölüm Adı: Spor Yöneticiliği Bölümü | URL: spor.yoneticiligi | ID: 255
+Bölüm Adı: Stratejik Araştırma ve Uygulama Merkezi | URL: inusam | ID: 461
+Bölüm Adı: Tarih Bölümü | URL: tarih | ID: 186
+Bölüm Adı: Tekstil Giyim, Ayakkabı ve Deri Bölümü | URL: tekstilgiyim | ID: 306
+Bölüm Adı: Temel Eczacılık Bilimleri Bölümü | URL: temel.eczacilik | ID: 230
+Bölüm Adı: Temel İslam Bilimleri Bölümü | URL: temelislambilimleri | ID: 338
+Bölüm Adı: Terapi  ve Rehabilitasyon Bölümü | URL: terapiverehabilitasyon | ID: 383
+Bölüm Adı: Tıbbi Biyokimya Anabilim Dalı | URL: tibbibiyokimya | ID: 378
+Bölüm Adı: Tıbbi Dökümantasyon ve Sekreterlik | URL: tds | ID: 739
+Bölüm Adı: Tıbbi Farmakoloji Anabilim Dalı | URL: farmakoloji | ID: 355
+Bölüm Adı: Tıbbi Genetik Anabilim Dalı | URL: tibbibiyoloji | ID: 379
+Bölüm Adı: Tıbbi Görüntüleme Teknikleri | URL: tgt | ID: 740
+Bölüm Adı: Tıbbi Hizmetler ve Teknikler Bölümü | URL: tibbihizmetler | ID: 384
+Bölüm Adı: Tıbbi Laboratuvar Teknikleri | URL: tlt | ID: 741
+Bölüm Adı: Tıbbi Mikrobiyoloji Anabilim Dalı | URL: tibbimikrobiyoloji | ID: 380
+Bölüm Adı: Tıbbi Parazitoloji Anabilim Dalı | URL: parazitoloji | ID: 377
+Bölüm Adı: Tıbbi Patoloji Anabilim Dalı | URL: patoloji | ID: 337
+Bölüm Adı: Tıp Eğitimi Anabilim Dalı | URL: tipegitimi | ID: 381
+Bölüm Adı: Tıp Tarihi ve Etik Anabilim Dalı | URL: tiptarihi | ID: 382
+Bölüm Adı: Toplumsal Katkı Koordinatörlüğü | URL: toplumsal.katki | ID: 682
+Bölüm Adı: Türkçe Öğretimi Uygulama ve Araştırma Merkezi | URL: tomer | ID: 160
+Bölüm Adı: Türkçe Öğretmenliği Programı | URL: turkceogretmenligi | ID: 250
+Bölüm Adı: Türk Dili ve Edebiyatı Bölümü | URL: turkdili | ID: 187
+Bölüm Adı: Uluslararası Ticaret ve İşletmecilik Bölümü | URL: ulti | ID: 238
+Bölüm Adı: Üreme Bilimleri ve İleri Biyoinformatik AUM | URL: inubam | ID: 172
+Bölüm Adı: Üroloji Anabilim Dalı | URL: uroloji | ID: 408
+Bölüm Adı: Uygulamalı Bilimler ve Teknoloji Anabilim Dalı | URL: uygulamalibilimler | ID: 473
+Bölüm Adı: Uzaktan Eğitim Uygulama ve Araştırma Merkezi | URL: inuzem | ID: 150
+Bölüm Adı: Yabancı Diller Yüksekokulu | URL: ydyo | ID: 34
+Bölüm Adı: Yapı İşleri ve Teknik Daire Başkanlığı | URL: yapi | ID: 127
+Bölüm Adı: Yazılım Mühendisliği Bölümü | URL: yazilim | ID: 232
+Bölüm Adı: Yönetim ve Organizasyon Bölümü | URL: yonetimveorg | ID: 290

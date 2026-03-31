@@ -1,0 +1,57 @@
+
+https://panel.inonu.edu.tr/servlet/announcement?type=list&lang=tr&page=1&unit=yazilim  
+-> unit e göre duyuruları çekiyor pageble bir endpoint
+-> unit=fakülte_adı  fakültedeki duyuruları çeker
+-> unit=bölüm_adı  bölümdeki duyuruları çeker
+
+---------------------------------------------------------------------------------------
+
+https://panel.inonu.edu.tr/servlet/academic?unit=yazilim
+->unite göre akademisyenleri çeken endpoint 
+-> unit=fakülte_adı  fakültedeki akademik personelleri çeker
+-> unit=bölüm_adı  bölümdeki akademik personelleri çeker
+
+---------------------------------------------------------------------------------------
+
+https://panel.inonu.edu.tr/servlet/staff?unit=yazilim 
+-> unite göre personelleri çeken endpoint
+> unit=fakülte_adı  fakültedeki  personelleri çeker
+-> unit=bölüm_adı  bölümdeki  personelleri çeker
+
+----------------------------------------------------------------------------------------
+
+https://panel.inonu.edu.tr/servlet/menu?type=list&position=top&unit=yazilim
+->üst menü kısmını idyle beraber dönen kısım örneğin 
+{
+        "parent": 31801,
+        "id": 31802,
+        "translate": "{ \"tr\" : \"Bilimsel Yayınlar\", \"en\" : \"Publications\" }",
+        "url": ""
+    },
+    {
+        "parent": 21170,
+        "id": 31750,
+        "translate": "{ \"tr\" : \"Bölüm Başkanı\", \"en\" : \"Head of Department\" }",
+        "url": ""
+    },
+    {
+        "parent": 20365,
+        "id": 26273,
+        "translate": "{ \"tr\" : \"Seçmeli Ders ve İçerikleri\", \"en\" : \"Elective Courses and Their Contents\" }",
+        "url": ""
+    }
+
+gibi
+
+ burdan bilimsel yayınları örnek olarak seçelim  id=31802
+ ->o id le aşağıdaki linke istek attığımızda o sayfanın içeriğini döner
+
+  https://panel.inonu.edu.tr/servlet/content?id=31802&lang=tr
+
+  -> bazılarınınsa url kısmı dolu onlar o urle yönlendiriliyor 
+  {
+        "parent": 0,
+        "id": 20357,
+        "translate": "{ \"tr\" : \"Kalite\", \"en\" : \"Quality\" }",
+        "url": "https://www.inonu.edu.tr/muhendislik/menu/13634/tarihce-misyon-ve-vizyon"
+    }
