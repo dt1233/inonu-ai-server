@@ -3,6 +3,20 @@ import json
 import requests
 import time
 import glob
+import sys
+import urllib3
+from pathlib import Path
+
+urllib3.disable_warnings(urllib3.exceptions.InsecureRequestWarning)
+
+# ── MongoDB entegrasyonu ──────────────────────────────────────────
+try:
+    _PARENT = Path(__file__).resolve().parent.parent  # scrapping/
+    sys.path.insert(0, str(_PARENT))
+    from db_manager import DBManager, COL_PERSONNEL
+    _MONGO_ENABLED = True
+except ImportError:
+    _MONGO_ENABLED = False
 
 class C:
     CYAN = '\033[96m'
@@ -111,7 +125,7 @@ def main():
                 kayit_yolu = os.path.join(KLASOR_ADI, kaydedilecek_isim)
 
                 try:
-                    response = requests.get(img_url, timeout=10)
+                    response = requests.get(img_url, timeout=10, verify=False)
                     
                     # Eğer istek başarılıysa ve dönen sayfa bir hata sayfası değilse (gerçek bir resimse)
                     if response.status_code == 200 and 'image' in response.headers.get('Content-Type', '').lower():
@@ -135,6 +149,39 @@ def main():
     print(f"Yeni İndirilen: {basarili_indirme}")
     print(f"Atlanan (Zaten Var Olan): {atlanan}")
     print(f"Hatalı/Bulunamayan: {hatali_indirme}")
+
+    # ── Son olarak MongoDB güncellemeleri ──
+    if _MONGO_ENABLED:
+        _update_gorsel_yolu_mongo(data, KLASOR_ADI)
+
+
+def _update_gorsel_yolu_mongo(data: list, klasor: str) -> None:
+    """
+    Yerel diske indirilen akademisyen görsellerinin yollarını MongoDB'ye ekler.
+    """
+    try:
+        with DBManager() as db_mgr:
+            upd = 0
+            for bolum in data:
+                akademisyenler = bolum.get('academicians', [])
+                for aka in akademisyenler:
+                    a_id = aka.get('id')
+                    full_name = aka.get('fullName', '')
+                    if not a_id: continue
+                    guvenli_isim = "".join([c for c in full_name if c.isalnum() or c == ' ']).strip()
+                    arama = f"{guvenli_isim}_{a_id}.*"
+                    eslesen = glob.glob(os.path.join(klasor, arama))
+                    if eslesen:
+                        gorsel_yolu = eslesen[0]
+                        db_mgr.col(COL_PERSONNEL).update_one(
+                            {'id': a_id},
+                            {'$set': {'gorsel_yolu': gorsel_yolu}}
+                        )
+                        upd += 1
+            print(f"  [MongoDB] Akademisyen görsel yolu eklendi: {upd} kayıt güncellendi")
+    except Exception as e:
+        print(f"  [!] MongoDB görsel güncelleme hatası: {e}")
+
 
 if __name__ == "__main__":
     banner()

@@ -17,6 +17,7 @@ import json
 import sys
 import time
 from datetime import datetime, timezone
+from pathlib import Path
 from typing import Optional
 
 import requests
@@ -24,6 +25,16 @@ import urllib3
 from bs4 import BeautifulSoup
 
 urllib3.disable_warnings(urllib3.exceptions.InsecureRequestWarning)
+
+# ── MongoDB entegrasyonu ──────────────────────────────────────────
+try:
+    _PARENT = Path(__file__).resolve().parent
+    import sys as _sys
+    _sys.path.insert(0, str(_PARENT))
+    from db_manager import DBManager, COL_STATIC_CONTENTS
+    _MONGO_ENABLED = True
+except ImportError:
+    _MONGO_ENABLED = False
 
 # ─────────────────────────────────────────────────────────────────
 # BÖLÜM 0 │ Terminal renk & loglama yardımcıları
@@ -198,7 +209,7 @@ def html_to_text(html_str: str) -> tuple[str, list[str]]:
     """
     HTML'i tamamen saf düz metne dönüştürür.
     - Tüm HTML etiketleri kaldırılır
-    - Kaçırılmış (\/) slash'lar düzeltilir
+    - Kaçırılmış (\\/) slash'lar düzeltilir
     - PDF linkleri ayrı listeye alınır → metinde [PDF] olarak gösterilir
     - Diğer linkler: 'Metin (URL)' formatında bırakılır
     - Görünmez karakterler ve boş satırlar temizlenir
@@ -603,6 +614,73 @@ def save_results(results: list[dict]) -> None:
     log("OK", f"Sonuçlar kaydedildi → {C.GREEN}{OUTPUT_FILE}{C.RESET} ({len(results)} kayıt)")
 
 
+def save_to_mongo(results: list[dict]) -> None:
+    """
+    Statik içerikleri MongoDB'ye upsert eder ve metin içeriklerini
+    anlamsal olarak 'chunks' koleksiyonuna yazar.
+    """
+    if not _MONGO_ENABLED:
+        log("WARN", "db_manager bulunamadı, MongoDB'ye yazma atlandı.")
+        return
+
+    try:
+        with DBManager() as db_mgr:
+            inserted = updated = chunk_total = 0
+
+            for record in results:
+                key        = record.get("key", "")
+                source_url = record.get("url", "")
+                label      = record.get("label", key)
+                content    = record.get("content")
+                stype      = "sss" if isinstance(content, dict) else "json"
+
+                # ── 1. Ana belge upsert ────────────────────────────
+                status = db_mgr.upsert(COL_STATIC_CONTENTS, record, id_field="key")
+                if status == "inserted":
+                    inserted += 1
+                else:
+                    updated += 1
+
+                # ── 2. İçeriği chunk'la ──────────────────────────
+                if stype == "sss" and isinstance(content, dict):
+                    # Her SSS kategorisini ayrı ayrı chunk'la
+                    for cat_key, cat_data in content.items():
+                        cat_label = cat_data.get("baslik", cat_key)
+                        cat_items = cat_data.get("content", [])
+
+                        if isinstance(cat_items, list):
+                            for item in cat_items:
+                                q      = (item.get("baslik") or "").strip()
+                                ans    = (item.get("icerik") or "").strip()
+                                if q or ans:
+                                    full_text = f"{q}\n\n{ans}".strip() if q else ans
+                                    n = db_mgr.upsert_chunks(
+                                        text=full_text,
+                                        source_url=f"{source_url}#cat{cat_key}",
+                                        source_collection=COL_STATIC_CONTENTS,
+                                        doc_id=f"{key}_{cat_key}",
+                                    )
+                                    chunk_total += n
+                elif isinstance(content, str) and content.strip():
+                    # Metin başlığıyla birlikte chunk'la
+                    full_text = f"{label}\n\n{content}".strip()
+                    n = db_mgr.upsert_chunks(
+                        text=full_text,
+                        source_url=source_url,
+                        source_collection=COL_STATIC_CONTENTS,
+                        doc_id=key,
+                    )
+                    chunk_total += n
+
+            log("OK", (
+                f"MongoDB → {C.GREEN}+{inserted} yeni{C.RESET} / "
+                f"{C.DIM}{updated} güncellendi{C.RESET} | "
+                f"{C.CYAN}{chunk_total} chunk yazıldı{C.RESET}"
+            ))
+    except Exception as e:
+        log("WARN", f"MongoDB yazma hatası (JSON kaydı etkilenmedi): {C.RED}{e}{C.RESET}")
+
+
 # ─────────────────────────────────────────────────────────────────
 # BÖLÜM 7 │ Ana iş akışı
 # ─────────────────────────────────────────────────────────────────
@@ -634,6 +712,7 @@ def run() -> None:
     print()
     section("KAYIT")
     save_results(results)
+    save_to_mongo(results)
 
     elapsed = time.time() - t0
     section("ÖZET RAPOR")

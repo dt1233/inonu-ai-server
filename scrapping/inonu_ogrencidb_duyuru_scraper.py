@@ -29,6 +29,15 @@ from typing import Optional
 import requests
 from bs4 import BeautifulSoup
 
+# ── MongoDB entegrasyonu ──────────────────────────────────────────
+try:
+    import sys as _sys
+    _sys.path.insert(0, str(Path(__file__).parent))
+    from db_manager import DBManager, COL_ANNOUNCEMENTS
+    _MONGO_ENABLED = True
+except ImportError:
+    _MONGO_ENABLED = False
+
 # ─────────────────────────────────────────────────────────────────
 # BÖLÜM 0 │ Terminal renk & loglama yardımcıları
 # ─────────────────────────────────────────────────────────────────
@@ -176,6 +185,63 @@ def save_new_results(results: list[dict]) -> None:
     with open(OUTPUT_FILE, "w", encoding="utf-8") as f:
         json.dump(results, f, ensure_ascii=False, indent=2)
     log("OK", f"Yeni duyurular kaydedildi → {C.GREEN}{OUTPUT_FILE}{C.RESET} ({len(results)} kayıt)")
+
+
+def save_to_mongo(results: list[dict]) -> None:
+    """
+    Yeni duyuruları MongoDB'ye upsert eder ve içeriklerini chunk'layarak
+    'chunks' koleksiyonuna yazar.
+    """
+    if not _MONGO_ENABLED:
+        log("WARN", "db_manager bulunamadı, MongoDB'ye yazma atlandı.")
+        return
+
+    try:
+        with DBManager() as db_mgr:
+            inserted = updated = chunk_total = 0
+
+            for record in results:
+                ann_id     = record.get("id")
+                source_url = record.get("sourceUrl", "")
+                title      = record.get("title", "")
+
+                # ── 1. Ana duyuru belgesi upsert ─────────────────
+                # Ekleri (attachments) ve büyük içeriği içeren tam kaydı yaz
+                status = db_mgr.upsert(COL_ANNOUNCEMENTS, record, id_field="id")
+                if status == "inserted":
+                    inserted += 1
+                else:
+                    updated += 1
+
+                # ── 2. İçeriği chunk'la ──────────────────────────
+                # Ana içerik
+                content_text = record.get("content") or ""
+
+                # Eklerin (PDF) metinlerini de chunk'la
+                for att in record.get("attachments", []):
+                    att_text = att.get("content") or ""
+                    if att_text and att_text not in ("[PDF Okunamadı]", "[İçerik alınamadı]"):
+                        content_text += "\n\n" + att_text
+
+                # Başlığı metnin başına ekle (RAG arama kalitesi için)
+                full_text = f"{title}\n\n{content_text}".strip() if title else content_text
+
+                if full_text:
+                    n = db_mgr.upsert_chunks(
+                        text=full_text,
+                        source_url=source_url or f"announcement:{ann_id}",
+                        source_collection=COL_ANNOUNCEMENTS,
+                        doc_id=ann_id,
+                    )
+                    chunk_total += n
+
+            log("OK", (
+                f"MongoDB → {C.GREEN}+{inserted} yeni{C.RESET} / "
+                f"{C.DIM}{updated} güncellendi{C.RESET} | "
+                f"{C.CYAN}{chunk_total} chunk yazıldı{C.RESET}"
+            ))
+    except Exception as e:
+        log("WARN", f"MongoDB yazma hatası (JSON kaydı etkilenmedi): {C.RED}{e}{C.RESET}")
 
 
 # ─────────────────────────────────────────────────────────────────
@@ -496,6 +562,7 @@ def run() -> None:
     section("KAYIT")
     save_new_results(results)
     save_database(db)
+    save_to_mongo(results)
 
     # 8.5 — Özet
     _summary(len(results), pdf_count, t0, len(db))

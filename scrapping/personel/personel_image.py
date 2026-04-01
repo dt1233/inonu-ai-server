@@ -3,6 +3,20 @@ import json
 import requests
 import time
 import glob
+import urllib3
+import sys
+from pathlib import Path
+
+urllib3.disable_warnings(urllib3.exceptions.InsecureRequestWarning)
+
+# ── MongoDB entegrasyonu ──────────────────────────────────────────
+try:
+    _PARENT = Path(__file__).resolve().parent.parent  # scrapping/
+    sys.path.insert(0, str(_PARENT))
+    from db_manager import DBManager, COL_PERSONNEL
+    _MONGO_ENABLED = True
+except ImportError:
+    _MONGO_ENABLED = False
 
 class C:
     CYAN = '\033[96m'
@@ -60,7 +74,7 @@ def personelleri_cek():
     for url in benzersiz_urller:
         api_url = f"https://panel.inonu.edu.tr/servlet/staff?unit={url}"
         try:
-            response = requests.get(api_url, timeout=10)
+            response = requests.get(api_url, timeout=10, verify=False)
             if response.status_code == 200:
                 personel_listesi = response.json()
                 
@@ -157,7 +171,7 @@ def gorselleri_indir(personeller):
             kayit_yolu = os.path.join(GÖRSEL_KLASORU, kaydedilecek_isim)
 
             try:
-                response = requests.get(img_url, timeout=10)
+                response = requests.get(img_url, timeout=10, verify=False)
                 
                 # Başarılı dönüş 200 ise ve gerçekten bir resimse indir
                 if response.status_code == 200 and 'image' in response.headers.get('Content-Type', '').lower():

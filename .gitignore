@@ -1,0 +1,17 @@
+# Python ve Genel Çıktılar
+__pycache__/
+*.pyc
+*.pyo
+.DS_Store
+
+# Veritabanı ve Çalışma Zamanı JSON'ları
+scrapping/*.json
+
+# İndirilen Görsel ve Ek Dosyaları
+scrapping/akademisyen_gorseller/
+scrapping/personel_gorseller/
+scrapping/pdf_belgeler/
+
+# Ortam ve Loglar
+.env
+*.log

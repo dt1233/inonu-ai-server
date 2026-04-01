@@ -1,6 +1,17 @@
 import json
 import requests
 import time
+from pathlib import Path
+import sys
+
+# ── MongoDB entegrasyonu ──────────────────────────────────────────
+try:
+    _PARENT = Path(__file__).resolve().parent.parent  # scrapping/
+    sys.path.insert(0, str(_PARENT))
+    from db_manager import DBManager, COL_ACADEMIC_UNITS
+    _MONGO_ENABLED = True
+except ImportError:
+    _MONGO_ENABLED = False
 
 class C:
     CYAN = '\033[96m'
@@ -117,6 +128,37 @@ def fakulte_id_tespit_et(ara_girdi_dosyasi, nihai_cikti_dosyasi):
         
     print(f"\n--- İŞLEM TAMAMLANDI ---")
     print(f"Fakülte ID'lerini içeren nihai veriler '{nihai_cikti_dosyasi}' dosyasına başarıyla kaydedildi.")
+
+    # ── MongoDB'ye yaz ──────────────────────────────────────────
+    if _MONGO_ENABLED:
+        _save_faculty_to_mongo(nihai_sonuclar)
+    else:
+        print("[!] db_manager bulunamadı, MongoDB'ye yazma atlandı.")
+
+
+def _save_faculty_to_mongo(bolumler: list) -> None:
+    """
+    Fakülte-bölüm hiyerarşisini academic_units koleksiyonuna upsert eder.
+    Fakülte ikilisi (bolum_id + fakulte_id) birer belge olarak yazılır.
+    """
+    try:
+        with DBManager() as db_mgr:
+            ins = upd = 0
+            for bolum in bolumler:
+                doc = {
+                    "id":          bolum.get("bolum_id"),
+                    "unit_name":   bolum.get("bolum_adi", ""),
+                    "url":         bolum.get("url", ""),
+                    "fakulte_id":  bolum.get("fakulte_id"),
+                    "fakulte_adi": bolum.get("fakulte_adi", ""),
+                    "kaynak":      "faculty",
+                }
+                status = db_mgr.upsert(COL_ACADEMIC_UNITS, doc, id_field="id")
+                if status == "inserted": ins += 1
+                else: upd += 1
+            print(f"  [MongoDB] Akademik birimler: {ins} yeni / {upd} güncellendi")
+    except Exception as e:
+        print(f"  [!] MongoDB yazma hatası (JSON kaydı etkilenmedi): {e}")
 
 # Script doğrudan çalıştırıldığında bu kısım tetiklenir
 if __name__ == "__main__":
