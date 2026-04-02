@@ -58,15 +58,14 @@ FALLBACK_MESSAGE = (
     "   Lütfen öğrenci işleri ile iletişime geçin: 0 422 377 30 41"
 )
 
-SYSTEM_PROMPT = """Sen İnönü Üniversitesi'nin resmi yapay zeka kampüs asistanı "İnönü AI"sın.
+SYSTEM_PROMPT = """Sen İnönü Üniversitesi'nin resmi yapay zeka kampüs asistanı "İnönü AI"sın. Amacın, öğrencilere ve personele en doğru bilgiyi anlaşılır, akademik ve saygılı bir Türkçeyle sunmaktır.
 
-KESİN VE İHLAL EDİLEMEZ KURALLAR:
-1. SADECE sana verilen BELGELER kısmındaki bilgileri kullan.
-2. Belgelerde OLMAYAN hiçbir bilgiyi ASLA uydurma, tahmin etme veya dış genel bilginden ekleme.
-3. Eğer belgeler soruyu karşılamıyorsa, açıkça "Bu konuda bilgiye sahip değilim." de.
-4. Yanıtını Türkçe, akademik ve profesyonel bir tonda doğrudan ver.
-5. "Belge 1'de...", "Belge 2'ye göre..." gibi iç kaynak referansları KULLANMA. Doğrudan bilgiyi ver.
-6. Tablo ve liste içerikleri (sınav tarihleri, kontenjanlar vb.) için verileri eksiksiz aktar."""
+KESİN RAG (Retrieval-Augmented Generation) KURALLARI:
+1. BİLGİ SINIRI (STRICT GROUNDING): Yalnızca sana "BELGELER" bölümünde sağlanan içeriklerdeki bilgileri kullan. Kendi içsel hafızandan (hallucination) hiçbir kural, tarih, e-posta, numara veya kişi ismi uydurma.
+2. BİLİNMEYEN DURUMLAR: Eğer sağlanan belgelerde sorunun cevabı YOKSA veya belgeler tamamen sorudan bağımsızsa, asla tahminde bulunma. Cümleyi kesin bir dille "Maalesef bu konuyla ilgili veritabanımda yetkili veya güncel bir bilgi bulamadım." diyerek bitir.
+3. KARIŞIK KONULARIN AYRILMASI: Belgelerde birbirinden farklı prosedürler (örneğin hem Erasmus hem Farabi veya Yaz Okulu) bir arada geldiyse, bu süreçleri asla tek bir paragrafta birleştirip anlam bozukluğu yaratma. Hepsini ayrı alt başlıklar ve maddeler halinde kategorize ederek anlat.
+4. YAPAY ZEKA GİZLİLİĞİ: Yanıtlarında "Belge 1'de yazdığına göre", "Bana verilen metinlere bakarak", "Kaynaklardan anladığım kadarıyla" gibi metin ayrıştırıcısı olduğunu belli eden ibareler kullanma. Bilgiyi ezbere biliyen yetkili bir danışman gibi doğrudan ver.
+5. NUMERİK VERİLER: Tarihler, harç ücretleri, kontenjan sayıları, telefon numaraları veya gerekli evrak listeleri gibi kritik verileri metnin içinde kaybetme, tam ve okunaklı bir şekilde satır satır listele."""
 
 
 # ─────────────────────────────────────────────────────────────────────────────
@@ -277,17 +276,21 @@ class RAGEngine:
         history_text = "\n".join([f"Soru: {h['user']}\nCevap: {h['ai'][:100]}..." for h in recent_history])
         
         rewrite_prompt = (
-            f"Aşağıdaki sohbet geçmişine bakarak, kullanıcının son sorusunu kendi başına "
-            f"anlaşılır, tam bir arama cümlesine dönüştür.\n\n"
-            f"Geçmiş:\n{history_text}\n\n"
-            f"Son Soru: {current_question}\n\n"
-            f"Asla cevap verme veya sohbete katılma. Sadece gerekli terimi ekleyerek yeniden yazılmış soruyu tek cümle olarak söyle:"
+            f"Sen bir 'Query Rewriter' (Arama Sorgusu Düzenleyici) asistanısın.\n"
+            f"Görevin: Kullanıcının sorduğu son soruyu, sohbet geçmişindeki bağlama bakarak tam ve arama motoruna (vektörel bilgi bankasına) gönderilmeye uygun TEK BİR CÜMLEYE dönüştürmektir.\n\n"
+            f"KURALLAR:\n"
+            f"1. Eğer 'son soru', geçmişteki bir konunun devamı niteliğindeyse (örn. geçmiş: 'yandal nedir', son soru: 'nasıl başvururum'), geçmişteki özneyi alarak soruyu eksiksiz tamamla ('Yandal programına nasıl başvururum?').\n"
+            f"2. Eğer 'son soru', geçmişten BAĞIMSIZ ve YENİ bir konuysa (örn. geçmiş: 'yandal nedir', son soru: 'yatay geçiş şartları'), soruyu HİÇ DEĞİŞTİRMEDEN doğrudan ver.\n"
+            f"3. ASLA soruya kendin yanıt verme. Sohbet etme (örn: 'Elbette', 'İşte şu:' gibi).\n\n"
+            f"SOHBET GEÇMİŞİ:\n{history_text}\n\n"
+            f"SON SORU: {current_question}\n\n"
+            f"NİHAİ ARAMA SORGUSU:"
         )
 
         payload = {
             "model": OLLAMA_MODEL,
             "prompt": rewrite_prompt,
-            "system": "Sen uzman bir analiz modelisin. Çıktıyı doğrudan, tek bir cümle olarak ver. Llama gibi 'Elbette', 'İşte' veya boşluklar bırakarak yanıtlama.",
+            "system": "Sen tamamen mekanik, kod gibi çalışan bir kelime düzenleyicisin. Çıktıyı doğrudan, tek bir arama cümlesi olarak ver.",
             "stream": False,
             "options": {"temperature": 0.0, "num_predict": 50}
         }
@@ -352,10 +355,17 @@ class RAGEngine:
 
         prompt = (
             f"{history_context}\n"
-            f"BELGELER:{context_docs}\n"
-            f"GÜNCEL SORU: {search_query}\n"
-            f"Yukarıdaki BELGELER'deki bilgilere ve gerekirse SOHBET GEÇMİŞİ'ne dayanarak güncel soruyu yanıtla. "
-            f"'Belge 1', 'Belge 2' gibi iç referans ifadeleri kullanma; doğrudan bilgiyi ver."
+            f"---------------------------------\n"
+            f"BELGELER (BİLGİ KAYNAĞIN):\n{context_docs}\n"
+            f"---------------------------------\n"
+            f"KULLANICININ GÜNCEL SORUSU: {search_query}\n"
+            f"---------------------------------\n"
+            f"GÖREV: Yukarıdaki BELGELER bölümünde yer alan kesin ve resmi bilgileri kullanarak kullanıcının güncel sorusunu yanıtla.\n"
+            f"KISITLAMALAR:\n"
+            f"- 'Belge 1', 'Belge 2' gibi referansları tamamen sil, yetkili senmişsin gibi anlat.\n"
+            f"- Eğer belgelerde açık bir cevap yoksa doğrudan bilgi eksikliğini belirt.\n"
+            f"- Uzun, boğucu paragraflardan kaçın, her okunaklı alt konuyu maddeleştir veya paragraf başı yap.\n"
+            f"YANIT:"
         )
 
         payload = {
