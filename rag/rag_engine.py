@@ -52,6 +52,7 @@ IRON_SHIELD_THRESHOLD = 0.45
 TOP_K_FETCH  = 15
 TOP_K_RETURN = 8
 LLAMA_TEMPERATURE = 0.0
+MAX_CHAT_HISTORY = 4
 
 FALLBACK_MESSAGE = (
     "⛔ Bu konuda veritabanında yeterli bilgi bulunamadı.\n"
@@ -265,7 +266,7 @@ class RAGEngine:
         try:
             requests.get(OLLAMA_URL.replace("/api/generate", "/api/tags"), timeout=3)
             log("OK", f"Ollama '{OLLAMA_MODEL}' hazır.")
-        except: log("WARN", "Ollama servisine şu anda erişilemiyor.")
+        except Exception: log("WARN", "Ollama servisine şu anda erişilemiyor.")
 
     def rewrite_query(self, current_question: str) -> str:
         """Eksik soruyu sohbet geçmişine bakarak vektör araması için tam soruya çevirir."""
@@ -390,13 +391,15 @@ class RAGEngine:
         except Exception as e:
             answer = f"Hata: Yapay zeka motoru yanıt veremedi ({e})"
 
-        answer = re.sub(r'Belge\s+\d+[\'\'de\s](\'de|\'da|\'ye|\'ya|\'a|\'e|\'nde|\'nda|\'e\s+göre|\'a\s+göre)?[,\s]', '', answer)
+        answer = re.sub(r"Belge\s+\d+'?(?:de|da|ye|ya|a|e|nde|nda|e\s+göre|a\s+göre)?[,\s]*", '', answer)
 
         # 3. Güncel etkileşimi hafızaya kaydet
         self.chat_history.append({
             "user": user_question,
             "ai": answer
         })
+        if len(self.chat_history) > MAX_CHAT_HISTORY:
+            self.chat_history.pop(0)
 
         return {
             "answer": answer,
