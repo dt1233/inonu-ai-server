@@ -3,10 +3,14 @@
 """
 ╔══════════════════════════════════════════════════════════════════╗
 ║         İNÖNÜ AI — MERKEZİ VERİTABANI YÖNETİCİSİ               ║
-║         scrapping/db_manager.py                                  ║
+║         scrapping/db_manager.py  (v1.1)                          ║
 ╚══════════════════════════════════════════════════════════════════╝
 
-Tüm scraper'ların ortak kullandığı MongoDB modülü.
+v1.1 Düzeltmeleri:
+  - chunkify(): Tablo/liste içerikler artık satır bazlı chunk'lanır
+  - upsert_chunks(): Personel (list[dict]) verisi artık düz metne
+    çevrilerek chunk'lanır; dict/list direkt geçilince hata vermez
+  - Genel chunk boyutları iyileştirildi (max_chars: 800 → 1000)
 
 Kullanım (diğer scraper dosyalarından):
     from db_manager import DBManager
@@ -43,13 +47,14 @@ COL_PERSONNEL        = "personnel_details"
 COL_CHUNKS           = "chunks"
 
 # Chunking ayarları
-CHUNK_MIN_CHARS  = 60    # Bu kadardan kısa chunk'ları birleştir
-CHUNK_MAX_CHARS  = 800   # Bu kadardan uzun chunk'ları böl
-CHUNK_OVERLAP    = 1     # Bağlam kaybını önlemek için komşu cümlelerden taşma (cümle sayısı)
+CHUNK_MIN_CHARS  = 60
+# v1.1: max_chars artırıldı (800 → 1000) — tablo satırları daha az bölünür
+CHUNK_MAX_CHARS  = 1000
+CHUNK_OVERLAP    = 1
 
 
 # ─────────────────────────────────────────────────────────────────
-# BÖLÜM 1 │ Terminal renk yardımcıları (bağımsız kullanım için)
+# BÖLÜM 1 │ Terminal renk yardımcıları
 # ─────────────────────────────────────────────────────────────────
 
 class C:
@@ -70,6 +75,64 @@ def _log(level: str, msg: str) -> None:
 
 
 # ─────────────────────────────────────────────────────────────────
+# BÖLÜM 1.5 │ v1.1 YENİ: Personel / dict→metin dönüştürücü
+# ─────────────────────────────────────────────────────────────────
+
+def _personnel_to_text(staff_list: list) -> str:
+    """
+    Personel listesini (list[dict]) okunabilir düz metne çevirir.
+    Her personel için tek satır: "Ad Soyad | Unvan | Departman | E-posta | Telefon"
+
+    Bu sayede personel bilgileri RAG chunk'larına doğru biçimde yazılır.
+    Daha önce dict/list doğrudan geçildiği için chunk'lanamıyordu.
+    """
+    if not staff_list:
+        return ""
+
+    lines = ["── Personel Listesi ──"]
+    for p in staff_list:
+        if not isinstance(p, dict):
+            continue
+        ad      = p.get("ad_soyad", "").strip()
+        unvan   = p.get("unvan", "").strip()
+        dept    = p.get("departman", "").strip()
+        gorev   = p.get("gorev", "").strip()
+        email   = p.get("email", "").strip()
+        telefon = p.get("telefon", "").strip()
+
+        parts = [x for x in [ad, unvan, dept, gorev] if x]
+        line  = " | ".join(parts)
+        if email:
+            line += f" | {email}"
+        if telefon:
+            line += f" | {telefon}"
+        if line:
+            lines.append(line)
+
+    return "\n".join(lines)
+
+
+def _sss_to_text(sss_dict: dict) -> list[str]:
+    """
+    SSS (Sıkça Sorulan Sorular) dict yapısını chunk'lanabilir metin listesine çevirir.
+    Her kategori + soru-cevap çifti ayrı bir metin olarak döner.
+    """
+    texts = []
+    for cat_key, cat_data in sss_dict.items():
+        cat_label = cat_data.get("baslik", cat_key)
+        cat_items = cat_data.get("content", [])
+
+        if isinstance(cat_items, list):
+            for item in cat_items:
+                q   = (item.get("baslik") or "").strip()
+                ans = (item.get("icerik") or "").strip()
+                if q or ans:
+                    full = f"{q}\n\n{ans}".strip() if q else ans
+                    texts.append(full)
+    return texts
+
+
+# ─────────────────────────────────────────────────────────────────
 # BÖLÜM 2 │ Anlamsal Chunking (chunkify)
 # ─────────────────────────────────────────────────────────────────
 
@@ -85,17 +148,33 @@ def chunkify(
     """
     Bir metni anlamsal olarak (paragraf → cümle bazlı) parçalara böler.
 
-    Strateji (öncelik sırası):
-      1. Önce çift satır sonu (\n\n) ile PARAGRAF bazlı böl.
-      2. Paragraf hâlâ max_chars'tan uzunsa cümle bazlı (. ? ! ile biten) böl.
-      3. Çok kısa parçaları (< min_chars) bir önceki chunk'a birleştir.
-      4. Bağlam kaybını azaltmak için `overlap` kadar cümleyi bir sonraki chunk'a taşı.
+    v1.1 Değişikliği:
+      - Tablo/liste algılama eklendi: Eğer metin çoğunlukla kısa satırlardan
+        (tablo satırı) oluşuyorsa, cümle bölme yerine satır grubu bazlı
+        chunk'lama yapılır. Bu sayede sınav takvimi, kontenjan tablosu gibi
+        yapılar parçalanmadan aktarılır.
 
-    Returns:
-        List of dicts — her biri 'chunks' koleksiyonuna yazılacak bir belge.
+    Strateji (öncelik sırası):
+      1. İçerik tablo mu kontrol et → tablo ise satır grubu chunk'lama
+      2. Önce çift satır sonu ile PARAGRAF bazlı böl
+      3. Paragraf hâlâ max_chars'tan uzunsa cümle bazlı böl
+      4. Çok kısa parçaları bir önceki chunk'a birleştir
+      5. Bağlam kaybını azaltmak için overlap kadar cümleyi taşı
     """
     if not text or not text.strip():
         return []
+
+    # ── Tablo/liste içerik tespiti ───────────────────────────────
+    lines = [l for l in text.splitlines() if l.strip()]
+    if lines:
+        short_lines = [l for l in lines if len(l.strip()) < 120]
+        table_ratio = len(short_lines) / len(lines)
+    else:
+        table_ratio = 0
+
+    # Satırların %60'ı kısaysa → tablo/liste yapısı (sınav takvimi, personel vb.)
+    if table_ratio >= 0.6 and len(lines) > 4:
+        return _chunkify_table(text, source_url, source_collection, doc_id, max_chars)
 
     # ── 1. Paragraf bazlı ilk bölme ─────────────────────────────
     paragraphs = [p.strip() for p in re.split(r"\n{2,}", text) if p.strip()]
@@ -106,8 +185,6 @@ def chunkify(
         if len(para) <= max_chars:
             raw_sentences.append(para)
         else:
-            # ── 2. Uzun paragrafı cümle bazlı böl ──────────────
-            # Nokta/soru/ünlem + boşluk kombinasyonuna göre böl
             sents = re.split(r"(?<=[.?!])\s+", para)
             raw_sentences.extend([s.strip() for s in sents if s.strip()])
 
@@ -123,7 +200,6 @@ def chunkify(
         else:
             if buffer:
                 chunks_text.append(buffer)
-            # Cümle tek başına max_chars'tan uzunsa zorla kes
             if len(sent) > max_chars:
                 for i in range(0, len(sent), max_chars):
                     chunks_text.append(sent[i : i + max_chars])
@@ -138,9 +214,7 @@ def chunkify(
         chunks_text[-2] = (chunks_text[-2] + " " + chunks_text[-1]).strip()
         chunks_text.pop()
 
-    # ── 5. Overlap (bağlam taşması) ─────────────────────────────
-    #    Her chunk'ın başına bir önceki chunk'ın son `overlap` cümlesi eklenir.
-    #    Bu, RAG sorgularında bağlam kopmasını azaltır.
+    # ── 5. Overlap ──────────────────────────────────────────────
     final_chunks: list[str] = []
     for i, chunk in enumerate(chunks_text):
         if overlap > 0 and i > 0:
@@ -149,15 +223,68 @@ def chunkify(
             chunk = (tail + " " + chunk).strip() if tail else chunk
         final_chunks.append(chunk)
 
-    # ── 6. Chunk belgelerini oluştur ─────────────────────────────
+    return _build_chunk_docs(final_chunks, source_url, source_collection, doc_id)
+
+
+def _chunkify_table(
+    text: str,
+    source_url: str,
+    source_collection: str,
+    doc_id: Any,
+    max_chars: int,
+) -> list[dict]:
+    """
+    v1.1 YENİ: Tablo/liste içerikler için satır grubu bazlı chunk'lama.
+
+    Strateji:
+      - Başlık satırlarını (── ... ──) tespit et → yeni grup başlatır
+      - max_chars dolana kadar satırları aynı chunk'ta birleştir
+      - Bu sayede "Eğitim Fakültesi | 10-16 Kasım" gibi tablo satırları
+        aynı chunk içinde kalır, bölünmez.
+    """
+    lines = [l for l in text.splitlines() if l.strip()]
+    chunks_text: list[str] = []
+    buffer_lines: list[str] = []
+
+    for line in lines:
+        # Başlık satırı → mevcut buffer'ı kaydet, yeni grup başlat
+        is_header = line.strip().startswith("──") or line.strip().startswith("│")
+
+        candidate = "\n".join(buffer_lines + [line])
+        if len(candidate) > max_chars:
+            if buffer_lines:
+                chunks_text.append("\n".join(buffer_lines))
+            buffer_lines = [line]
+        else:
+            if is_header and buffer_lines and len("\n".join(buffer_lines)) > 60:
+                chunks_text.append("\n".join(buffer_lines))
+                buffer_lines = [line]
+            else:
+                buffer_lines.append(line)
+
+    if buffer_lines:
+        chunks_text.append("\n".join(buffer_lines))
+
+    return _build_chunk_docs(chunks_text, source_url, source_collection, doc_id)
+
+
+def _build_chunk_docs(
+    chunks_text: list[str],
+    source_url: str,
+    source_collection: str,
+    doc_id: Any,
+) -> list[dict]:
+    """Chunk metin listesinden MongoDB'ye yazılacak dict listesi üretir."""
     now = datetime.now(timezone.utc).strftime("%Y-%m-%dT%H:%M:%SZ")
     result = []
-    for idx, chunk_text in enumerate(final_chunks):
+    for idx, chunk_text in enumerate(chunks_text):
+        if not chunk_text.strip():
+            continue
         result.append({
-            "chunk_index":        idx,
-            "total_chunks":       len(final_chunks),
-            "text":               chunk_text,
-            "char_count":         len(chunk_text),
+            "chunk_index":  idx,
+            "total_chunks": len(chunks_text),
+            "text":         chunk_text,
+            "char_count":   len(chunk_text),
             "metadata": {
                 "source_url":        source_url,
                 "source_collection": source_collection,
@@ -165,7 +292,6 @@ def chunkify(
                 "created_at":        now,
             },
         })
-
     return result
 
 
@@ -199,7 +325,6 @@ class DBManager:
     def connect(self) -> "DBManager":
         try:
             self._client = MongoClient(self.uri, serverSelectionTimeoutMS=5000)
-            # Bağlantıyı test et
             self._client.admin.command("ping")
             self._db = self._client[self.db_name]
             _log("OK", f"MongoDB bağlantısı kuruldu → {C.CYAN}{self.uri}{C.RESET} / {C.BOLD}{self.db_name}{C.RESET}")
@@ -222,37 +347,18 @@ class DBManager:
     # ── Koleksiyon erişimi ───────────────────────────────────────
 
     def col(self, name: str) -> Collection:
-        """Koleksiyona erişim kısayolu."""
         if self._db is None:
             raise RuntimeError("Önce connect() çağrılmalı veya 'with DBManager()' kullanılmalı.")
         return self._db[name]
 
-    # ── UPSERT (Ekle veya Güncelle) ──────────────────────────────
+    # ── UPSERT ──────────────────────────────────────────────────
 
-    def upsert(
-        self,
-        collection: str,
-        document: dict,
-        id_field: str = "id",
-    ) -> str:
-        """
-        Tek bir belgeyi upsert eder.
-
-        - id_field'a göre mevcut kayıt varsa → günceller (updated_at damgası eklenir).
-        - Yoksa → yeni kayıt ekler (created_at damgası eklenir).
-
-        Returns:
-            "updated" | "inserted"
-        """
+    def upsert(self, collection: str, document: dict, id_field: str = "id") -> str:
         now = datetime.now(timezone.utc).strftime("%Y-%m-%dT%H:%M:%SZ")
-        doc = {**document}  # Orijinali değiştirme
-
-        filter_query = {id_field: doc[id_field]}
-
+        doc = {**document}
+        filter_query  = {id_field: doc[id_field]}
         set_on_insert = {"created_at": now}
         set_always    = {"updated_at": now}
-
-        # _id alanını MongoDB'ye bırak, kendi id_field'ımızı kullan
         doc.pop("_id", None)
 
         result = self.col(collection).update_one(
@@ -265,27 +371,13 @@ class DBManager:
         )
 
         if result.upserted_id:
-            status = "inserted"
             _log("OK", f"{C.GREEN}[YENİ]{C.RESET}  {collection} ← id={C.BOLD}{doc.get(id_field)}{C.RESET}")
+            return "inserted"
         else:
-            status = "updated"
             _log("INFO", f"{C.DIM}[GÜN.]{C.RESET}  {collection} ← id={C.DIM}{doc.get(id_field)}{C.RESET}")
+            return "updated"
 
-        return status
-
-    def bulk_upsert(
-        self,
-        collection: str,
-        documents: list[dict],
-        id_field: str = "id",
-    ) -> dict:
-        """
-        Birden fazla belgeyi tek seferde (bulk) upsert eder.
-        Büyük veri setleri için tekli upsert'ten çok daha hızlıdır.
-
-        Returns:
-            {"inserted": int, "updated": int}
-        """
+    def bulk_upsert(self, collection: str, documents: list[dict], id_field: str = "id") -> dict:
         if not documents:
             return {"inserted": 0, "updated": 0}
 
@@ -325,7 +417,7 @@ class DBManager:
 
     def upsert_chunks(
         self,
-        text: str,
+        text: Any,          # v1.1: str | list[dict] (personel) | dict (SSS) kabul eder
         source_url: str,
         source_collection: str,
         doc_id: Any = None,
@@ -335,13 +427,37 @@ class DBManager:
         """
         Bir metni chunkify() ile parçalar ve 'chunks' koleksiyonuna yazar.
 
-        - replace_existing=True (varsayılan): aynı source_url'e ait eski
-          chunk'ları siler, yerine yenilerini yazar. (Tam yenileme)
-        - replace_existing=False: mevcut chunk'ları silmeden ekler.
-
-        Returns:
-            Yazılan chunk sayısı.
+        v1.1 Değişikliği:
+          - text parametresi artık str dışında list[dict] (personel) ve
+            dict (SSS) türlerini de kabul eder.
+          - list[dict] → _personnel_to_text() ile düz metne çevrilir
+          - dict → _sss_to_text() ile metin listesine çevrilir ve
+            her kategori ayrı çağrı olarak chunk'lanır
         """
+        # v1.1: Tip dönüşümü
+        if isinstance(text, list):
+            # Personel listesi veya benzeri list[dict]
+            text = _personnel_to_text(text)
+        elif isinstance(text, dict):
+            # SSS yapısı — her kategoriyi ayrı chunk et
+            sss_texts = _sss_to_text(text)
+            total = 0
+            for i, t in enumerate(sss_texts):
+                if t.strip():
+                    total += self.upsert_chunks(
+                        text=t,
+                        source_url=f"{source_url}#sss{i}",
+                        source_collection=source_collection,
+                        doc_id=f"{doc_id}_sss{i}" if doc_id else f"sss{i}",
+                        max_chars=max_chars,
+                        replace_existing=(replace_existing and i == 0),
+                    )
+            return total
+
+        if not isinstance(text, str) or not text.strip():
+            _log("WARN", f"Chunk edilecek metin boş veya geçersiz tür → {type(text)}")
+            return 0
+
         chunks = chunkify(
             text,
             source_url=source_url,
@@ -371,7 +487,6 @@ class DBManager:
     # ── YARDIMCI: Koleksiyon istatistiği ────────────────────────
 
     def stats(self) -> None:
-        """Tüm koleksiyonların belge sayısını terminale yazdırır."""
         collections = [
             COL_ANNOUNCEMENTS, COL_STATIC_CONTENTS,
             COL_ACADEMIC_UNITS, COL_PERSONNEL, COL_CHUNKS,
@@ -386,48 +501,59 @@ class DBManager:
 
 
 # ─────────────────────────────────────────────────────────────────
-# BÖLÜM 4 │ Bağımsız test (python db_manager.py ile çalıştır)
+# BÖLÜM 4 │ Bağımsız test
 # ─────────────────────────────────────────────────────────────────
 
 if __name__ == "__main__":
-    # ── Bağlantı testi ──────────────────────────────────────────
-    print(f"\n  {C.CYAN}{C.BOLD}── db_manager.py · Bağlantı & Chunk Testi ──{C.RESET}\n")
+    print(f"\n  {C.CYAN}{C.BOLD}── db_manager.py v1.1 · Bağlantı & Chunk Testi ──{C.RESET}\n")
 
-    sample_text = (
-        "Öğrenci işleri birimi kayıt yenileme, mezuniyet, burs, disiplin ve "
-        "yatay geçiş işlemlerini yürütmektedir.\n\n"
-        "Kayıt yenileme işlemleri her yarıyıl başında yapılır. "
-        "Öğrenciler belirlenen tarihler arasında harçlarını yatırıp sisteme giriş yapmalıdır.\n\n"
-        "Mezuniyet başvuruları son sınıf öğrencileri tarafından Mayıs ayında yapılır. "
-        "Burs başvuruları ise Ekim ayında alınmaktadır. "
-        "Yatay geçiş başvuruları için önce kayıtlı olduğunuz üniversiteden transkript almanız gerekmektedir."
+    # 1. Tablo içerik testi
+    table_text = (
+        "2025-2026 Bahar Yarıyılı Ara Sınav Tarihleri\n"
+        "Birim\tTarih\n"
+        "Sağlık Hizmetleri Meslek Yüksekokulu\t30 Mart – 3 Nisan\n"
+        "Hukuk Fakültesi\t2-3 Nisan\n"
+        "İlahiyat Fakültesi\t6-10 Nisan\n"
+        "Eczacılık Fakültesi\t6-10 Nisan\n"
+        "Hemşirelik Fakültesi\t6-10 Nisan\n"
+        "İktisadi ve İdari Bilimler Fakültesi\t6-10 Nisan\n"
+        "Eğitim Fakültesi\t6-12 Nisan\n"
     )
-
-    # 1. chunkify testi (DB bağlantısı gerekmez)
-    print(f"  {C.BOLD}[1] chunkify() testi:{C.RESET}")
-    chunks = chunkify(sample_text, source_url="https://ornek.inonu.edu.tr/test", source_collection="static_contents", doc_id=42)
+    print(f"  {C.BOLD}[1] Tablo chunkify() testi:{C.RESET}")
+    chunks = chunkify(table_text, source_url="https://test.inonu.edu.tr/sinav", source_collection="announcements", doc_id=1)
     for i, c in enumerate(chunks):
-        print(f"    Chunk {i+1}/{len(chunks)} ({c['char_count']} karakter): {C.DIM}{c['text'][:80]}…{C.RESET}")
+        print(f"    Chunk {i+1}/{len(chunks)} ({c['char_count']} karakter):\n{C.DIM}{c['text'][:200]}{C.RESET}\n")
 
-    # 2. MongoDB bağlantı + upsert testi
-    print(f"\n  {C.BOLD}[2] MongoDB upsert testi:{C.RESET}")
+    # 2. Personel metne çevirme testi
+    print(f"  {C.BOLD}[2] Personel → Metin testi:{C.RESET}")
+    sample_staff = [
+        {"id": 117, "ad_soyad": "Tacettin KOYUNOĞLU", "unvan": "Öğrenci İşleri Daire Başkanı V.",
+         "departman": "Daire Başkanı", "gorev": "Öğrenci İşleri Daire Başkanlığı",
+         "email": "tacettin.koyunoglu@inonu.edu.tr", "telefon": "0 422 377 3041"},
+        {"id": 101, "ad_soyad": "Nuriye KALI", "unvan": "Şef",
+         "departman": "Şef", "gorev": "", "email": "nuriye.kali@inonu.edu.tr", "telefon": ""},
+    ]
+    text = _personnel_to_text(sample_staff)
+    print(f"{C.DIM}{text}{C.RESET}\n")
+
+    # 3. MongoDB testi
+    print(f"  {C.BOLD}[3] MongoDB upsert testi:{C.RESET}")
     try:
         with DBManager() as db:
-            # Test belgesi upsert
             db.upsert(COL_ANNOUNCEMENTS, {"id": 99999, "title": "Test Duyurusu", "content": "Test içerik."})
-            db.upsert(COL_ANNOUNCEMENTS, {"id": 99999, "title": "Test Duyurusu (Güncellendi)", "content": "Güncellenmiş içerik."})
-
-            # Chunk yazma testi
             db.upsert_chunks(
-                text=sample_text,
-                source_url="https://ornek.inonu.edu.tr/test",
-                source_collection="static_contents",
-                doc_id=42,
+                text=table_text,
+                source_url="https://test.inonu.edu.tr/sinav",
+                source_collection="announcements",
+                doc_id=99999,
             )
-
-            # İstatistik
+            db.upsert_chunks(
+                text=sample_staff,
+                source_url="https://panel.inonu.edu.tr/servlet/staff",
+                source_collection="personnel_details",
+                doc_id="personel_test",
+            )
             db.stats()
-
     except Exception as e:
         print(f"\n  {C.RED}[✘] MongoDB bağlantı hatası: {e}{C.RESET}")
-        print(f"  {C.YELLOW}[⚠] MongoDB'nin çalışır durumda olduğundan emin olun: mongod --dbpath /data/db{C.RESET}\n")
+        print(f"  {C.YELLOW}[⚠] MongoDB'nin çalışır durumda olduğundan emin olun.{C.RESET}\n")
