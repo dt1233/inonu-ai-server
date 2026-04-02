@@ -278,16 +278,16 @@ class RAGEngine:
         
         rewrite_prompt = (
             f"Aşağıdaki sohbet geçmişine bakarak, kullanıcının son sorusunu kendi başına "
-            f"anlaşılır, tam bir arama cümlesine dönüştür. Asla soruya cevap verme, "
-            f"sadece soruyu yeniden yaz.\n\n"
+            f"anlaşılır, tam bir arama cümlesine dönüştür.\n\n"
             f"Geçmiş:\n{history_text}\n\n"
             f"Son Soru: {current_question}\n\n"
-            f"Yeniden Yazılmış Soru:"
+            f"Asla cevap verme veya sohbete katılma. Sadece gerekli terimi ekleyerek yeniden yazılmış soruyu tek cümle olarak söyle:"
         )
 
         payload = {
             "model": OLLAMA_MODEL,
             "prompt": rewrite_prompt,
+            "system": "Sen uzman bir analiz modelisin. Çıktıyı doğrudan, tek bir cümle olarak ver. Llama gibi 'Elbette', 'İşte' veya boşluklar bırakarak yanıtlama.",
             "stream": False,
             "options": {"temperature": 0.0, "num_predict": 50}
         }
@@ -295,7 +295,15 @@ class RAGEngine:
         try:
             resp = requests.post(OLLAMA_URL, json=payload, timeout=10)
             rewritten = resp.json().get("response", "").strip()
-            return rewritten if rewritten else current_question
+            
+            # Llama3.1 format hatalarını ve lüzumsuz boşlukları temizle
+            rewritten = rewritten.replace("\n", " ").strip()
+            rewritten = " ".join(rewritten.split())
+            
+            if ":" in rewritten:
+                rewritten = rewritten.split(":", 1)[-1].strip()
+                
+            return rewritten if len(rewritten) > 2 else current_question
         except Exception:
             return current_question
 
@@ -345,7 +353,7 @@ class RAGEngine:
         prompt = (
             f"{history_context}\n"
             f"BELGELER:{context_docs}\n"
-            f"GÜNCEL SORU: {user_question}\n"
+            f"GÜNCEL SORU: {search_query}\n"
             f"Yukarıdaki BELGELER'deki bilgilere ve gerekirse SOHBET GEÇMİŞİ'ne dayanarak güncel soruyu yanıtla. "
             f"'Belge 1', 'Belge 2' gibi iç referans ifadeleri kullanma; doğrudan bilgiyi ver."
         )
