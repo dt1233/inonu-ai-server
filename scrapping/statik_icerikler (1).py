@@ -2,9 +2,18 @@
 # -*- coding: utf-8 -*-
 """
 ╔══════════════════════════════════════════════════════════════════╗
-║     İNÖNÜ ÜNİVERSİTESİ STATİK İÇERİK SCRAPER                    ║
+║     İNÖNÜ ÜNİVERSİTESİ STATİK İÇERİK SCRAPER  (v1.1)            ║
 ║                  Powered by meges.com.tr                         ║
 ╚══════════════════════════════════════════════════════════════════╝
+
+v1.1 Düzeltmeleri:
+  - save_to_mongo(): Personel (list[dict]) içeriği artık _personnel_to_text()
+    ile düz metne çevrilerek chunk'lanır. Daha önce dict geçildiği için
+    chunk üretilemiyordu.
+  - save_to_mongo(): SSS verileri artık db_manager'ın dict desteği sayesinde
+    doğrudan geçilebilir (çift döngü kaldırıldı).
+  - İç Kontrol Komisyon Başkanı gibi hiyerarşik veriler artık tam metni
+    içeren chunk'a yazılır.
 
 Kullanım:
     python inonu_static_scraper.py
@@ -31,7 +40,7 @@ try:
     _PARENT = Path(__file__).resolve().parent
     import sys as _sys
     _sys.path.insert(0, str(_PARENT))
-    from db_manager import DBManager, COL_STATIC_CONTENTS
+    from db_manager import DBManager, COL_STATIC_CONTENTS, _personnel_to_text
     _MONGO_ENABLED = True
 except ImportError:
     _MONGO_ENABLED = False
@@ -202,49 +211,32 @@ def http_get(url: str) -> Optional[requests.Response]:
 # BÖLÜM 3 │ HTML → Düz metin dönüştürücü
 # ─────────────────────────────────────────────────────────────────
 
-# Görünmez unicode boşluk karakterleri
 _INVISIBLE = {"\u200b", "\u200c", "\u200d", "\u00a0", "\ufeff"}
 
 def html_to_text(html_str: str) -> tuple[str, list[str]]:
-    """
-    HTML'i tamamen saf düz metne dönüştürür.
-    - Tüm HTML etiketleri kaldırılır
-    - Kaçırılmış (\\/) slash'lar düzeltilir
-    - PDF linkleri ayrı listeye alınır → metinde [PDF] olarak gösterilir
-    - Diğer linkler: 'Metin (URL)' formatında bırakılır
-    - Görünmez karakterler ve boş satırlar temizlenir
-    """
     if not html_str or not html_str.strip():
         return "", []
 
-    # Escaped slash'ları düzelt (\/ → /)
     html_str = html_str.replace("\\/", "/")
-
     soup = BeautifulSoup(html_str, "lxml")
 
-    # Gereksiz elementleri tamamen kaldır
     for tag in soup(["script", "style", "head", "meta", "link", "noscript"]):
         tag.decompose()
 
     pdf_links: list[str] = []
 
-    # <a> etiketlerini düz metne çevir
     for a in soup.find_all("a", href=True):
         href = a["href"].strip().strip('"').strip("'")
-
-        # Göreli URL → mutlak URL
         if href.startswith("/"):
             href = BASE_URL + href
 
         link_text = a.get_text(strip=True)
 
         if ".pdf" in href.lower():
-            # PDF linkleri → listeye al, metinde [PDF] bırak
             if href not in pdf_links:
                 pdf_links.append(href)
             replacement = f"{link_text} [PDF]" if link_text else "[PDF]"
         else:
-            # Normal link → "Metin (URL)" veya sadece URL
             if link_text and link_text != href:
                 replacement = f"{link_text} ({href})"
             else:
@@ -252,24 +244,20 @@ def html_to_text(html_str: str) -> tuple[str, list[str]]:
 
         a.replace_with(replacement)
 
-    # Blok elementlerin önüne/arkasına yeni satır ekle
     for tag in soup.find_all(["p", "div", "li", "tr", "br",
                                "h1", "h2", "h3", "h4", "h5", "h6"]):
         tag.insert_after("\n")
 
     raw_text = soup.get_text(separator=" ")
 
-    # Satır bazlı temizlik
     clean_lines = []
     for line in raw_text.splitlines():
-        # Görünmez karakterleri kaldır
         line = "".join(ch for ch in line if ch not in _INVISIBLE).strip()
-        # Sadece boşluk olan satırları atla
         if line:
             clean_lines.append(line)
 
     clean = "\n".join(clean_lines)
-    return clean, list(dict.fromkeys(pdf_links))  # PDF listesinde tekrar yok
+    return clean, list(dict.fromkeys(pdf_links))
 
 
 # ─────────────────────────────────────────────────────────────────
@@ -277,13 +265,7 @@ def html_to_text(html_str: str) -> tuple[str, list[str]]:
 # ─────────────────────────────────────────────────────────────────
 
 def _extract_html_from_item(item: dict) -> str:
-    """
-    Bir JSON öğesinden ham HTML'i çıkarır.
-    'text' alanı bazen iç içe JSON string olabilir → tekrar parse eder.
-    """
     raw = item.get("text") or item.get("content") or item.get("body") or ""
-
-    # İç içe JSON string kontrolü
     stripped = raw.strip()
     if stripped.startswith("[") or stripped.startswith("{"):
         try:
@@ -293,17 +275,11 @@ def _extract_html_from_item(item: dict) -> str:
             elif isinstance(inner, dict):
                 raw = inner.get("text", raw)
         except Exception:
-            pass  # Parse edilemiyorsa orijinali kullan
-
+            pass
     return raw
 
 
 def parse_content_api(response: requests.Response) -> tuple[str, list[str], dict]:
-    """
-    /servlet/content endpoint'ini işler.
-    API liste döndürür → her öğenin 'text' alanı HTML içerir.
-    Birden fazla öğe varsa başlıkla ayrılarak birleştirilir.
-    """
     extra: dict = {}
 
     try:
@@ -312,7 +288,6 @@ def parse_content_api(response: requests.Response) -> tuple[str, list[str], dict
         clean, pdfs = html_to_text(response.text)
         return clean, pdfs, extra
 
-    # Liste formatı: [{"id":..., "title":..., "text":"<html>"}, ...]
     if isinstance(data, list):
         blocks:   list[str] = []
         all_pdfs: list[str] = []
@@ -321,9 +296,9 @@ def parse_content_api(response: requests.Response) -> tuple[str, list[str], dict
             if not isinstance(item, dict):
                 continue
 
-            raw_html       = _extract_html_from_item(item)
-            clean, pdfs    = html_to_text(raw_html)
-            title          = (item.get("title") or "").strip()
+            raw_html    = _extract_html_from_item(item)
+            clean, pdfs = html_to_text(raw_html)
+            title       = (item.get("title") or "").strip()
 
             if clean:
                 header = f"── {title} ──\n" if title and len(data) > 1 else ""
@@ -339,7 +314,6 @@ def parse_content_api(response: requests.Response) -> tuple[str, list[str], dict
 
         return "\n\n".join(blocks), all_pdfs, extra
 
-    # Dict formatı
     if isinstance(data, dict):
         raw_html    = _extract_html_from_item(data)
         extra       = {k: v for k, v in data.items()
@@ -351,26 +325,6 @@ def parse_content_api(response: requests.Response) -> tuple[str, list[str], dict
 
 
 def parse_staff_api(response: requests.Response) -> list[dict]:
-    """
-    /servlet/staff endpoint'inden personel listesini çeker.
-    Gerçek veriler her öğenin 'staff' alt anahtarında bulunur.
-
-    Örnek yapı:
-    [
-      {
-        "image": {...},
-        "staff": {
-          "name": "Tacettin ",
-          "surName": "KOYUNOĞLU",
-          "email": "...",
-          "phone": "...",
-          "staffGroup": { "translateStaffGroup": { "tr": { "title": "Daire Başkanı" } } },
-          "staffTitle": { "translateStaffCadre": { "tr": { "title": "Öğrenci İşleri Daire Başkanı V." } } },
-          "translateStaff": { "tr": { "description": "...", "position": "..." } }
-        }
-      }, ...
-    ]
-    """
     try:
         data = response.json()
     except Exception as e:
@@ -387,24 +341,20 @@ def parse_staff_api(response: requests.Response) -> list[dict]:
         if not s:
             continue
 
-        # Ad Soyad
         ad    = (s.get("name")    or "").strip()
         soyad = (s.get("surName") or "").strip()
         ad_soyad = f"{ad} {soyad}".strip()
 
-        # Unvan → staffTitle.translateStaffCadre.tr.title
         unvan = ""
         st = s.get("staffTitle") or {}
         cadre = st.get("translateStaffCadre") or {}
         unvan = (cadre.get("tr") or {}).get("title", "").strip()
 
-        # Departman (Birim) → staffGroup.translateStaffGroup.tr.title
         departman = ""
         sg = s.get("staffGroup") or {}
         tsg = sg.get("translateStaffGroup") or {}
         departman = (tsg.get("tr") or {}).get("title", "").strip()
 
-        # Görev açıklaması → translateStaff.tr.description veya .position
         gorev = ""
         ts = s.get("translateStaff") or {}
         tr_data = ts.get("tr") or {}
@@ -426,16 +376,6 @@ def parse_staff_api(response: requests.Response) -> list[dict]:
 
 
 def fetch_sss_data(parent_id: int) -> dict:
-    """
-    Menü altındaki Sıkça Sorulan Sorular liste/içeriklerini çoklu istek atarak toplar.
-
-    Akış:
-      1) /servlet/menu?type=inside&id=1636  → Kategori listesi (id + translate)
-      2) Her kategori id'si için /servlet/content?id={id}&lang=tr → İçerik
-         Content API şu formatta döner:
-         [{"id": ..., "title": "...", "text": "<html>...", "created": "..."}]
-      3) text alanındaki HTML düz metne çevrilir.
-    """
     menu_url = f"{BASE_URL}/servlet/menu?type=inside&id={parent_id}"
     log("FETCH", f"SSS Menü ağacı çekiliyor: {C.DIM}{menu_url}{C.RESET}")
     menu_resp = http_get(menu_url)
@@ -451,11 +391,6 @@ def fetch_sss_data(parent_id: int) -> dict:
     all_data = {}
 
     def parse_content_items(data):
-        """
-        /servlet/content dönen JSON listesini parse eder.
-        Her öğe: {"id": ..., "title": "...", "text": "<html>..."}
-        text alanı HTML → düz metne çevrilir.
-        """
         if not isinstance(data, list):
             return data
 
@@ -465,8 +400,6 @@ def fetch_sss_data(parent_id: int) -> dict:
                 continue
 
             title = (item.get("title") or "").strip()
-
-            # text alanı HTML içerir → düz metne çevir
             raw_html = item.get("text") or ""
             clean_text, pdf_links = html_to_text(raw_html)
 
@@ -491,7 +424,6 @@ def fetch_sss_data(parent_id: int) -> dict:
         except Exception:
             return None
 
-    # Ana içerik (parent_id kendisi, örn: 1636)
     log("FETCH", f"SSS Ana içerik çekiliyor: id={C.BOLD}{parent_id}{C.RESET}")
     main_content = get_faq_content(parent_id)
     if main_content:
@@ -500,11 +432,9 @@ def fetch_sss_data(parent_id: int) -> dict:
             "content": parse_content_items(main_content)
         }
 
-    # Alt menü içerikleri — her kategori için content endpoint'ine istek at
     for item in menu_items:
         cid = item.get("id")
         if not cid or cid == parent_id:
-            # parent_id kendisini atla (zaten yukarıda çektik)
             continue
 
         try:
@@ -520,7 +450,6 @@ def fetch_sss_data(parent_id: int) -> dict:
                 "baslik": tr_name,
                 "content": parsed
             }
-            # Kısa önizleme
             if isinstance(parsed, list):
                 for p in parsed[:1]:
                     preview = (p.get("icerik") or "")[:100]
@@ -556,14 +485,13 @@ def process_source(source: dict) -> dict:
     log("FETCH", f"{C.BOLD}{label}{C.RESET}  ←  {C.DIM}{url}{C.RESET}")
 
     if stype == "sss":
-        # SSS için çoklu ağ isteği yapıldığı için akış farklı
         parent_id = 1636
         if "id=" in url:
             try:
                 parent_id = int(url.split("id=")[1].split("&")[0])
             except:
                 pass
-                
+
         sss_data = fetch_sss_data(parent_id)
         if not sss_data:
             record["error"] = "SSS verisi çekilemedi"
@@ -571,7 +499,6 @@ def process_source(source: dict) -> dict:
             return record
 
         record["content"] = sss_data
-        
         cats = len(sss_data)
         item_count = sum(len(v.get("content", [])) if isinstance(v.get("content"), list) else 1 for v in sss_data.values())
         record["extra"] = {"categories": cats, "total_questions": item_count}
@@ -616,8 +543,14 @@ def save_results(results: list[dict]) -> None:
 
 def save_to_mongo(results: list[dict]) -> None:
     """
-    Statik içerikleri MongoDB'ye upsert eder ve metin içeriklerini
-    anlamsal olarak 'chunks' koleksiyonuna yazar.
+    Statik içerikleri MongoDB'ye upsert eder.
+
+    v1.1 Değişiklikleri:
+      - Personel (list[dict]) içeriği artık _personnel_to_text() ile
+        düz metne çevrilerek chunk'lanır. Eski sürümde bu adım yoktu,
+        bu yüzden personel RAG'a hiç yazılmıyordu.
+      - SSS içeriği artık db_manager'ın dict desteğine bırakılıyor
+        (çift döngü kaldırıldı, daha temiz ve doğru).
     """
     if not _MONGO_ENABLED:
         log("WARN", "db_manager bulunamadı, MongoDB'ye yazma atlandı.")
@@ -632,7 +565,6 @@ def save_to_mongo(results: list[dict]) -> None:
                 source_url = record.get("url", "")
                 label      = record.get("label", key)
                 content    = record.get("content")
-                stype      = "sss" if isinstance(content, dict) else "json"
 
                 # ── 1. Ana belge upsert ────────────────────────────
                 status = db_mgr.upsert(COL_STATIC_CONTENTS, record, id_field="key")
@@ -642,27 +574,33 @@ def save_to_mongo(results: list[dict]) -> None:
                     updated += 1
 
                 # ── 2. İçeriği chunk'la ──────────────────────────
-                if stype == "sss" and isinstance(content, dict):
-                    # Her SSS kategorisini ayrı ayrı chunk'la
-                    for cat_key, cat_data in content.items():
-                        cat_label = cat_data.get("baslik", cat_key)
-                        cat_items = cat_data.get("content", [])
 
-                        if isinstance(cat_items, list):
-                            for item in cat_items:
-                                q      = (item.get("baslik") or "").strip()
-                                ans    = (item.get("icerik") or "").strip()
-                                if q or ans:
-                                    full_text = f"{q}\n\n{ans}".strip() if q else ans
-                                    n = db_mgr.upsert_chunks(
-                                        text=full_text,
-                                        source_url=f"{source_url}#cat{cat_key}",
-                                        source_collection=COL_STATIC_CONTENTS,
-                                        doc_id=f"{key}_{cat_key}",
-                                    )
-                                    chunk_total += n
+                if isinstance(content, list):
+                    # v1.1 DÜZELTİLDİ: Personel list[dict] → düz metne çevir
+                    staff_text = _personnel_to_text(content)
+                    if staff_text.strip():
+                        full_text = f"{label}\n\n{staff_text}".strip()
+                        n = db_mgr.upsert_chunks(
+                            text=full_text,
+                            source_url=source_url,
+                            source_collection=COL_STATIC_CONTENTS,
+                            doc_id=key,
+                        )
+                        chunk_total += n
+
+                elif isinstance(content, dict):
+                    # v1.1 DÜZELTİLDİ: SSS dict → db_manager'ın dict desteği
+                    # (önceki sürümde çift döngü vardı, artık direkt geçiliyor)
+                    n = db_mgr.upsert_chunks(
+                        text=content,           # dict → _sss_to_text() db_manager içinde çalışır
+                        source_url=source_url,
+                        source_collection=COL_STATIC_CONTENTS,
+                        doc_id=key,
+                    )
+                    chunk_total += n
+
                 elif isinstance(content, str) and content.strip():
-                    # Metin başlığıyla birlikte chunk'la
+                    # Normal metin içeriği
                     full_text = f"{label}\n\n{content}".strip()
                     n = db_mgr.upsert_chunks(
                         text=full_text,
