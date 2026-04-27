@@ -52,21 +52,6 @@ inonu_ai/
 ```
 
 
-## Aşama 0 — Başlatma
-
-```bash
-# 1. Ortam dosyasını hazırla
-cp .env.example .env
-
-# 2. Sadece altyapıyı başlat (Qdrant + Prometheus + Grafana)
-
-
-# 3. Servisleri kontrol et
-docker compose ps
-curl http://localhost:6333/healthz    # Qdrant
-curl http://localhost:9090/-/ready    # Prometheus
-# Grafana: http://localhost:3000  (admin / inonu_grafana_2025)
-```
 
 
 
