@@ -59,7 +59,7 @@ inonu_ai/
 cp .env.example .env
 
 # 2. Sadece altyapıyı başlat (Qdrant + Prometheus + Grafana)
-docker compose up -d qdrant prometheus grafana
+
 
 # 3. Servisleri kontrol et
 docker compose ps
