@@ -1,0 +1,76 @@
+# ============================================================
+# İnönü AI — Python Bağımlılıkları
+# Aşamaya göre gruplandırılmıştır
+# ============================================================
+
+# ----------------------------------------------------------
+# AŞAMA 0 — Temel Altyapı
+# ----------------------------------------------------------
+# Vektör veritabanı istemcisi
+qdrant-client>=1.9.0
+
+# Zamanlayıcı (günlük cron kazıma)
+apscheduler>=3.10.0
+
+# ----------------------------------------------------------
+# AŞAMA 1 — LLM İstemcisi
+# SGLang/vLLM OpenAI-uyumlu API'ye erişim
+# ----------------------------------------------------------
+openai>=1.30.0          # SGLang OpenAI-compat endpoint için
+httpx>=0.27.0
+aiohttp>=3.9.0
+
+# ----------------------------------------------------------
+# AŞAMA 2 — Embedding & Re-Ranking
+# ----------------------------------------------------------
+sentence-transformers>=3.0.0
+torch>=2.3.0
+transformers>=4.41.0
+FlagEmbedding>=1.2.0    # bge-m3 ve bge-reranker-v2-m3
+
+# ----------------------------------------------------------
+# AŞAMA 3 — Vektör Veritabanı Tam Destek
+# ----------------------------------------------------------
+# qdrant-client zaten yukarıda; ek araçlar:
+numpy>=1.26.0
+scipy>=1.13.0
+
+# ----------------------------------------------------------
+# AŞAMA 4 — Web Kazıma Pipeline'ı
+# ----------------------------------------------------------
+crawl4ai>=0.3.0
+playwright>=1.44.0
+beautifulsoup4>=4.12.0  # Yedek/yardımcı
+lxml>=5.2.0
+
+# Metin parçalama
+langchain-text-splitters>=0.2.0
+
+# ----------------------------------------------------------
+# AŞAMA 5 — Ajan Orkestrasyonu (LangGraph)
+# ----------------------------------------------------------
+langchain>=0.2.0
+langchain-community>=0.2.0
+langgraph>=0.1.0
+
+# ----------------------------------------------------------
+# AŞAMA 6 — API Katmanı & İzleme
+# ----------------------------------------------------------
+fastapi>=0.111.0
+uvicorn[standard]>=0.30.0
+websockets>=12.0
+pydantic>=2.7.0
+pydantic-settings>=2.3.0
+
+# Prometheus metrikleri
+prometheus-client>=0.20.0
+prometheus-fastapi-instrumentator>=7.0.0
+
+# ----------------------------------------------------------
+# YARDIMCI — Genel
+# ----------------------------------------------------------
+python-dotenv>=1.0.0
+loguru>=0.7.0
+tenacity>=8.3.0         # Yeniden deneme mantığı
+rich>=13.7.0            # Güzel terminal çıktısı
+tqdm>=4.66.0

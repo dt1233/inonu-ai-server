@@ -1,0 +1,120 @@
+version: "3.9"
+
+# ============================================================
+# İnönü AI — Tam Servis Yığını
+# Aşama 0: Temel altyapı (Qdrant, Prometheus, Grafana)
+# Aşama 1+: SGLang ve vLLM servisleri (aşamaya göre açılır)
+# ============================================================
+
+networks:
+  inonu_net:
+    driver: bridge
+
+volumes:
+  qdrant_data:
+  prometheus_data:
+  grafana_data:
+
+services:
+
+  # ----------------------------------------------------------
+  # AŞAMA 0 — Vektör Veritabanı
+  # ----------------------------------------------------------
+  qdrant:
+    image: qdrant/qdrant:latest
+    container_name: inonu_qdrant
+    restart: unless-stopped
+    ports:
+      - "6333:6333"   # REST API
+      - "6334:6334"   # gRPC
+    volumes:
+      - qdrant_data:/qdrant/storage
+      - ./docker/qdrant/config.yaml:/qdrant/config/production.yaml:ro
+    environment:
+      - QDRANT__SERVICE__GRPC_PORT=6334
+    networks:
+      - inonu_net
+    healthcheck:
+      test: ["CMD", "curl", "-f", "http://localhost:6333/healthz"]
+      interval: 30s
+      timeout: 10s
+      retries: 3
+
+  # ----------------------------------------------------------
+  # AŞAMA 0 — İzleme: Prometheus
+  # ----------------------------------------------------------
+  prometheus:
+    image: prom/prometheus:latest
+    container_name: inonu_prometheus
+    restart: unless-stopped
+    ports:
+      - "9090:9090"
+    volumes:
+      - prometheus_data:/prometheus
+      - ./docker/prometheus/prometheus.yml:/etc/prometheus/prometheus.yml:ro
+    command:
+      - "--config.file=/etc/prometheus/prometheus.yml"
+      - "--storage.tsdb.path=/prometheus"
+      - "--storage.tsdb.retention.time=30d"
+      - "--web.enable-lifecycle"
+    networks:
+      - inonu_net
+
+  # ----------------------------------------------------------
+  # AŞAMA 0 — İzleme: Grafana
+  # ----------------------------------------------------------
+  grafana:
+    image: grafana/grafana:latest
+    container_name: inonu_grafana
+    restart: unless-stopped
+    ports:
+      - "3000:3000"
+    volumes:
+      - grafana_data:/var/lib/grafana
+      - ./docker/grafana/provisioning:/etc/grafana/provisioning:ro
+    environment:
+      - GF_SECURITY_ADMIN_USER=admin
+      - GF_SECURITY_ADMIN_PASSWORD=inonu_grafana_2025
+      - GF_USERS_ALLOW_SIGN_UP=false
+      - GF_SERVER_ROOT_URL=http://localhost:3000
+    depends_on:
+      - prometheus
+    networks:
+      - inonu_net
+
+  # ----------------------------------------------------------
+  # AŞAMA 1+ — Ana Uygulama (Python)
+  # Geliştirme aşamasında "profiles" ile isteğe bağlı başlatılır
+  # Kullanım: docker compose --profile app up
+  # ----------------------------------------------------------
+  inonu_app:
+    build:
+      context: .
+      dockerfile: Dockerfile
+    container_name: inonu_app
+    restart: unless-stopped
+    profiles: ["app"]
+    ports:
+      - "8000:8000"   # FastAPI REST
+      - "8001:8001"   # WebSocket Streaming
+    volumes:
+      - ./:/app          # Geliştirme: kod değişince yeniden başlatma gerekmez
+      - /data/models:/models:ro  # Model ağırlıkları (host'tan mount)
+    environment:
+      - QDRANT_HOST=qdrant
+      - QDRANT_PORT=6333
+      - SGLANG_HOST=host.docker.internal  # SGLang host'ta çalışır (GPU doğrudan)
+      - SGLANG_PORT=30000
+      - PYTHONUNBUFFERED=1
+    depends_on:
+      qdrant:
+        condition: service_healthy
+    networks:
+      - inonu_net
+    deploy:
+      resources:
+        reservations:
+          devices:
+            - driver: nvidia
+              count: all
+              capabilities: [gpu]

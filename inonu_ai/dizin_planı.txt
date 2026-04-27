@@ -1,0 +1,47 @@
+inonu_ai/ 
+
+├── agents/ 
+
+│   ├── router_agent.py       # Sorguyu sınıflandır → hangi ajan? 
+
+│   ├── rag_agent.py          # Qdrant hybrid search + Qwen3-72B 
+
+│   ├── web_agent.py          # Crawl4AI canlı kazıma 
+
+│   └── grader_agent.py       # CRAG: hallüsinasyon + kapsam denetimi 
+
+├── tools/ 
+
+│   ├── live_scraper.py       # Crawl4AI anlık kazıma aracı 
+
+│   ├── qdrant_search.py      # Hybrid search (dense + sparse) 
+
+│   └── reranker.py           # bge-reranker GPU wrapper 
+
+├── data_pipeline/ 
+
+│   ├── batch_crawler.py      # Günlük site tarama + Markdown 
+
+│   ├── chunker.py            # 2 stratejili akıllı parçalayıcı 
+
+│   ├── indexer.py            # bge-m3 GPU encode → Qdrant 
+
+│   ├── url_config.py         # Hedef URL'ler ve öncelikler 
+
+│   └── scheduler.py          # APScheduler cron görevleri 
+
+├── engine/ 
+
+│   ├── sglang_client.py      # SGLang OpenAI-uyumlu API istemcisi 
+
+│   ├── embedding.py          # GPU embedding servisi 
+
+│   └── memory.py             # Çok turlu konuşma belleği 
+
+├── api/ 
+
+│   └── main.py               # FastAPI + WebSocket streaming 
+
+└── monitoring/ 
+
+    └── metrics.py            # Prometheus metrikleri 
