@@ -51,12 +51,6 @@ inonu_ai/
     └── metrics.py
 ```
 
-## Neden Bu Yapı?
-
-**SGLang ve vLLM Docker içinde değil!**
-GPU'ya doğrudan erişim için bu iki servis host üzerinde çalıştırılır.
-Docker'ın GPU passthrough'u ek gecikme ve karmaşıklık yaratır.
-`inonu_app` container'ı bunlara `host.docker.internal` üzerinden bağlanır.
 
 ## Aşama 0 — Başlatma
 
@@ -74,15 +68,7 @@ curl http://localhost:9090/-/ready    # Prometheus
 # Grafana: http://localhost:3000  (admin / inonu_grafana_2025)
 ```
 
-## Uygulama Başlatma (Aşama 1+)
 
-```bash
-# Python imajını derle ve uygulamayı başlat
-docker compose --profile app up -d inonu_app
-
-# Logları takip et
-docker compose logs -f inonu_app
-```
 
 ## Faydalı Komutlar
 
