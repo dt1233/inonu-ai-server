@@ -70,18 +70,3 @@ curl http://localhost:9090/-/ready    # Prometheus
 
 
 
-## Faydalı Komutlar
-
-```bash
-# Tüm servisleri durdur
-docker compose down
-
-# Verileri sıfırla (dikkat!)
-docker compose down -v
-
-# Tek servisi yeniden başlat
-docker compose restart qdrant
-
-# Qdrant koleksiyonlarını listele
-curl http://localhost:6333/collections
-```
