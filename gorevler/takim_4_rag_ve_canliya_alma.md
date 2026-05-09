@@ -1,6 +1,6 @@
 # Takım 4: RAG, Optimizasyon ve Canlıya Alma (Production)
 
-**Ekip Sayısı:** 2 Kişi
+**Ekip:** Bilal, Ferhat
 **Ana Görev:** Sistemin mimarisini kurmak, API güvenliklerini yazmak, Qdrant'ı doldurmak ve en son modeli sisteme takarak canlı yayına (Production) almak.
 **Bağımlılık Durumu:** Altyapı ve güvenlik kodları için kimseyi beklemez. Vektörizasyon için Takım 1'i, canlıya alma için Takım 3'ü bekler.
 
