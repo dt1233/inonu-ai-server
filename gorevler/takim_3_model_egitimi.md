@@ -1,6 +1,6 @@
 # Takım 3: Model Eğitmenleri (Fine-Tuning)
 
-**Ekip Sayısı:** 1 Kişi
+**Ekip:** Bilal, Ferhat
 **Ana Görev:** L40S (50 GB) GPU gücünü kullanarak ana modeli (Qwen3-8B) üniversite verisiyle eğitmek ve üniversiteye özgü yeni bir model ağırlığı yaratmak.
 **Bağımlılık Durumu:** Kurulumlar için kimseyi beklemez hemen başlar. Asıl eğitim için Takım 2'nin JSON dosyasını teslim etmesini bekler.
 
