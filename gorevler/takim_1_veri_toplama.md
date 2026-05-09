@@ -1,6 +1,6 @@
 # Takım 1: Veri Toplayıcılar
 
-**Ekip Sayısı:** 2 Kişi
+**Ekip:** Türker, Burak, Arda
 **Ana Görev:** Üniversitenin tüm dijital metin haritasını çıkarmak ve yapay zeka için temiz bir veri tabanı oluşturmak.
 **Bağımlılık Durumu:** Kimseyi beklemez, proje başladığı an çalışmaya başlar.
 
