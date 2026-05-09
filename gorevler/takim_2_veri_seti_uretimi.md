@@ -1,6 +1,6 @@
 # Takım 2: Veri Seti Üreticileri
 
-**Ekip Sayısı:** 2 Kişi
+**Ekip:** Temel, Can
 **Ana Görev:** Takım 1'den gelen ham metinleri yapay zekanın "Instruction-Tuning" (öğrenme) aşamasında kullanabileceği Soru-Cevap (QA) çiftlerine dönüştürmek.
 **Bağımlılık Durumu:** Takım 1'in veri kazıma işlemini (kısmen veya tamamen) bitirmesini ve `ham_veri.jsonl` dosyasını teslim etmesini bekler.
 
