@@ -1,0 +1,87 @@
+============================================================
+PDF METİN KALİTE RAPORU
+============================================================
+Toplam PDF eki: 2501
+Türkçe karakter içeren (sağlam): 2248
+Türkçe karakter İÇERMEYEN (potansiyel bozuk): 5
+Okunamayan/Boş ([PDF Okunamadı]): 248
+
+============================================================
+SAĞLAM PDF ÖRNEKLERİ (Türkçe karakterler doğru)
+============================================================
+--- Duyuru ID: 21968 ---
+3. YY 5. YY
+Eğitim Fakültesi Eğitim Bilimleri Bölümü/Rehberlik ve 
+Psikolojik Danışmanlık Programı 3 2 Eğitim Fakültesi Özel Eğitim Öğretmenliği
+Eğitim Fakültesi Eğitim Bilimleri Bölümü/Rehberlik ve 
+Psikolojik Danışmanlık Programı 3 2 Eğitim Fakültesi Okul Öncesi Öğretmenliği
+Eğitim Fakültesi Temel
+
+--- Duyuru ID: 21480 ---
+Eğitim Fakültesi Eğitim Bilimleri Bölümü/Rehberlik ve
+Psikolojik Danışmanlık Programı Eğitim Fakültesi Özel Eğitim Öğretmenliği 4
+Eğitim Fakültesi Eğitim Bilimleri Bölümü/Rehberlik ve
+Psikolojik Danışmanlık Programı Eğitim Fakültesi Okul Öncesi Öğretmenliği 5
+Eğitim Fakültesi Temel Eğitim Bölümü / O
+
+--- Duyuru ID: 21480 ---
+2025-2026 Bahar Dönemi  Yandal KontenjanlarıAÇILAN YANDAL PROGRAMLARI KontenjanGazetecilik Yandal Programı 10Halkla İlişkiler ve Tanıtım Yan Dal 8Fen Bilgisi Öğretmenliği Yandal Programı 10Odyoloji Yandal Programı 9Dil ve Konuşma Terapisi Yandal Programı 7Çocuk Gelişimi Yandal Programı 9Gerontoloji 
+
+--- Duyuru ID: 21336 ---
+BİRİM / BÖLÜM Sınıf Kontenjan ÖSYM Puan Türü Yurt Dışı Kontenjan
+Ağız ve Diş Sağlığı 1 3 TYT Yurt Dışı Kontenjan Açılmamıştır
+Anestezi 1 2 TYT Yurt Dışı Kontenjan Açılmamıştır
+Çocuk Gelişimi 1 2 TYT Yurt Dışı Kontenjan Açılmamıştır
+Eczane Hizmetleri 1 2 TYT Yurt Dışı Kontenjan Açılmamıştır
+Evde Hast
+
+--- Duyuru ID: 21336 ---
+📞 İNÖNÜ ÜNİVERSİTESİ 
+MESLEK YÜKSEKOKULLARI İLETİŞİM BİLGİLERİ 
+AKADEMİK BİRİM ADRES TELEFON 
+Adalet Meslek Yüksekokulu Merkez Kampüs – Battalgazi / 
+MALATYA 
+0422 377 4651 – 
+4655 
+Malatya Meslek 
+Yüksekokulu 
+İnönü Caddesi No:192, Yeşilyurt / 
+MALATYA 
+0422 211 8677 (105-
+106-107) 
+Malatya OSB Mes
+
+============================================================
+BOZUK OLABİLECEK PDF ÖRNEKLERİ (Türkçe karakter yok)
+============================================================
+--- Duyuru ID: 19332 ---
+1 2 3 4 5 6 7 8 9 10 11 12
+1 01200101095 01210102045 01200101091 01200102143 01210102043 01210102071 01210101530 01210102143 01210102127 01200102128 01210102522 01180101034
+2 01210102072 01210101020 01180102606 01210102095 01210102015 01210102084 01210102112 01210102117 01200101026 01210102122 01200
+
+--- Duyuru ID: 19331 ---
+A1 A2 B1 B2 C1 C2 D1 D2
+1 01230102324 01220102136 01220102069 01220102011 01220101054 01220102002 01220102178 01220102028
+2 01220102123 01220102082 01220102038 01200102535 01220102070 01230102326 01220101020 01220102091
+3 01220102151 01220102024 01220101066 01230101141 01220102106 01220102079 012201
+
+--- Duyuru ID: 19056 ---
+A1 GRUBU A2 GRUBU B1 GRUBU B2 GRUBU C1 GRUBU C2 GRUBU D1 GRUBU D2 GRUBU E1 GRUBU E2 GRUBU F1 GRUBU F2 GRUBU
+01190101017 01200102087 01200102001 01200102069 01190101013 01200102152 01190102133 01200102072 01200102163 01200101004 01200102006 01200102107
+01190101018 01190101054 01200102008 01200102121 
+
+--- Duyuru ID: 10814 ---
+4.05.2026 11:34 about:blank
+about:blank 1/1
+
+--- Duyuru ID: 5937 ---
+www.eafponline.eu 
+ 
+ 
+           
+ 
+Confirmation of Institutional Membership - 2022 
+Welcome to EAFP 
+Membership entitles your institution to receive information on the latest developments in 
+pharmacy education and training in Europe and the possibility to network with other member 
+institutions t

@@ -1,0 +1,44 @@
+inonu_ai/
+
+├── config.py                    # Merkezi konfigürasyon (.env okur)
+├── .env.example                 # Ortam değişkenleri şablonu
+├── requirements.txt             # Python bağımlılıkları
+├── README.md                    # Kurulum ve kullanım rehberi
+
+├── api/
+│   ├── main.py                  # FastAPI + JWT korumalı REST API
+│   ├── auth.py                  # JWT token üretme & doğrulama
+│   └── models.py                # Pydantic request/response modelleri
+
+├── agents/
+│   ├── state.py                 # AgentState TypedDict tanımı
+│   ├── graph.py                 # LangGraph StateGraph akışı
+│   ├── nodes.py                 # Router, Rewriter, Retriever, Generator, Grader
+│   ├── router_agent.py          # Sorguyu sınıflandır → hangi ajan?
+│   ├── rag_agent.py             # Qdrant hybrid search + Qwen3
+│   ├── web_agent.py             # Crawl4AI canlı kazıma
+│   └── grader_agent.py          # CRAG: hallüsinasyon + kapsam denetimi
+
+├── tools/
+│   ├── live_scraper.py          # Crawl4AI anlık kazıma aracı
+│   ├── qdrant_search.py         # Hybrid search (dense + sparse)
+│   └── reranker.py              # bge-reranker GPU wrapper
+
+├── data_pipeline/
+│   ├── batch_crawler.py         # Günlük site tarama + Markdown
+│   ├── chunker.py               # 2 stratejili akıllı parçalayıcı
+│   ├── indexer.py               # bge-m3 GPU encode → Qdrant
+│   ├── url_config.py            # Hedef URL'ler ve öncelikler
+│   └── scheduler.py             # APScheduler cron görevleri
+
+├── engine/
+│   ├── sglang_client.py         # SGLang OpenAI-uyumlu API istemcisi
+│   ├── embedding.py             # GPU embedding servisi (bge-m3)
+│   └── memory.py                # Bellek yönetim facade'ı
+
+├── memory/
+│   ├── session_manager.py       # Redis TTL oturum geçmişi
+│   └── semantic_cache.py        # Vektör benzerlik önbelleği
+
+└── monitoring/
+    └── metrics.py               # Prometheus metrikleri

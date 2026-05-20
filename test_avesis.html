@@ -1,0 +1,3953 @@
+<!DOCTYPE html><html lang="tr" style="" class=" js flexbox flexboxlegacy no-touch csstransforms csstransforms3d no-overflowscrolling webkit chrome win js"><head>
+    
+
+<title>Hukuk Raporları | AVESİS</title>
+<meta charset="utf-8">
+<meta http-equiv="X-UA-Compatible" content="IE=edge">
+<link rel="icon" type="image/png" href="/Content/images/favicon.png">
+<!--[if IE]><link rel="SHORTCUT ICON" href="/Content/images/favicon.ico"/><![endif]-->
+<link rel="shortcut icon" href="/Content/images/favicon.png">
+<meta name="viewport" content="width=device-width, minimum-scale=1.0, maximum-scale=1.0, user-scalable=no">
+<link href="https://fonts.googleapis.com/css?family=Open+Sans:300,400,600,700,800&amp;subset=latin,latin-ext" rel="stylesheet" type="text/css">
+
+<link href="/Content/mainpage-vendor?v=pOYHhqbdoRhhSzrkPFjA9y0rk-6e3eLWGvJ2xCoUFPQ1" rel="stylesheet">
+
+<link href="/Content/mainpage-theme?v=imY8ysfTI0_ykPyWtcm8bczJ1cfjaSMibXV8IJDhIGc1" rel="stylesheet">
+
+<link href="/Content/mainpage-skin?v=usCXoO7R7lcLItg0-XQ31UsUyYfS1OCkwpEvHj0qxBI1" rel="stylesheet">
+
+
+<script type="text/javascript" async="" src="https://www.google-analytics.com/analytics.js"></script><script type="text/javascript" async="" src="https://www.googletagmanager.com/gtag/js?id=G-3WHBVCBQ3W&amp;cx=c&amp;gtm=4e65i0h2"></script><script src="/bundles/modernizr?v=Oq13XvrA7f2hLlqxJ895gXtXq2ljyFAIFT6GCh8W_tI1"></script>
+
+<script type="text/javascript">
+    var searchUrl = "https://avesis.inonu.edu.tr/proxy/search"; var errorPage = 'https://avesis.inonu.edu.tr/error/index'; var dateFormat = 'dd.mm.yyyy'; var dateTimeFormatWithoutMinute = 'dd-MM-yyyy HH:ii'; var dateFormatMonthYear = 'MM yyyy'; var localizeAreYouSure = 'Emin misiniz?'; var localizeYes = 'Evet'; var localizeNo = 'Hayır'; var localizeCancel = 'İptal'; var localizeSave = 'Kaydet'; var localizeSaving = 'Kaydediliyor...'; var localizeWaiting = 'Bekleyiniz...'; var localizeSelect = 'Seçiniz'; var localizeSearch = 'Ara'; var localizeAll = 'Tümü'; var currentCulture = 'tr'; var currentCultureIsPrimary = true; var currentUniversityId = '50'; var duplicatePublication = 'Sistemde aynı bilgilerle başka bir yayın mevcuttur.'; var projectSearchRecordType = "Projeler"; var publicationSearchRecordType = "Yayınlar"; var researcherSearchRecordType = "Araştırmacılar"; var sliderProjectCount = "Proje Sayısı"; var sliderSearchUrl = '/arama'; var mapTotalText = 'Toplam'; var noDataText = "Kayıt bulunamadı"; var dateFormatRangePicker = "DD-MM-YYYY"; var createOrEditActivitiyCollection = "Koleksiyon Düzenle"; var wosResearchAreas = "WoS Araştırma Alanları";  var institutionalJournalUrl = 'kurum-adresli-dergi'; var startDatePublicationStr = "Yayına Başlangıç Tarihi"; var issnStr = "Issn"; var eissnStr = "E-Issn"; var webAddressStr = "Web Adresi"; var journalIndexesStr = "Derginin Tarandığı İndeks"; var pageSizeSelectorRightLabelStr = "kayıt göster"; var searchPlaceholderStr = "Arama yapmak istediğiniz kelimeyi giriniz";
+    var pivotUIOpenedWidth = 1580; var pivotUIOpenedHeight = 463; var pivotUIClosedWidth = 1855; var pivotUIClosedHeight = 473;
+    var defaultPlotlyConfiguration = {
+        responsive: true,
+        modeBarButtonsToRemove: [
+            'sendDataToCloud',
+            'zoom2d',
+            'zoomIn2d',
+            'zoomOut2d',
+            'pan2d',
+            'autoScale2d',
+            //'hoverClosestCartesian',
+            //'hoverCompareCartesian',
+            'lasso2d',
+            'select2d',
+            'toggleSpikelines'
+        ],
+        displaylogo: false,
+        locale: currentCulture
+    };
+    var customPlotlyConfiguration = {
+        responsive: true,
+        displaylogo: false,
+        showTips: false,
+        locale: currentCulture
+    };
+    var avesisBaseAddress = 'https://avesis.inonu.edu.tr/';
+    var publicationUrl = 'yayin'; var projectUrl = 'proje'; var intellectualPropertyUrl = 'fikrimulkiyet'; var excavationAndSurfaceSurveyUrl = 'kazi-ve-yuzey-arastirmalari'; var advisingThesisUrl = 'yonetilen-tez'; var organizedEventUrl = 'etkinlik-organizasyonu'; var scientificDataShareUrl = 'bilimsel-veri-paylasimi'; var institutionalJournalIssueUrl = 'dergi-sayisi'; var designedCoursesAndTrainingUrl = 'tasarlanan-kurs-ve-egitimler'; var visualActivityUrl = 'gorsel-faaliyetler'; var awardUrl = 'oduller'; var artActivityUrl = 'sanatsal-etkinlikler'; var designedLessonUrl = 'tasarlanan-dersler'; var designUrl = 'tasarimlar';
+    var artWorkUrl = 'sanatsal-eserler';
+    var getActivityDetailPageUrl = function (source, title) {
+        var typeId = source.typeid;
+        var id = source.id;
+        var defaultUrl = "/nr/" + source.networkuserid + "/" + source["resumeroutekey" + localization];
+        if (typeId == parseInt("21")) {
+            defaultUrl = "/nr/" + source.networkuserid;
+        } else if (typeId == parseInt("24")) {
+            defaultUrl = `/${publicationUrl}/${id}/${slugify(title)}`;
+        } else if (typeId == parseInt("15")) {
+            defaultUrl = `/${projectUrl}/${id}/${slugify(title)}`;
+        } else if (typeId == parseInt("10")) {
+            defaultUrl = `/${intellectualPropertyUrl}/${id}/${slugify(title)}`;
+        } else if (typeId == parseInt("28")) {
+            defaultUrl = `/${excavationAndSurfaceSurveyUrl}/${id}/${slugify(title)}`;
+        } else if (typeId == parseInt("20")) {
+            if (source.thesistype == parseInt("4")) {
+                defaultUrl = `/${advisingThesisUrl}/${id}/${slugify(title)}`;
+            }
+        } else if (typeId == parseInt("33")) {
+            defaultUrl = `/${source["resumeroutekey" + localization]}/${source.shortname}`;
+        }
+        else if (typeId == parseInt("14")) {
+            defaultUrl = `/${organizedEventUrl}/${id}/${slugify(title)}`;
+        }
+        else if (typeId == parseInt("34")) {
+            defaultUrl = `/${scientificDataShareUrl}/${id}/${slugify(title)}`;
+        }
+        else if (typeId == parseInt("35")) {
+            defaultUrl = `/${institutionalJournalIssueUrl}/${id}/${slugify(title)}`;
+        }
+        else if (typeId == parseInt("30")) {
+            defaultUrl = `/${designedCoursesAndTrainingUrl}/${id}/${slugify(title)}`;
+        }
+        else if (typeId == parseInt("22")) {
+            defaultUrl = `/${visualActivityUrl}/${id}/${slugify(title)}`;
+        }
+        else if (typeId == parseInt("5")) {
+            defaultUrl = `/${awardUrl}/${id}/${slugify(title)}`;
+        }
+        else if (typeId == parseInt("3")) {
+            defaultUrl = `/${artActivityUrl}/${id}/${slugify(title)}`;
+        }
+        else if (typeId == parseInt("7")) {
+            defaultUrl = `/${designUrl}/${id}/${slugify(title)}`;
+        }
+        else if (typeId == parseInt("31")) {
+            defaultUrl = `/${designedLessonUrl}/${id}/${slugify(title)}`;
+        }
+        else if (typeId == parseInt("4")) {
+            defaultUrl = `/${artWorkUrl}/${id}/${slugify(title)}`;
+        }
+        return defaultUrl.length > 250 ? defaultUrl.substring(0, 250) : defaultUrl;
+    }
+
+    var getActivityCollectionDetailPageUrl = function (source) {
+        var typeId = source.typeid;
+        if (typeId == 24) {
+            return `/admin/institutionalopenarchive/publicationdocumentcreateorupdate?activityId=${source.id}&publicationTypeId=${source.publicationtypeid}`;
+        }
+        else if (typeId == 35) {
+            return `/admin/institutionalopenarchive/institutionaljournalissuedocumentcreateorupdate?activityId=${source.id}`;
+        }
+        else if (typeId == 15) {
+            return `/admin/institutionalopenarchive/projectdocumentcreateorupdate?activityId=${source.id}`;
+        }
+        else if (typeId == 29) {
+            return `/admin/institutionalopenarchive/studentprojectdocumentcreateorupdate?activityId=${source.id}`;
+        }
+        else if (typeId == 3) {
+            return `/admin/institutionalopenarchive/artactivitydocumentcreateorupdate?activityId=${source.id}`;
+        }
+        else if (typeId == 20) {
+            var thesisTypeId = source.thesistype;
+            if (thesisTypeId == 3) {
+                return `/admin/institutionalopenarchive/thesisdocumentcreateorupdate?activityId=${source.id}`;
+            }
+            else if (thesisTypeId == 4) {
+                return `/admin/institutionalopenarchive/advisingthesisdocumentcreateorupdate?activityId=${source.id}`;
+            }
+        }
+        else if (typeId == 27) {
+            return `/admin/institutionalopenarchive/researcherannouncementdocumentcreateorupdate?activityId=${source.id}`;
+        }
+        else if (typeId == 28) {
+            return `/admin/institutionalopenarchive/excavationandsurfacesurveydocumentcreateorupdate?activityId=${source.id}`;
+        }
+        else if (typeId == 23) {
+            return `/admin/institutionalopenarchive/lessondocumentcreateorupdate?activityId=${source.id}`;
+        }
+        return `/admin/institutionalopenarchive/commoncollectionpaircreateorupdate?activityId=${source.id}&elasticActivityTypeId=${typeId}&publicationTypeId=${source.publicationtypeid}&thesisTypeId=${source.thesistype}`;
+    }
+    function slugify(text) {
+        if (text) {
+            const a = 'àáâäæãåāăąçćčđďèéêëēėęěğǵḧıîïíīįìłḿñńǹňôöòóœøōõṕŕřßśšşșťțûüùúūǘůűųẃẍÿýžźż·/_,:;{}';
+            const b = 'aaaaaaaaaacccddeeeeeeeegghiiiiiiilmnnnnooooooooprrsssssttuuuuuuuuuwxyyzzz--------';
+            const p = new RegExp(a.split('').join('|'), 'g');
+
+            return text.toString().toLowerCase()
+                .replace(/\s+/g, '-')
+                .replace(p, c => b.charAt(a.indexOf(c)))
+                .replace(/&/g, '-and-')
+                .replace(/[^\w\-]+/g, '')
+                .replace(/\-\-+/g, '-')
+                .replace(/^-+/, '')
+                .replace(/-+$/, '');
+        }
+        return "";
+    }
+    var searchFields = ["title_primary", "title_secondary", "reference_primary.Abstract", "reference_secondary.Abstract", "reference_primary.JournalName", "reference_secondary.JournalName", "reference_primary.CongressName", "reference_secondary.CongressName", "reference_primary.RightsOwners.FormattedNameForSearch", "reference_secondary.RightsOwners.FormattedNameForSearch", "reference_primary.RightsOwners.FormattedName", "reference_secondary.RightsOwners.FormattedName", "fullnamewithtitleforsearch^100", "reference_primary.FormatedFullNameForSearch^100", "reference_primary.FullName^100", "reference_secondary.FormatedFullNameForSearch^100", "reference_secondary.FullName^100"];
+</script>
+    
+    
+
+<style>
+     /* Header Background Override Section */
+     #header .header-body {
+        background: #ffffff !important;
+     }
+
+    /* University and Title in Header Override Section */
+    .header-left-text {
+        color: #003b83 !important;
+    }
+
+    /* Header Right Buttons Override Section */
+    .header-right-menu li > a {
+        color: #999999 !important;
+    }
+
+    /* Search Bar Background Override Section */
+    .gradient-bar, html #header .header-nav-bar-primary .gradient-bar {
+        background: #006fa5 !important;
+        background: -moz-linear-gradient(left, #006fa5 0%, #06a470 100%) !important;
+        background: -webkit-gradient(left top, right top, color-stop(0%, #006fa5), color-stop(100%, #06a470)) !important;
+        background: -webkit-linear-gradient(left, #006fa5 0%, #06a470 100%) !important;
+        background: -o-linear-gradient(left, #006fa5 0%, #06a470 100%) !important;
+        background: -ms-linear-gradient(left, #006fa5 0%, #06a470 100%) !important;
+        background: linear-gradient(to right, #006fa5 0%, #06a470 100%) !important;
+        filter: progid:DXImageTransform.Microsoft.gradient( startColorstr=#006fa5, endColorstr=#06a470, GradientType=1 ) !important;
+    }
+
+    /* Search Bar "Detailed Search" Text Override Section */
+    #header .header-search-bar .btn-login {
+        color: #ffffff !important;
+    }
+
+    /* Slider Background Override Section */
+    .bg-slider {
+        background: #006393 !important;
+        background: -moz-linear-gradient(left, #006393 0%, #095860 100%) !important;
+        background: -webkit-gradient(left top, right top, color-stop(0%, #006393), color-stop(100%, #095860)) !important;
+        background: -webkit-linear-gradient(left, #006393 0%, #095860 100%) !important;
+        background: -o-linear-gradient(left, #006393 0%, #095860 100%) !important;
+        background: -ms-linear-gradient(left, #006393 0%, #095860 100%) !important;
+        background: linear-gradient(to right, #006393 0%, #095860 100%) !important;
+        /*filter: progid:DXImageTransform.Microsoft.gradient( startColorstr='#006393', endColorstr='#095860', GradientType=1 ) !important;*/
+        margin-top: 1px;
+    }
+
+    /* Slider Title Override Section */
+    #slider-section .slider-description {
+        color: #ffffff !important;
+    }
+
+    /* Footer Background Override Section */
+     html #footer.color-quaternary {
+        background: #383f48 !important;
+     }
+
+    /* Footer Text Override Section */
+    #footer a, #footer h1, #footer h2, #footer h3, #footer h4, #footer span {
+        color: #ffffff;
+    }
+
+    /* Bottom Footer Text Override Section To Overcome Top Section Color Changes*/
+    .footer-copyright a {
+        color: #ffffff !important;
+    }
+</style>
+<style type="text/css">.apexcharts-canvas {
+  position: relative;
+  user-select: none;
+  /* cannot give overflow: hidden as it will crop tooltips which overflow outside chart area */
+}
+
+
+/* scrollbar is not visible by default for legend, hence forcing the visibility */
+.apexcharts-canvas ::-webkit-scrollbar {
+  -webkit-appearance: none;
+  width: 6px;
+}
+
+.apexcharts-canvas ::-webkit-scrollbar-thumb {
+  border-radius: 4px;
+  background-color: rgba(0, 0, 0, .5);
+  box-shadow: 0 0 1px rgba(255, 255, 255, .5);
+  -webkit-box-shadow: 0 0 1px rgba(255, 255, 255, .5);
+}
+
+
+.apexcharts-inner {
+  position: relative;
+}
+
+.apexcharts-text tspan {
+  font-family: inherit;
+}
+
+.legend-mouseover-inactive {
+  transition: 0.15s ease all;
+  opacity: 0.20;
+}
+
+.apexcharts-series-collapsed {
+  opacity: 0;
+}
+
+.apexcharts-tooltip {
+  border-radius: 5px;
+  box-shadow: 2px 2px 6px -4px #999;
+  cursor: default;
+  font-size: 14px;
+  left: 62px;
+  opacity: 0;
+  pointer-events: none;
+  position: absolute;
+  top: 20px;
+  display: flex;
+  flex-direction: column;
+  overflow: hidden;
+  white-space: nowrap;
+  z-index: 12;
+  transition: 0.15s ease all;
+}
+
+.apexcharts-tooltip.apexcharts-active {
+  opacity: 1;
+  transition: 0.15s ease all;
+}
+
+.apexcharts-tooltip.apexcharts-theme-light {
+  border: 1px solid #e3e3e3;
+  background: rgba(255, 255, 255, 0.96);
+}
+
+.apexcharts-tooltip.apexcharts-theme-dark {
+  color: #fff;
+  background: rgba(30, 30, 30, 0.8);
+}
+
+.apexcharts-tooltip * {
+  font-family: inherit;
+}
+
+
+.apexcharts-tooltip-title {
+  padding: 6px;
+  font-size: 15px;
+  margin-bottom: 4px;
+}
+
+.apexcharts-tooltip.apexcharts-theme-light .apexcharts-tooltip-title {
+  background: #ECEFF1;
+  border-bottom: 1px solid #ddd;
+}
+
+.apexcharts-tooltip.apexcharts-theme-dark .apexcharts-tooltip-title {
+  background: rgba(0, 0, 0, 0.7);
+  border-bottom: 1px solid #333;
+}
+
+.apexcharts-tooltip-text-value,
+.apexcharts-tooltip-text-z-value {
+  display: inline-block;
+  font-weight: 600;
+  margin-left: 5px;
+}
+
+.apexcharts-tooltip-text-z-label:empty,
+.apexcharts-tooltip-text-z-value:empty {
+  display: none;
+}
+
+.apexcharts-tooltip-text-value,
+.apexcharts-tooltip-text-z-value {
+  font-weight: 600;
+}
+
+.apexcharts-tooltip-marker {
+  width: 12px;
+  height: 12px;
+  position: relative;
+  top: 0px;
+  margin-right: 10px;
+  border-radius: 50%;
+}
+
+.apexcharts-tooltip-series-group {
+  padding: 0 10px;
+  display: none;
+  text-align: left;
+  justify-content: left;
+  align-items: center;
+}
+
+.apexcharts-tooltip-series-group.apexcharts-active .apexcharts-tooltip-marker {
+  opacity: 1;
+}
+
+.apexcharts-tooltip-series-group.apexcharts-active,
+.apexcharts-tooltip-series-group:last-child {
+  padding-bottom: 4px;
+}
+
+.apexcharts-tooltip-series-group-hidden {
+  opacity: 0;
+  height: 0;
+  line-height: 0;
+  padding: 0 !important;
+}
+
+.apexcharts-tooltip-y-group {
+  padding: 6px 0 5px;
+}
+
+.apexcharts-tooltip-candlestick {
+  padding: 4px 8px;
+}
+
+.apexcharts-tooltip-candlestick>div {
+  margin: 4px 0;
+}
+
+.apexcharts-tooltip-candlestick span.value {
+  font-weight: bold;
+}
+
+.apexcharts-tooltip-rangebar {
+  padding: 5px 8px;
+}
+
+.apexcharts-tooltip-rangebar .category {
+  font-weight: 600;
+  color: #777;
+}
+
+.apexcharts-tooltip-rangebar .series-name {
+  font-weight: bold;
+  display: block;
+  margin-bottom: 5px;
+}
+
+.apexcharts-xaxistooltip {
+  opacity: 0;
+  padding: 9px 10px;
+  pointer-events: none;
+  color: #373d3f;
+  font-size: 13px;
+  text-align: center;
+  border-radius: 2px;
+  position: absolute;
+  z-index: 10;
+  background: #ECEFF1;
+  border: 1px solid #90A4AE;
+  transition: 0.15s ease all;
+}
+
+.apexcharts-xaxistooltip.apexcharts-theme-dark {
+  background: rgba(0, 0, 0, 0.7);
+  border: 1px solid rgba(0, 0, 0, 0.5);
+  color: #fff;
+}
+
+.apexcharts-xaxistooltip:after,
+.apexcharts-xaxistooltip:before {
+  left: 50%;
+  border: solid transparent;
+  content: " ";
+  height: 0;
+  width: 0;
+  position: absolute;
+  pointer-events: none;
+}
+
+.apexcharts-xaxistooltip:after {
+  border-color: rgba(236, 239, 241, 0);
+  border-width: 6px;
+  margin-left: -6px;
+}
+
+.apexcharts-xaxistooltip:before {
+  border-color: rgba(144, 164, 174, 0);
+  border-width: 7px;
+  margin-left: -7px;
+}
+
+.apexcharts-xaxistooltip-bottom:after,
+.apexcharts-xaxistooltip-bottom:before {
+  bottom: 100%;
+}
+
+.apexcharts-xaxistooltip-top:after,
+.apexcharts-xaxistooltip-top:before {
+  top: 100%;
+}
+
+.apexcharts-xaxistooltip-bottom:after {
+  border-bottom-color: #ECEFF1;
+}
+
+.apexcharts-xaxistooltip-bottom:before {
+  border-bottom-color: #90A4AE;
+}
+
+.apexcharts-xaxistooltip-bottom.apexcharts-theme-dark:after {
+  border-bottom-color: rgba(0, 0, 0, 0.5);
+}
+
+.apexcharts-xaxistooltip-bottom.apexcharts-theme-dark:before {
+  border-bottom-color: rgba(0, 0, 0, 0.5);
+}
+
+.apexcharts-xaxistooltip-top:after {
+  border-top-color: #ECEFF1
+}
+
+.apexcharts-xaxistooltip-top:before {
+  border-top-color: #90A4AE;
+}
+
+.apexcharts-xaxistooltip-top.apexcharts-theme-dark:after {
+  border-top-color: rgba(0, 0, 0, 0.5);
+}
+
+.apexcharts-xaxistooltip-top.apexcharts-theme-dark:before {
+  border-top-color: rgba(0, 0, 0, 0.5);
+}
+
+.apexcharts-xaxistooltip.apexcharts-active {
+  opacity: 1;
+  transition: 0.15s ease all;
+}
+
+.apexcharts-yaxistooltip {
+  opacity: 0;
+  padding: 4px 10px;
+  pointer-events: none;
+  color: #373d3f;
+  font-size: 13px;
+  text-align: center;
+  border-radius: 2px;
+  position: absolute;
+  z-index: 10;
+  background: #ECEFF1;
+  border: 1px solid #90A4AE;
+}
+
+.apexcharts-yaxistooltip.apexcharts-theme-dark {
+  background: rgba(0, 0, 0, 0.7);
+  border: 1px solid rgba(0, 0, 0, 0.5);
+  color: #fff;
+}
+
+.apexcharts-yaxistooltip:after,
+.apexcharts-yaxistooltip:before {
+  top: 50%;
+  border: solid transparent;
+  content: " ";
+  height: 0;
+  width: 0;
+  position: absolute;
+  pointer-events: none;
+}
+
+.apexcharts-yaxistooltip:after {
+  border-color: rgba(236, 239, 241, 0);
+  border-width: 6px;
+  margin-top: -6px;
+}
+
+.apexcharts-yaxistooltip:before {
+  border-color: rgba(144, 164, 174, 0);
+  border-width: 7px;
+  margin-top: -7px;
+}
+
+.apexcharts-yaxistooltip-left:after,
+.apexcharts-yaxistooltip-left:before {
+  left: 100%;
+}
+
+.apexcharts-yaxistooltip-right:after,
+.apexcharts-yaxistooltip-right:before {
+  right: 100%;
+}
+
+.apexcharts-yaxistooltip-left:after {
+  border-left-color: #ECEFF1;
+}
+
+.apexcharts-yaxistooltip-left:before {
+  border-left-color: #90A4AE;
+}
+
+.apexcharts-yaxistooltip-left.apexcharts-theme-dark:after {
+  border-left-color: rgba(0, 0, 0, 0.5);
+}
+
+.apexcharts-yaxistooltip-left.apexcharts-theme-dark:before {
+  border-left-color: rgba(0, 0, 0, 0.5);
+}
+
+.apexcharts-yaxistooltip-right:after {
+  border-right-color: #ECEFF1;
+}
+
+.apexcharts-yaxistooltip-right:before {
+  border-right-color: #90A4AE;
+}
+
+.apexcharts-yaxistooltip-right.apexcharts-theme-dark:after {
+  border-right-color: rgba(0, 0, 0, 0.5);
+}
+
+.apexcharts-yaxistooltip-right.apexcharts-theme-dark:before {
+  border-right-color: rgba(0, 0, 0, 0.5);
+}
+
+.apexcharts-yaxistooltip.apexcharts-active {
+  opacity: 1;
+}
+
+.apexcharts-yaxistooltip-hidden {
+  display: none;
+}
+
+.apexcharts-xcrosshairs,
+.apexcharts-ycrosshairs {
+  pointer-events: none;
+  opacity: 0;
+  transition: 0.15s ease all;
+}
+
+.apexcharts-xcrosshairs.apexcharts-active,
+.apexcharts-ycrosshairs.apexcharts-active {
+  opacity: 1;
+  transition: 0.15s ease all;
+}
+
+.apexcharts-ycrosshairs-hidden {
+  opacity: 0;
+}
+
+.apexcharts-selection-rect {
+  cursor: move;
+}
+
+.svg_select_boundingRect, .svg_select_points_rot {
+  pointer-events: none;
+  opacity: 0;
+  visibility: hidden;
+}
+.apexcharts-selection-rect + g .svg_select_boundingRect,
+.apexcharts-selection-rect + g .svg_select_points_rot {
+  opacity: 0;
+  visibility: hidden;
+}
+
+.apexcharts-selection-rect + g .svg_select_points_l,
+.apexcharts-selection-rect + g .svg_select_points_r {
+  cursor: ew-resize;
+  opacity: 1;
+  visibility: visible;
+}
+
+.svg_select_points {
+  fill: #efefef;
+  stroke: #333;
+  rx: 2;
+}
+
+.apexcharts-svg.apexcharts-zoomable.hovering-zoom {
+  cursor: crosshair
+}
+
+.apexcharts-svg.apexcharts-zoomable.hovering-pan {
+  cursor: move
+}
+
+.apexcharts-zoom-icon,
+.apexcharts-zoomin-icon,
+.apexcharts-zoomout-icon,
+.apexcharts-reset-icon,
+.apexcharts-pan-icon,
+.apexcharts-selection-icon,
+.apexcharts-menu-icon,
+.apexcharts-toolbar-custom-icon {
+  cursor: pointer;
+  width: 20px;
+  height: 20px;
+  line-height: 24px;
+  color: #6E8192;
+  text-align: center;
+}
+
+.apexcharts-zoom-icon svg,
+.apexcharts-zoomin-icon svg,
+.apexcharts-zoomout-icon svg,
+.apexcharts-reset-icon svg,
+.apexcharts-menu-icon svg {
+  fill: #6E8192;
+}
+
+.apexcharts-selection-icon svg {
+  fill: #444;
+  transform: scale(0.76)
+}
+
+.apexcharts-theme-dark .apexcharts-zoom-icon svg,
+.apexcharts-theme-dark .apexcharts-zoomin-icon svg,
+.apexcharts-theme-dark .apexcharts-zoomout-icon svg,
+.apexcharts-theme-dark .apexcharts-reset-icon svg,
+.apexcharts-theme-dark .apexcharts-pan-icon svg,
+.apexcharts-theme-dark .apexcharts-selection-icon svg,
+.apexcharts-theme-dark .apexcharts-menu-icon svg,
+.apexcharts-theme-dark .apexcharts-toolbar-custom-icon svg {
+  fill: #f3f4f5;
+}
+
+.apexcharts-canvas .apexcharts-zoom-icon.apexcharts-selected svg,
+.apexcharts-canvas .apexcharts-selection-icon.apexcharts-selected svg,
+.apexcharts-canvas .apexcharts-reset-zoom-icon.apexcharts-selected svg {
+  fill: #008FFB;
+}
+
+.apexcharts-theme-light .apexcharts-selection-icon:not(.apexcharts-selected):hover svg,
+.apexcharts-theme-light .apexcharts-zoom-icon:not(.apexcharts-selected):hover svg,
+.apexcharts-theme-light .apexcharts-zoomin-icon:hover svg,
+.apexcharts-theme-light .apexcharts-zoomout-icon:hover svg,
+.apexcharts-theme-light .apexcharts-reset-icon:hover svg,
+.apexcharts-theme-light .apexcharts-menu-icon:hover svg {
+  fill: #333;
+}
+
+.apexcharts-selection-icon,
+.apexcharts-menu-icon {
+  position: relative;
+}
+
+.apexcharts-reset-icon {
+  margin-left: 5px;
+}
+
+.apexcharts-zoom-icon,
+.apexcharts-reset-icon,
+.apexcharts-menu-icon {
+  transform: scale(0.85);
+}
+
+.apexcharts-zoomin-icon,
+.apexcharts-zoomout-icon {
+  transform: scale(0.7)
+}
+
+.apexcharts-zoomout-icon {
+  margin-right: 3px;
+}
+
+.apexcharts-pan-icon {
+  transform: scale(0.62);
+  position: relative;
+  left: 1px;
+  top: 0px;
+}
+
+.apexcharts-pan-icon svg {
+  fill: #fff;
+  stroke: #6E8192;
+  stroke-width: 2;
+}
+
+.apexcharts-pan-icon.apexcharts-selected svg {
+  stroke: #008FFB;
+}
+
+.apexcharts-pan-icon:not(.apexcharts-selected):hover svg {
+  stroke: #333;
+}
+
+.apexcharts-toolbar {
+  position: absolute;
+  z-index: 11;
+  max-width: 176px;
+  text-align: right;
+  border-radius: 3px;
+  padding: 0px 6px 2px 6px;
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+}
+
+.apexcharts-menu {
+  background: #fff;
+  position: absolute;
+  top: 100%;
+  border: 1px solid #ddd;
+  border-radius: 3px;
+  padding: 3px;
+  right: 10px;
+  opacity: 0;
+  min-width: 110px;
+  transition: 0.15s ease all;
+  pointer-events: none;
+}
+
+.apexcharts-menu.apexcharts-menu-open {
+  opacity: 1;
+  pointer-events: all;
+  transition: 0.15s ease all;
+}
+
+.apexcharts-menu-item {
+  padding: 6px 7px;
+  font-size: 12px;
+  cursor: pointer;
+}
+
+.apexcharts-theme-light .apexcharts-menu-item:hover {
+  background: #eee;
+}
+
+.apexcharts-theme-dark .apexcharts-menu {
+  background: rgba(0, 0, 0, 0.7);
+  color: #fff;
+}
+
+@media screen and (min-width: 768px) {
+  .apexcharts-canvas:hover .apexcharts-toolbar {
+    opacity: 1;
+  }
+}
+
+.apexcharts-datalabel.apexcharts-element-hidden {
+  opacity: 0;
+}
+
+.apexcharts-pie-label,
+.apexcharts-datalabels,
+.apexcharts-datalabel,
+.apexcharts-datalabel-label,
+.apexcharts-datalabel-value {
+  cursor: default;
+  pointer-events: none;
+}
+
+.apexcharts-pie-label-delay {
+  opacity: 0;
+  animation-name: opaque;
+  animation-duration: 0.3s;
+  animation-fill-mode: forwards;
+  animation-timing-function: ease;
+}
+
+.apexcharts-canvas .apexcharts-element-hidden {
+  opacity: 0;
+}
+
+.apexcharts-hide .apexcharts-series-points {
+  opacity: 0;
+}
+
+.apexcharts-gridline,
+.apexcharts-annotation-rect,
+.apexcharts-tooltip .apexcharts-marker,
+.apexcharts-area-series .apexcharts-area,
+.apexcharts-line,
+.apexcharts-zoom-rect,
+.apexcharts-toolbar svg,
+.apexcharts-area-series .apexcharts-series-markers .apexcharts-marker.no-pointer-events,
+.apexcharts-line-series .apexcharts-series-markers .apexcharts-marker.no-pointer-events,
+.apexcharts-radar-series path,
+.apexcharts-radar-series polygon {
+  pointer-events: none;
+}
+
+
+/* markers */
+
+.apexcharts-marker {
+  transition: 0.15s ease all;
+}
+
+@keyframes opaque {
+  0% {
+    opacity: 0;
+  }
+  100% {
+    opacity: 1;
+  }
+}
+
+
+/* Resize generated styles */
+
+@keyframes resizeanim {
+  from {
+    opacity: 0;
+  }
+  to {
+    opacity: 0;
+  }
+}
+
+.resize-triggers {
+  animation: 1ms resizeanim;
+  visibility: hidden;
+  opacity: 0;
+}
+
+.resize-triggers,
+.resize-triggers>div,
+.contract-trigger:before {
+  content: " ";
+  display: block;
+  position: absolute;
+  top: 0;
+  left: 0;
+  height: 100%;
+  width: 100%;
+  overflow: hidden;
+}
+
+.resize-triggers>div {
+  background: #eee;
+  overflow: auto;
+}
+
+.contract-trigger:before {
+  width: 200%;
+  height: 200%;
+}</style><link id="plx-css-popup" type="text/css" rel="stylesheet" href="//cdn.plu.mx/popup.css"><script type="text/javascript" src="//ajax.googleapis.com/ajax/libs/jquery/1.10.2/jquery.min.js"></script><script type="text/javascript" src="//cdn.plu.mx/extjs/xss.js"></script><style id="plotly.js-style-global"></style><style id="plotly.js-style-modebar-896389"></style></head>
+<body style="">
+    <header id="header" data-plugin-options="{&quot;stickyEnabled&quot;: false, &quot;stickyEnableOnBoxed&quot;: true, &quot;stickyEnableOnMobile&quot;: false, &quot;stickyStartAt&quot;: 147, &quot;stickySetTop&quot;: &quot;-147px&quot;, &quot;stickyChangeLogo&quot;: false}">
+        <div class="header-body">
+            
+<div class="header-container container-fluid">
+    <div class="header-main">
+        <div class="header-main-left">
+            <a href="/">
+                <img src="/home/logo?lang=tr" style="height:80px; margin:5px 5px 5px 0;">
+            </a>
+            <div class="header-left-text">
+                <span class="hidden-xs hidden-sm">İnönü Üniversitesi</span>
+                <span class="header-application-name">Akademik Veri Yönetim Sistemi</span>
+            </div>
+        </div>
+        <div class="header-main-right">
+            <div class="header-right-menu">
+                <ul class="nav nav-pills">
+                                                <li>
+                                <a href="/researcher">
+                                    <span class="ws-nowrap">
+                                        <i class="icon icon-login"></i> Araştırmacı Girişi
+                                    </span>
+                                </a>
+                            </li>
+                    
+        <li>
+            <a href="/home/changeculture?lang=en">
+                <span class="name">
+                    <i class="icon icon-globe"></i> English
+                </span>
+            </a>            
+        </li>
+
+
+
+                </ul>
+            </div>
+        </div>
+    </div>
+</div>
+        </div>
+    </header>
+    
+
+
+<link href="/Content/backoffice/vendor/ion-range-slider/ion.rangeSlider.min.css" rel="stylesheet">
+<link href="/Content/backoffice/vendor/jquery-datatables/media/css/jquery.dataTables.min.css" rel="stylesheet">
+<link href="/Content/backoffice/vendor/jquery-datatables-bs3/assets/css/datatables.css" rel="stylesheet">
+<link href="/Content/backoffice/css/overview-report.css" rel="stylesheet">
+
+<script src="/Content/backoffice/vendor/jquery/jquery-3.6.1.min.js"></script>
+<script src="https://cdn.amcharts.com/lib/version/5.4.1/index.js"></script>
+<script src="https://cdn.amcharts.com/lib/version/5.4.1/flow.js"></script>
+<script src="https://cdn.amcharts.com/lib/version/5.4.1/themes/Animated.js"></script>
+
+<style>
+    #contentPanel {
+        margin-left: unset;
+    }
+
+    a {
+        cursor: pointer;
+    }
+
+    #pageHeader {
+        margin-bottom: unset;
+    }
+
+    #collapseIconDiv {
+        float: left;
+        margin-top: -20px;
+        margin-right: 15px;
+    }
+
+    .collapseIconDiv-margin-left-20 {
+        margin-left: -20px;
+    }
+
+    .hide {
+        display: none;
+    }
+
+    .show {
+        display: block;
+    }
+
+    .padding-30 {
+        padding-left: 45px;
+        padding-right: 30px;
+    }
+
+    table.dataTable.no-footer {
+        border-bottom: none;
+    }
+
+    table.dataTable thead th {
+        border-bottom: none;
+        font-weight: 900;
+    }
+
+    .select2-search--dropdown {
+        display: none !important;
+    }
+
+    #asyncmodal-container .select2-container .select2-selection--single .select2-selection__rendered {
+        padding-right: 25px !important;
+        padding-top: 5px;
+    }
+
+    .dataTables_processing {
+        background: #CCC !important;
+        background-color: #0088cc !important;
+        border-radius: 100px !important;
+        box-shadow: 0 1px 1px -1px rgb(0 0 0 / 30%) !important;
+        color: #FFF !important;
+        left: 50% !important;
+        margin-left: -36px !important;
+        padding: 10px 10px !important;
+        position: absolute !important;
+        top: 22px !important;
+        width: 100px !important;
+    }
+
+    .table-header {
+        text-align: left;
+        padding-left: 11px !important;
+        padding-right: 25px !important;
+    }
+
+    .table-header-tag {
+        padding-left: 11px !important;
+    }
+
+    .table-header-year {
+        text-align: right;
+        padding-right: 25px !important;
+    }
+
+    .researcher-group-header a {
+        text-decoration: none;
+    }
+
+    #unitsPanel ul {
+        padding-left: 20px;
+    }
+
+    #pageHeader h2 {
+        margin-bottom: unset;
+    }
+
+    #unitsPanel ul li div {
+        display: flex !important;
+    }
+
+    .min-height-300 {
+        min-height: 300px;
+    }
+
+    .custom-dt-year-select {
+        width: 13%;
+    }
+
+    .custom-dt-td {
+        padding-left: 35px !important;
+    }
+
+    @media screen and (min-width: 1200px) {
+        .equal-height {
+            display: flex;
+            flex-wrap: wrap;
+        }
+    }
+
+    @media screen and (min-width: 992px) {
+        #contentPanel {
+            border-left: 2px solid #e7e7e7;
+        }
+
+        .panel-body {
+            padding-top: unset;
+        }
+    }
+
+    @media screen and (max-width: 992px) {
+        #unitsPanel {
+            border-bottom: 2px solid #e7e7e7;
+        }
+
+        #collapseIconDiv {
+            display: none;
+        }
+
+        #reports-section {
+            padding: 0 30px;
+        }
+
+        #contentView {
+            padding: 0 30px;
+        }
+
+        #range-slider {
+            margin-right: 25px;
+        }
+
+        #collaborations_barChart {
+            margin-top: 50px;
+        }
+    }
+
+    @media only screen and (max-width: 767px) {
+        .navbar-nav {
+            margin: 7px 15px;
+        }
+    }
+
+    @media only screen and (min-width: 1600px) {
+        .col-lg-3 {
+            width: 20% !important;
+        }
+
+        .col-lg-9 {
+            width: 80% !important;
+        }
+    }
+
+    @media only screen and (max-width: 768px) {
+        #contentPanel {
+            display: block;
+        }
+    }
+</style>
+
+<section id="pageHeader" class="page-header page-header-light">
+    <div style="margin-left:20px">
+        <div class="row">
+            <div class="col-md-12">
+                <h2 class="researcher-group-header">Birimlerde Araştırma</h2>
+            </div>
+        </div>
+    </div>
+</section>
+
+<div class="row mb-lg">
+    <div id="unitsPanel" class="col-lg-3 col-md-4 col-sm-12 mt-lg show">
+        <ul>
+            <li>
+                <div>
+                    <i class="fa fa-circle-o" aria-hidden="true" style="padding-top: 5px;"></i>
+                    <a class="ml-sm" href="/unitreport/index">Birimler</a>
+                </div>
+                <ul>
+                    <li>
+                            <div>
+            <i class="fa fa-circle-o" aria-hidden="true" style="padding-top: 5px;"></i>
+            <a class="ml-sm" href="/unitreport/reports?unitId=2">Adalet Meslek Yüksekokulu</a>
+    </div>
+
+                            <ul>
+                                <li>
+                                        <div>
+            <i class="fa fa-check-circle" aria-hidden="true" style="padding-top: 5px;"></i>
+            <a class="ml-sm" style="font-weight: bold" href="/unitreport/reports?unitId=3">Hukuk</a>
+    </div>
+
+                                        <ul>
+            <li>
+                    <div>
+            <i class="fa fa-circle-o" aria-hidden="true" style="padding-top: 5px;"></i>
+            <a class="ml-sm" href="/unitreport/reports?unitId=4">Adalet</a>
+    </div>
+
+            </li>
+            <li>
+                    <div>
+            <i class="fa fa-circle-o" aria-hidden="true" style="padding-top: 5px;"></i>
+            <a class="ml-sm" href="/unitreport/reports?unitId=99896951">Ceza İnfaz ve Güvenlik Hizmetleri Pr.</a>
+    </div>
+
+            </li>
+    </ul>
+
+                                </li>
+                            </ul>
+                    </li>
+                </ul>
+            </li>
+        </ul>
+    </div>
+    <div id="contentPanel" class="col-lg-9 col-md-8 col-sm-12 content-padding-0">
+        <div class="row" style="padding: 25px;">
+            <div id="collapseIconDiv" class="col-1 collapseIconDiv-margin-left-20">
+                <div class="actions">
+                    <a data-toggle="sidebar-colapse" title="Alt Birimleri Göster/Gizle">
+                        <div class="pull-right">
+                            <span id="collapse-icon" class="fa fa-2x fa-angle-double-left"></span>
+                        </div>
+                    </a>
+                </div>
+            </div>
+            <div id="range-slider" class="col-lg-3 col-md-6 col-sm-12 hidden">
+                <span class="irs irs--square js-irs-0 irs-primary irs-with-grid"><span class="irs"><span class="irs-line" tabindex="0"></span><span class="irs-min" style="display: none;">0</span><span class="irs-max" style="display: none;">1</span><span class="irs-from">0</span><span class="irs-to">0</span><span class="irs-single">0</span></span><span class="irs-grid"><span class="irs-grid-pol" style="left: 0%"></span><span class="irs-grid-text js-grid-text-0" style="left: 0%">1980</span><span class="irs-grid-pol small" style="left: 20%"></span><span class="irs-grid-pol small" style="left: 15%"></span><span class="irs-grid-pol small" style="left: 10%"></span><span class="irs-grid-pol small" style="left: 5%"></span><span class="irs-grid-pol" style="left: 25%"></span><span class="irs-grid-text js-grid-text-1" style="left: 25%; visibility: hidden;">1992</span><span class="irs-grid-pol small" style="left: 45%"></span><span class="irs-grid-pol small" style="left: 40%"></span><span class="irs-grid-pol small" style="left: 35%"></span><span class="irs-grid-pol small" style="left: 30%"></span><span class="irs-grid-pol" style="left: 50%"></span><span class="irs-grid-text js-grid-text-2" style="left: 50%; visibility: hidden;">2003</span><span class="irs-grid-pol small" style="left: 70%"></span><span class="irs-grid-pol small" style="left: 65%"></span><span class="irs-grid-pol small" style="left: 60%"></span><span class="irs-grid-pol small" style="left: 55%"></span><span class="irs-grid-pol" style="left: 75%"></span><span class="irs-grid-text js-grid-text-3" style="left: 75%; visibility: hidden;">2015</span><span class="irs-grid-pol small" style="left: 95%"></span><span class="irs-grid-pol small" style="left: 90%"></span><span class="irs-grid-pol small" style="left: 85%"></span><span class="irs-grid-pol small" style="left: 80%"></span><span class="irs-grid-pol" style="left: 100%"></span><span class="irs-grid-text js-grid-text-4" style="left: 100%">2026</span></span><span class="irs-bar"></span><span class="irs-shadow shadow-from"></span><span class="irs-shadow shadow-to"></span><span class="irs-handle from type_last"><i></i><i></i><i></i></span><span class="irs-handle to"><i></i><i></i><i></i></span></span><input type="text" class="js-range-slider irs-hidden-input" id="yearRange" name="year_range" value="" tabindex="-1" readonly="">
+            </div>
+        </div>
+        <div class="reports-section">
+            <div class="panel-body">
+                <nav class="navbar">
+                    <ul class="activity-links nav navbar-nav">
+                        <li class=""><a class="link" data-section="_Overview">Özet</a></li>
+                        <li class=""><a class="link" data-section="_Publication">Yayın</a></li>
+                        <li class=""><a class="link" data-section="_Project">Proje</a></li>
+                        <li class=""><a class="link" data-section="_IntellectualProperty">Fikri Mülkiyet</a></li>
+                        <li class=""><a class="link" data-section="_Thesis">Tez</a></li>
+                        <li class="active"><a class="link" data-section="_Researcher">Araştırmacılar</a></li>
+                        <li class=""><a class="link" data-section="_ResearchAreas">Araştırma Alanları</a></li>
+                    </ul>
+                </nav>
+                <div class="loading-spinner"></div>
+                <div id="contentView"><link href="/Content/backoffice/css/theme-custom.css" rel="stylesheet">
+<style>
+    .min-h-300 {
+        min-height: 300px;
+    }
+
+    .section-title > h4 {
+        font-size: 2.0rem !important;
+        width: 100% !important;
+    }
+
+    /* RESEARCHER LIST CSS BEGIN */
+    #searchInput {
+        padding: 6px 12px;
+        border: 1px solid #ddd;
+        width: 100%;
+    }
+
+        #searchInput:focus {
+            box-shadow: 0 1px 1px rgba(0, 0, 0, 0.075) inset, 0 0 8px rgba(0, 136, 204, 0.3);
+            outline: 0 none;
+        }
+
+    #search-container {
+        display: flex;
+        margin-right: 25px;
+    }
+
+    @media (min-width: 769px) and (max-width: 1399) {
+        #searchInput {
+            width: 40%;
+        }
+
+        #titleFilter {
+            width: 40%;
+        }
+    }
+
+    @media (min-width: 1400px) {
+        #searchInput {
+            width: 20%;
+        }
+
+        #titleFilter {
+            width: 20%;
+        }
+    }
+
+    @media (min-width: 769px) {
+        .card {
+            position: relative;
+            width: 250px;
+            max-height: 290px;
+            background-color: #fff;
+            margin: 30px 10px;
+            display: flex;
+            flex-direction: column;
+            box-shadow: 0 5px 20px rgba(0,0,0,0.5);
+            transition: 0.5s ease-in-out;
+        }
+
+            .card:hover {
+                max-height: 570px;
+                z-index: 100;
+                box-shadow: 0 10px 40px rgba(0,0,0,0.7);
+            }
+
+            .card .content {
+                position: relative;
+                padding: 10px 15px;
+                top: -25px;
+                color: #111;
+                text-align: center;
+                visibility: hidden;
+                opacity: 0;
+                transition: 0.5s ease-in-out;
+            }
+
+            .card:hover .content {
+                margin-top: 30px;
+                visibility: visible;
+                opacity: 1;
+                transition-delay: 0.2s;
+            }
+
+        #researcherList li {
+            max-height: 340px;
+        }
+
+        #search-container {
+            justify-content: end;
+            align-items: center;
+        }
+    }
+
+    @media (max-width: 768px) {
+        .card {
+            max-width: 250px;
+            max-height: 570px;
+            background-color: #fff;
+            margin: 30px 10px;
+            display: flex;
+            flex-direction: column;
+            box-shadow: 0 5px 20px rgba(0,0,0,0.5);
+        }
+
+            .card .content {
+                padding: 10px 15px;
+                top: -25px;
+                color: #111;
+                text-align: center;
+            }
+
+        #searchInput {
+            width: 50%;
+        }
+
+        #titleFilter {
+            width: 50%;
+        }
+
+        #search-container {
+            flex-direction: column;
+            align-items: flex-end;
+        }
+
+            #search-container a,
+            #search-container select,
+            #search-container input {
+                margin-top: 10px;
+            }
+    }
+
+    .card .image {
+        margin-top: 15px;
+        min-height: 250px; /* Sadece height vermek ise yaramadi */
+        max-height: 250px;
+        display: flex;
+        flex-direction: column;
+        justify-content: space-between;
+    }
+
+    .image-inner {
+        display: flex;
+        justify-content: center;
+    }
+
+    .card .image img {
+        max-width: 200px;
+        max-height: 200px;
+    }
+
+    #researcherList {
+        display: flex;
+        justify-content: center;
+        padding-left: 0;
+        flex-wrap: wrap;
+    }
+
+    .contact-info i {
+        margin-right: 5px;
+    }
+
+    .contact-info {
+        margin-bottom: 5px;
+        border: 1px grey solid;
+        padding: 5px;
+    }
+
+    .researcher-name {
+        font-weight: bold;
+        font-size: 17px !important;
+        margin-bottom: 2px !important;
+        margin-top: 10px !important;
+        text-align: center;
+        padding: 0 5px 0 5px;
+    }
+
+    #pagination {
+        margin-top: 75px;
+    }
+
+    .d-flex-j-center {
+        display: flex;
+        justify-content: center;
+        flex-direction: column;
+    }
+
+    .pagination-container {
+        display: flex;
+        align-items: center;
+        margin-top: 15px;
+        bottom: 0;
+        justify-content: center;
+    }
+
+    .pagination-number,
+    .pagination-button {
+        background-color: #fff;
+        cursor: pointer;
+        padding: 6px 12px;
+        margin-left: -1px;
+        border: 1px solid #ddd;
+        border-color: #ddd;
+        text-decoration: none;
+    }
+
+        .pagination-number,
+        .pagination-button:not(.disabled) {
+            color: #0088cc;
+        }
+
+            .pagination-number:hover,
+            .pagination-button:not(.disabled):hover {
+                background-color: #eee;
+            }
+
+            .pagination-number.active {
+                color: #fff;
+                background: #0085b6;
+            }
+
+    .researcher-no-data-found {
+        text-align: center;
+    }
+    /* RESEARCHER LIST CSS END */
+</style>
+
+<div class="bs-callout bs-callout-info"><p>Bu sayfadaki grafikler, bu birimde kadrolu çalışan veya bu birimde görevli olarak çalışan araştırmacılar üzerinden oluşturulmaktadır.</p></div>
+<div class="row">
+    <div id="_DistributionOfResearchersByTitles" class="col-lg-4 min-h-300">
+        <div class="loading-spinner left-42" style="display: none;"></div>
+        <div class="section-title">
+            <h4>Öğretim Üyelerinin Ünvanlara Göre Dağılımı</h4>
+        </div>
+        <div id="_distributionOfResearchersByTitles" style="min-height: 400px;"><div id="apexcharts7vypakx3" class="apexcharts-canvas apexcharts7vypakx3 apexcharts-theme-light" style="width: 287px; height: 400px;"><svg id="SvgjsSvg1113" width="287" height="400" xmlns="http://www.w3.org/2000/svg" version="1.1" xmlns:xlink="http://www.w3.org/1999/xlink" xmlns:svgjs="http://svgjs.com/svgjs" class="apexcharts-svg" xmlns:data="ApexChartsNS" transform="translate(0, 0)" style="background: transparent;"><foreignObject x="0" y="0" width="287" height="400"><div class="apexcharts-legend" xmlns="http://www.w3.org/1999/xhtml" style="inset: auto 0px 1px; position: absolute; max-height: 200px;"></div><style type="text/css">	
+    	
+      .apexcharts-legend {	
+        display: flex;	
+        overflow: auto;	
+        padding: 0 10px;	
+      }	
+      .apexcharts-legend.position-bottom, .apexcharts-legend.position-top {	
+        flex-wrap: wrap	
+      }	
+      .apexcharts-legend.position-right, .apexcharts-legend.position-left {	
+        flex-direction: column;	
+        bottom: 0;	
+      }	
+      .apexcharts-legend.position-bottom.apexcharts-align-left, .apexcharts-legend.position-top.apexcharts-align-left, .apexcharts-legend.position-right, .apexcharts-legend.position-left {	
+        justify-content: flex-start;	
+      }	
+      .apexcharts-legend.position-bottom.apexcharts-align-center, .apexcharts-legend.position-top.apexcharts-align-center {	
+        justify-content: center;  	
+      }	
+      .apexcharts-legend.position-bottom.apexcharts-align-right, .apexcharts-legend.position-top.apexcharts-align-right {	
+        justify-content: flex-end;	
+      }	
+      .apexcharts-legend-series {	
+        cursor: pointer;	
+        line-height: normal;	
+      }	
+      .apexcharts-legend.position-bottom .apexcharts-legend-series, .apexcharts-legend.position-top .apexcharts-legend-series{	
+        display: flex;	
+        align-items: center;	
+      }	
+      .apexcharts-legend-text {	
+        position: relative;	
+        font-size: 14px;	
+      }	
+      .apexcharts-legend-text *, .apexcharts-legend-marker * {	
+        pointer-events: none;	
+      }	
+      .apexcharts-legend-marker {	
+        position: relative;	
+        display: inline-block;	
+        cursor: pointer;	
+        margin-right: 3px;	
+        border-style: solid;
+      }	
+      	
+      .apexcharts-legend.apexcharts-align-right .apexcharts-legend-series, .apexcharts-legend.apexcharts-align-left .apexcharts-legend-series{	
+        display: inline-block;	
+      }	
+      .apexcharts-legend-series.apexcharts-no-click {	
+        cursor: auto;	
+      }	
+      .apexcharts-legend .apexcharts-hidden-zero-series, .apexcharts-legend .apexcharts-hidden-null-series {	
+        display: none !important;	
+      }	
+      .apexcharts-inactive-legend {	
+        opacity: 0.45;	
+      }</style></foreignObject><g id="SvgjsG1115" class="apexcharts-inner apexcharts-graphical" transform="translate(12, 0)"><defs id="SvgjsDefs1114"><clipPath id="gridRectMask7vypakx3"><rect id="SvgjsRect1118" width="271" height="357" x="-3" y="-1" rx="0" ry="0" opacity="1" stroke-width="0" stroke="none" stroke-dasharray="0" fill="#fff"></rect></clipPath><clipPath id="gridRectMarkerMask7vypakx3"><rect id="SvgjsRect1119" width="269" height="359" x="-2" y="-2" rx="0" ry="0" opacity="1" stroke-width="0" stroke="none" stroke-dasharray="0" fill="#fff"></rect></clipPath></defs><g id="SvgjsG1120" class="apexcharts-pie"></g><line id="SvgjsLine1121" x1="0" y1="0" x2="265" y2="0" stroke="#b6b6b6" stroke-dasharray="0" stroke-width="1" class="apexcharts-ycrosshairs"></line><line id="SvgjsLine1122" x1="0" y1="0" x2="265" y2="0" stroke-dasharray="0" stroke-width="0" class="apexcharts-ycrosshairs-hidden"></line></g><text id="SvgjsText1117" font-family="Helvetica, Arial, sans-serif" x="143.5" y="216" text-anchor="middle" dominant-baseline="auto" font-size="14px" font-weight="regular" fill="#555555" class="apexcharts-text " style="font-family: Helvetica, Arial, sans-serif; opacity: 1;">Kayıt bulunamadı</text><g id="SvgjsG1116" class="apexcharts-annotations"></g></svg></div></div>
+    <div class="resize-triggers"><div class="expand-trigger"><div style="width: 318px; height: 469px;"></div></div><div class="contract-trigger"></div></div></div>
+    <div id="_DistributionOfFacultyStaffByTitles" class="col-lg-4 min-h-300">
+        <div class="loading-spinner left-42" style="display: none;"></div>
+        <div class="section-title">
+            <h4>Akademik Personelin Ünvanlara Göre Dağılımı</h4>
+        </div>
+        <div id="_distributionOfFacultyStaffByTitles" style="min-height: 400px;"><div id="apexcharts13iopv1o" class="apexcharts-canvas apexcharts13iopv1o apexcharts-theme-light" style="width: 287px; height: 400px;"><svg id="SvgjsSvg1123" width="287" height="400" xmlns="http://www.w3.org/2000/svg" version="1.1" xmlns:xlink="http://www.w3.org/1999/xlink" xmlns:svgjs="http://svgjs.com/svgjs" class="apexcharts-svg" xmlns:data="ApexChartsNS" transform="translate(0, 0)" style="background: transparent;"><foreignObject x="0" y="0" width="287" height="400"><div class="apexcharts-legend" xmlns="http://www.w3.org/1999/xhtml" style="inset: auto 0px 1px; position: absolute; max-height: 200px;"></div><style type="text/css">	
+    	
+      .apexcharts-legend {	
+        display: flex;	
+        overflow: auto;	
+        padding: 0 10px;	
+      }	
+      .apexcharts-legend.position-bottom, .apexcharts-legend.position-top {	
+        flex-wrap: wrap	
+      }	
+      .apexcharts-legend.position-right, .apexcharts-legend.position-left {	
+        flex-direction: column;	
+        bottom: 0;	
+      }	
+      .apexcharts-legend.position-bottom.apexcharts-align-left, .apexcharts-legend.position-top.apexcharts-align-left, .apexcharts-legend.position-right, .apexcharts-legend.position-left {	
+        justify-content: flex-start;	
+      }	
+      .apexcharts-legend.position-bottom.apexcharts-align-center, .apexcharts-legend.position-top.apexcharts-align-center {	
+        justify-content: center;  	
+      }	
+      .apexcharts-legend.position-bottom.apexcharts-align-right, .apexcharts-legend.position-top.apexcharts-align-right {	
+        justify-content: flex-end;	
+      }	
+      .apexcharts-legend-series {	
+        cursor: pointer;	
+        line-height: normal;	
+      }	
+      .apexcharts-legend.position-bottom .apexcharts-legend-series, .apexcharts-legend.position-top .apexcharts-legend-series{	
+        display: flex;	
+        align-items: center;	
+      }	
+      .apexcharts-legend-text {	
+        position: relative;	
+        font-size: 14px;	
+      }	
+      .apexcharts-legend-text *, .apexcharts-legend-marker * {	
+        pointer-events: none;	
+      }	
+      .apexcharts-legend-marker {	
+        position: relative;	
+        display: inline-block;	
+        cursor: pointer;	
+        margin-right: 3px;	
+        border-style: solid;
+      }	
+      	
+      .apexcharts-legend.apexcharts-align-right .apexcharts-legend-series, .apexcharts-legend.apexcharts-align-left .apexcharts-legend-series{	
+        display: inline-block;	
+      }	
+      .apexcharts-legend-series.apexcharts-no-click {	
+        cursor: auto;	
+      }	
+      .apexcharts-legend .apexcharts-hidden-zero-series, .apexcharts-legend .apexcharts-hidden-null-series {	
+        display: none !important;	
+      }	
+      .apexcharts-inactive-legend {	
+        opacity: 0.45;	
+      }</style></foreignObject><g id="SvgjsG1125" class="apexcharts-inner apexcharts-graphical" transform="translate(12, 0)"><defs id="SvgjsDefs1124"><clipPath id="gridRectMask13iopv1o"><rect id="SvgjsRect1128" width="271" height="357" x="-3" y="-1" rx="0" ry="0" opacity="1" stroke-width="0" stroke="none" stroke-dasharray="0" fill="#fff"></rect></clipPath><clipPath id="gridRectMarkerMask13iopv1o"><rect id="SvgjsRect1129" width="269" height="359" x="-2" y="-2" rx="0" ry="0" opacity="1" stroke-width="0" stroke="none" stroke-dasharray="0" fill="#fff"></rect></clipPath></defs><g id="SvgjsG1130" class="apexcharts-pie"></g><line id="SvgjsLine1131" x1="0" y1="0" x2="265" y2="0" stroke="#b6b6b6" stroke-dasharray="0" stroke-width="1" class="apexcharts-ycrosshairs"></line><line id="SvgjsLine1132" x1="0" y1="0" x2="265" y2="0" stroke-dasharray="0" stroke-width="0" class="apexcharts-ycrosshairs-hidden"></line></g><text id="SvgjsText1127" font-family="Helvetica, Arial, sans-serif" x="143.5" y="216" text-anchor="middle" dominant-baseline="auto" font-size="14px" font-weight="regular" fill="#555555" class="apexcharts-text " style="font-family: Helvetica, Arial, sans-serif; opacity: 1;">Kayıt bulunamadı</text><g id="SvgjsG1126" class="apexcharts-annotations"></g></svg></div></div>
+    <div class="resize-triggers"><div class="expand-trigger"><div style="width: 318px; height: 469px;"></div></div><div class="contract-trigger"></div></div></div>
+    <div id="distributionOfGender" class="col-lg-4 min-h-300">
+        <div class="loading-spinner left-42" style="display: none;"></div>
+        <div class="section-title">
+            <h4>Akademik Personelin Cinsiyete Göre Dağılımı</h4>
+        </div>
+        <div id="_distributionOfResearchersByGender" style="min-height: 400px;"><div id="apexchartsqthom746" class="apexcharts-canvas apexchartsqthom746 apexcharts-theme-light" style="width: 287px; height: 400px;"><svg id="SvgjsSvg1103" width="287" height="400" xmlns="http://www.w3.org/2000/svg" version="1.1" xmlns:xlink="http://www.w3.org/1999/xlink" xmlns:svgjs="http://svgjs.com/svgjs" class="apexcharts-svg" xmlns:data="ApexChartsNS" transform="translate(0, 0)" style="background: transparent;"><foreignObject x="0" y="0" width="287" height="400"><div class="apexcharts-legend" xmlns="http://www.w3.org/1999/xhtml" style="inset: auto 0px 1px; position: absolute; max-height: 200px;"></div><style type="text/css">	
+    	
+      .apexcharts-legend {	
+        display: flex;	
+        overflow: auto;	
+        padding: 0 10px;	
+      }	
+      .apexcharts-legend.position-bottom, .apexcharts-legend.position-top {	
+        flex-wrap: wrap	
+      }	
+      .apexcharts-legend.position-right, .apexcharts-legend.position-left {	
+        flex-direction: column;	
+        bottom: 0;	
+      }	
+      .apexcharts-legend.position-bottom.apexcharts-align-left, .apexcharts-legend.position-top.apexcharts-align-left, .apexcharts-legend.position-right, .apexcharts-legend.position-left {	
+        justify-content: flex-start;	
+      }	
+      .apexcharts-legend.position-bottom.apexcharts-align-center, .apexcharts-legend.position-top.apexcharts-align-center {	
+        justify-content: center;  	
+      }	
+      .apexcharts-legend.position-bottom.apexcharts-align-right, .apexcharts-legend.position-top.apexcharts-align-right {	
+        justify-content: flex-end;	
+      }	
+      .apexcharts-legend-series {	
+        cursor: pointer;	
+        line-height: normal;	
+      }	
+      .apexcharts-legend.position-bottom .apexcharts-legend-series, .apexcharts-legend.position-top .apexcharts-legend-series{	
+        display: flex;	
+        align-items: center;	
+      }	
+      .apexcharts-legend-text {	
+        position: relative;	
+        font-size: 14px;	
+      }	
+      .apexcharts-legend-text *, .apexcharts-legend-marker * {	
+        pointer-events: none;	
+      }	
+      .apexcharts-legend-marker {	
+        position: relative;	
+        display: inline-block;	
+        cursor: pointer;	
+        margin-right: 3px;	
+        border-style: solid;
+      }	
+      	
+      .apexcharts-legend.apexcharts-align-right .apexcharts-legend-series, .apexcharts-legend.apexcharts-align-left .apexcharts-legend-series{	
+        display: inline-block;	
+      }	
+      .apexcharts-legend-series.apexcharts-no-click {	
+        cursor: auto;	
+      }	
+      .apexcharts-legend .apexcharts-hidden-zero-series, .apexcharts-legend .apexcharts-hidden-null-series {	
+        display: none !important;	
+      }	
+      .apexcharts-inactive-legend {	
+        opacity: 0.45;	
+      }</style></foreignObject><g id="SvgjsG1105" class="apexcharts-inner apexcharts-graphical" transform="translate(12, 0)"><defs id="SvgjsDefs1104"><clipPath id="gridRectMaskqthom746"><rect id="SvgjsRect1108" width="271" height="357" x="-3" y="-1" rx="0" ry="0" opacity="1" stroke-width="0" stroke="none" stroke-dasharray="0" fill="#fff"></rect></clipPath><clipPath id="gridRectMarkerMaskqthom746"><rect id="SvgjsRect1109" width="269" height="359" x="-2" y="-2" rx="0" ry="0" opacity="1" stroke-width="0" stroke="none" stroke-dasharray="0" fill="#fff"></rect></clipPath></defs><g id="SvgjsG1110" class="apexcharts-pie"></g><line id="SvgjsLine1111" x1="0" y1="0" x2="265" y2="0" stroke="#b6b6b6" stroke-dasharray="0" stroke-width="1" class="apexcharts-ycrosshairs"></line><line id="SvgjsLine1112" x1="0" y1="0" x2="265" y2="0" stroke-dasharray="0" stroke-width="0" class="apexcharts-ycrosshairs-hidden"></line></g><text id="SvgjsText1107" font-family="Helvetica, Arial, sans-serif" x="143.5" y="216" text-anchor="middle" dominant-baseline="auto" font-size="14px" font-weight="regular" fill="#555555" class="apexcharts-text " style="font-family: Helvetica, Arial, sans-serif; opacity: 1;">Kayıt bulunamadı</text><g id="SvgjsG1106" class="apexcharts-annotations"></g></svg></div></div>
+    <div class="resize-triggers"><div class="expand-trigger"><div style="width: 318px; height: 469px;"></div></div><div class="contract-trigger"></div></div></div>
+</div>
+
+<div class="row mt-md">
+    <div id="domesticAndAbroadEducationCounts" class="col-lg-4 min-h-300">
+        <div class="loading-spinner left-42" style="display: none;"></div>
+        <div class="section-title">
+            <h4>
+                Akademik Personel Yurt İçi/Yurt Dışı Eğitime Göre Dağılım Tablosu
+                <i class="fa fa-info-circle text-primary" style="margin-left:2px;" data-toggle="popover" data-content="Bir personel birden fazla ülkede eğitim almış olsa da yalnızca bir kez sayılır. Hem yurtiçinde hem yurtdışında eğitim aldıysa her iki gruba da dahil edilir." data-placement="top"></i>
+            </h4>
+        </div>
+        <div id="_domesticAndAbroadEducationCounts" style="min-height: 295.7px;"><div id="apexcharts5s5znhvnf" class="apexcharts-canvas apexcharts5s5znhvnf apexcharts-theme-light" style="width: 287px; height: 295.7px;"><svg id="SvgjsSvg1143" width="287" height="295.7" xmlns="http://www.w3.org/2000/svg" version="1.1" xmlns:xlink="http://www.w3.org/1999/xlink" xmlns:svgjs="http://svgjs.com/svgjs" class="apexcharts-svg" xmlns:data="ApexChartsNS" transform="translate(0, 0)" style="background: transparent;"><foreignObject x="0" y="0" width="287" height="295.7"><div class="apexcharts-legend apexcharts-align-center position-bottom" xmlns="http://www.w3.org/1999/xhtml" style="inset: auto 0px 1px; position: absolute; max-height: 200px;"><div class="apexcharts-legend-series" rel="1" seriesname="Yurtxİçi" data:collapsed="false" style="margin: 2px 5px;"><span class="apexcharts-legend-marker" rel="1" data:collapsed="false" style="background: rgb(0, 143, 251) !important; color: rgb(0, 143, 251); height: 12px; width: 12px; left: 0px; top: 0px; border-width: 0px; border-color: rgb(255, 255, 255); border-radius: 12px;"></span><span class="apexcharts-legend-text" rel="1" i="0" data:default-text="Yurt%20%C4%B0%C3%A7i" data:collapsed="false" style="color: rgb(55, 61, 63); font-size: 12px; font-weight: 400; font-family: Helvetica, Arial, sans-serif;">Yurt İçi</span></div><div class="apexcharts-legend-series" rel="2" seriesname="YurtxDışı" data:collapsed="false" style="margin: 2px 5px;"><span class="apexcharts-legend-marker" rel="2" data:collapsed="false" style="background: rgb(0, 227, 150) !important; color: rgb(0, 227, 150); height: 12px; width: 12px; left: 0px; top: 0px; border-width: 0px; border-color: rgb(255, 255, 255); border-radius: 12px;"></span><span class="apexcharts-legend-text" rel="2" i="1" data:default-text="Yurt%20D%C4%B1%C5%9F%C4%B1" data:collapsed="false" style="color: rgb(55, 61, 63); font-size: 12px; font-weight: 400; font-family: Helvetica, Arial, sans-serif;">Yurt Dışı</span></div></div><style type="text/css">	
+    	
+      .apexcharts-legend {	
+        display: flex;	
+        overflow: auto;	
+        padding: 0 10px;	
+      }	
+      .apexcharts-legend.position-bottom, .apexcharts-legend.position-top {	
+        flex-wrap: wrap	
+      }	
+      .apexcharts-legend.position-right, .apexcharts-legend.position-left {	
+        flex-direction: column;	
+        bottom: 0;	
+      }	
+      .apexcharts-legend.position-bottom.apexcharts-align-left, .apexcharts-legend.position-top.apexcharts-align-left, .apexcharts-legend.position-right, .apexcharts-legend.position-left {	
+        justify-content: flex-start;	
+      }	
+      .apexcharts-legend.position-bottom.apexcharts-align-center, .apexcharts-legend.position-top.apexcharts-align-center {	
+        justify-content: center;  	
+      }	
+      .apexcharts-legend.position-bottom.apexcharts-align-right, .apexcharts-legend.position-top.apexcharts-align-right {	
+        justify-content: flex-end;	
+      }	
+      .apexcharts-legend-series {	
+        cursor: pointer;	
+        line-height: normal;	
+      }	
+      .apexcharts-legend.position-bottom .apexcharts-legend-series, .apexcharts-legend.position-top .apexcharts-legend-series{	
+        display: flex;	
+        align-items: center;	
+      }	
+      .apexcharts-legend-text {	
+        position: relative;	
+        font-size: 14px;	
+      }	
+      .apexcharts-legend-text *, .apexcharts-legend-marker * {	
+        pointer-events: none;	
+      }	
+      .apexcharts-legend-marker {	
+        position: relative;	
+        display: inline-block;	
+        cursor: pointer;	
+        margin-right: 3px;	
+        border-style: solid;
+      }	
+      	
+      .apexcharts-legend.apexcharts-align-right .apexcharts-legend-series, .apexcharts-legend.apexcharts-align-left .apexcharts-legend-series{	
+        display: inline-block;	
+      }	
+      .apexcharts-legend-series.apexcharts-no-click {	
+        cursor: auto;	
+      }	
+      .apexcharts-legend .apexcharts-hidden-zero-series, .apexcharts-legend .apexcharts-hidden-null-series {	
+        display: none !important;	
+      }	
+      .apexcharts-inactive-legend {	
+        opacity: 0.45;	
+      }</style></foreignObject><g id="SvgjsG1145" class="apexcharts-inner apexcharts-graphical" transform="translate(12, 0)"><defs id="SvgjsDefs1144"><clipPath id="gridRectMask5s5znhvnf"><rect id="SvgjsRect1147" width="271" height="339" x="-3" y="-1" rx="0" ry="0" opacity="1" stroke-width="0" stroke="none" stroke-dasharray="0" fill="#fff"></rect></clipPath><clipPath id="gridRectMarkerMask5s5znhvnf"><rect id="SvgjsRect1148" width="269" height="341" x="-2" y="-2" rx="0" ry="0" opacity="1" stroke-width="0" stroke="none" stroke-dasharray="0" fill="#fff"></rect></clipPath></defs><g id="SvgjsG1149" class="apexcharts-pie"><g id="SvgjsG1150" transform="translate(0, 0) scale(1)"><g id="SvgjsG1151" class="apexcharts-slices"><g id="SvgjsG1152" class="apexcharts-series apexcharts-pie-series" seriesName="Yurtxİçi" rel="1" data:realIndex="0"><path id="SvgjsPath1153" d="M 132.5 9.231707317073159 A 123.26829268292684 123.26829268292684 0 0 1 132.5 9.231707317073159 L 132.5 132.5 L 132.5 9.231707317073159" fill="rgba(0,143,251,1)" fill-opacity="1" stroke-opacity="1" stroke-linecap="butt" stroke-width="2" stroke-dasharray="0" class="apexcharts-pie-area apexcharts-pie-slice-0" index="0" j="0" data:angle="0" data:startAngle="0" data:strokeWidth="2" data:value="0" data:pathOrig="M 132.5 9.231707317073159 A 123.26829268292684 123.26829268292684 0 0 1 132.5 9.231707317073159 L 132.5 132.5 L 132.5 9.231707317073159" stroke="#ffffff"></path></g><g id="SvgjsG1154" class="apexcharts-series apexcharts-pie-series" seriesName="YurtxDışı" rel="2" data:realIndex="1"><path id="SvgjsPath1155" d="M 132.5 9.231707317073159 A 123.26829268292684 123.26829268292684 0 0 1 132.5 9.231707317073159 L 132.5 132.5 L 132.5 9.231707317073159" fill="rgba(0,227,150,1)" fill-opacity="1" stroke-opacity="1" stroke-linecap="butt" stroke-width="2" stroke-dasharray="0" class="apexcharts-pie-area apexcharts-pie-slice-1" index="0" j="1" data:angle="0" data:startAngle="0" data:strokeWidth="2" data:value="0" data:pathOrig="M 132.5 9.231707317073159 A 123.26829268292684 123.26829268292684 0 0 1 132.5 9.231707317073159 L 132.5 132.5 L 132.5 9.231707317073159" stroke="#ffffff"></path></g></g></g></g><line id="SvgjsLine1156" x1="0" y1="0" x2="265" y2="0" stroke="#b6b6b6" stroke-dasharray="0" stroke-width="1" class="apexcharts-ycrosshairs"></line><line id="SvgjsLine1157" x1="0" y1="0" x2="265" y2="0" stroke-dasharray="0" stroke-width="0" class="apexcharts-ycrosshairs-hidden"></line></g><g id="SvgjsG1146" class="apexcharts-annotations"></g></svg><div class="apexcharts-tooltip apexcharts-theme-dark"><div class="apexcharts-tooltip-series-group" style="order: 1;"><span class="apexcharts-tooltip-marker" style="background-color: rgb(0, 143, 251);"></span><div class="apexcharts-tooltip-text" style="font-family: Helvetica, Arial, sans-serif; font-size: 12px;"><div class="apexcharts-tooltip-y-group"><span class="apexcharts-tooltip-text-label"></span><span class="apexcharts-tooltip-text-value"></span></div><div class="apexcharts-tooltip-z-group"><span class="apexcharts-tooltip-text-z-label"></span><span class="apexcharts-tooltip-text-z-value"></span></div></div></div><div class="apexcharts-tooltip-series-group" style="order: 2;"><span class="apexcharts-tooltip-marker" style="background-color: rgb(0, 227, 150);"></span><div class="apexcharts-tooltip-text" style="font-family: Helvetica, Arial, sans-serif; font-size: 12px;"><div class="apexcharts-tooltip-y-group"><span class="apexcharts-tooltip-text-label"></span><span class="apexcharts-tooltip-text-value"></span></div><div class="apexcharts-tooltip-z-group"><span class="apexcharts-tooltip-text-z-label"></span><span class="apexcharts-tooltip-text-z-value"></span></div></div></div></div><div class="apexcharts-toolbar" style="top: 0px; right: 3px;"><div class="apexcharts-menu-icon" title="Menü"><svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24"><path fill="none" d="M0 0h24v24H0V0z"></path><path d="M3 18h18v-2H3v2zm0-5h18v-2H3v2zm0-7v2h18V6H3z"></path></svg></div><div class="apexcharts-menu"><div class="apexcharts-menu-item exportSVG" title="SVG İndir">SVG İndir</div><div class="apexcharts-menu-item exportPNG" title="PNG İndir">PNG İndir</div><div class="apexcharts-menu-item exportCSV" title="CSV İndir">CSV İndir</div></div></div></div></div>
+    <div class="resize-triggers"><div class="expand-trigger"><div style="width: 318px; height: 392px;"></div></div><div class="contract-trigger"></div></div></div>
+    <div id="_AbroadEducations" class="col-lg-4 min-h-300">
+        <div class="loading-spinner left-42" style="display: none;"></div>
+        <div class="section-title">
+            <h4>
+                Akademik Personelin Yurt Dışı Eğitim Derecelerine Göre Dağılımı
+                <i class="fa fa-info-circle text-primary" style="margin-left:2px;" data-toggle="popover" data-content="Bir personel, yurt dışında birden fazla eğitim derecesinde eğitim gördüyse, sayıya birden fazla kez dahil edilir." data-placement="top"></i>
+            </h4>
+        </div>
+        <div id="_abroadEducations" style="min-height: 400px;"><div id="apexchartshil6cht7" class="apexcharts-canvas apexchartshil6cht7 apexcharts-theme-light" style="width: 287px; height: 400px;"><svg id="SvgjsSvg1158" width="287" height="400" xmlns="http://www.w3.org/2000/svg" version="1.1" xmlns:xlink="http://www.w3.org/1999/xlink" xmlns:svgjs="http://svgjs.com/svgjs" class="apexcharts-svg" xmlns:data="ApexChartsNS" transform="translate(0, 0)" style="background: transparent;"><foreignObject x="0" y="0" width="287" height="400"><div class="apexcharts-legend" xmlns="http://www.w3.org/1999/xhtml" style="inset: auto 0px 1px; position: absolute; max-height: 200px;"></div><style type="text/css">	
+    	
+      .apexcharts-legend {	
+        display: flex;	
+        overflow: auto;	
+        padding: 0 10px;	
+      }	
+      .apexcharts-legend.position-bottom, .apexcharts-legend.position-top {	
+        flex-wrap: wrap	
+      }	
+      .apexcharts-legend.position-right, .apexcharts-legend.position-left {	
+        flex-direction: column;	
+        bottom: 0;	
+      }	
+      .apexcharts-legend.position-bottom.apexcharts-align-left, .apexcharts-legend.position-top.apexcharts-align-left, .apexcharts-legend.position-right, .apexcharts-legend.position-left {	
+        justify-content: flex-start;	
+      }	
+      .apexcharts-legend.position-bottom.apexcharts-align-center, .apexcharts-legend.position-top.apexcharts-align-center {	
+        justify-content: center;  	
+      }	
+      .apexcharts-legend.position-bottom.apexcharts-align-right, .apexcharts-legend.position-top.apexcharts-align-right {	
+        justify-content: flex-end;	
+      }	
+      .apexcharts-legend-series {	
+        cursor: pointer;	
+        line-height: normal;	
+      }	
+      .apexcharts-legend.position-bottom .apexcharts-legend-series, .apexcharts-legend.position-top .apexcharts-legend-series{	
+        display: flex;	
+        align-items: center;	
+      }	
+      .apexcharts-legend-text {	
+        position: relative;	
+        font-size: 14px;	
+      }	
+      .apexcharts-legend-text *, .apexcharts-legend-marker * {	
+        pointer-events: none;	
+      }	
+      .apexcharts-legend-marker {	
+        position: relative;	
+        display: inline-block;	
+        cursor: pointer;	
+        margin-right: 3px;	
+        border-style: solid;
+      }	
+      	
+      .apexcharts-legend.apexcharts-align-right .apexcharts-legend-series, .apexcharts-legend.apexcharts-align-left .apexcharts-legend-series{	
+        display: inline-block;	
+      }	
+      .apexcharts-legend-series.apexcharts-no-click {	
+        cursor: auto;	
+      }	
+      .apexcharts-legend .apexcharts-hidden-zero-series, .apexcharts-legend .apexcharts-hidden-null-series {	
+        display: none !important;	
+      }	
+      .apexcharts-inactive-legend {	
+        opacity: 0.45;	
+      }</style></foreignObject><g id="SvgjsG1160" class="apexcharts-inner apexcharts-graphical" transform="translate(12, 0)"><defs id="SvgjsDefs1159"><clipPath id="gridRectMaskhil6cht7"><rect id="SvgjsRect1163" width="271" height="357" x="-3" y="-1" rx="0" ry="0" opacity="1" stroke-width="0" stroke="none" stroke-dasharray="0" fill="#fff"></rect></clipPath><clipPath id="gridRectMarkerMaskhil6cht7"><rect id="SvgjsRect1164" width="269" height="359" x="-2" y="-2" rx="0" ry="0" opacity="1" stroke-width="0" stroke="none" stroke-dasharray="0" fill="#fff"></rect></clipPath></defs><g id="SvgjsG1165" class="apexcharts-pie"></g><line id="SvgjsLine1166" x1="0" y1="0" x2="265" y2="0" stroke="#b6b6b6" stroke-dasharray="0" stroke-width="1" class="apexcharts-ycrosshairs"></line><line id="SvgjsLine1167" x1="0" y1="0" x2="265" y2="0" stroke-dasharray="0" stroke-width="0" class="apexcharts-ycrosshairs-hidden"></line></g><text id="SvgjsText1162" font-family="Helvetica, Arial, sans-serif" x="143.5" y="216" text-anchor="middle" dominant-baseline="auto" font-size="14px" font-weight="regular" fill="#555555" class="apexcharts-text " style="font-family: Helvetica, Arial, sans-serif; opacity: 1;">Kayıt bulunamadı</text><g id="SvgjsG1161" class="apexcharts-annotations"></g></svg></div></div>
+    <div class="resize-triggers"><div class="expand-trigger"><div style="width: 318px; height: 496px;"></div></div><div class="contract-trigger"></div></div></div>
+    <div id="AbroadEducationsByCountries" class="col-lg-4 min-h-300">
+        <div class="loading-spinner left-42" style="display: none;"></div>
+        <div class="section-title">
+            <h4>
+                Akademik Personelin Yurt Dışında Eğitim Alınan Ülkelere Göre Dağılımı
+                <i class="fa fa-info-circle text-primary" style="margin-left:2px;" data-toggle="popover" data-content="Bir personel, yurt dışında birden fazla ülkede eğitim gördüyse, sayıya birden fazla kez dahil edilir." data-placement="top"></i>
+            </h4>
+        </div>
+        <div id="_abroadEducationsByCountries" style="min-height: 400px;"><div id="apexchartst5wyhahv" class="apexcharts-canvas apexchartst5wyhahv apexcharts-theme-light" style="width: 287px; height: 400px;"><svg id="SvgjsSvg1168" width="287" height="400" xmlns="http://www.w3.org/2000/svg" version="1.1" xmlns:xlink="http://www.w3.org/1999/xlink" xmlns:svgjs="http://svgjs.com/svgjs" class="apexcharts-svg" xmlns:data="ApexChartsNS" transform="translate(0, 0)" style="background: transparent;"><foreignObject x="0" y="0" width="287" height="400"><div class="apexcharts-legend" xmlns="http://www.w3.org/1999/xhtml" style="inset: auto 0px 1px; position: absolute; max-height: 200px;"></div><style type="text/css">	
+    	
+      .apexcharts-legend {	
+        display: flex;	
+        overflow: auto;	
+        padding: 0 10px;	
+      }	
+      .apexcharts-legend.position-bottom, .apexcharts-legend.position-top {	
+        flex-wrap: wrap	
+      }	
+      .apexcharts-legend.position-right, .apexcharts-legend.position-left {	
+        flex-direction: column;	
+        bottom: 0;	
+      }	
+      .apexcharts-legend.position-bottom.apexcharts-align-left, .apexcharts-legend.position-top.apexcharts-align-left, .apexcharts-legend.position-right, .apexcharts-legend.position-left {	
+        justify-content: flex-start;	
+      }	
+      .apexcharts-legend.position-bottom.apexcharts-align-center, .apexcharts-legend.position-top.apexcharts-align-center {	
+        justify-content: center;  	
+      }	
+      .apexcharts-legend.position-bottom.apexcharts-align-right, .apexcharts-legend.position-top.apexcharts-align-right {	
+        justify-content: flex-end;	
+      }	
+      .apexcharts-legend-series {	
+        cursor: pointer;	
+        line-height: normal;	
+      }	
+      .apexcharts-legend.position-bottom .apexcharts-legend-series, .apexcharts-legend.position-top .apexcharts-legend-series{	
+        display: flex;	
+        align-items: center;	
+      }	
+      .apexcharts-legend-text {	
+        position: relative;	
+        font-size: 14px;	
+      }	
+      .apexcharts-legend-text *, .apexcharts-legend-marker * {	
+        pointer-events: none;	
+      }	
+      .apexcharts-legend-marker {	
+        position: relative;	
+        display: inline-block;	
+        cursor: pointer;	
+        margin-right: 3px;	
+        border-style: solid;
+      }	
+      	
+      .apexcharts-legend.apexcharts-align-right .apexcharts-legend-series, .apexcharts-legend.apexcharts-align-left .apexcharts-legend-series{	
+        display: inline-block;	
+      }	
+      .apexcharts-legend-series.apexcharts-no-click {	
+        cursor: auto;	
+      }	
+      .apexcharts-legend .apexcharts-hidden-zero-series, .apexcharts-legend .apexcharts-hidden-null-series {	
+        display: none !important;	
+      }	
+      .apexcharts-inactive-legend {	
+        opacity: 0.45;	
+      }</style></foreignObject><g id="SvgjsG1170" class="apexcharts-inner apexcharts-graphical" transform="translate(12, 0)"><defs id="SvgjsDefs1169"><clipPath id="gridRectMaskt5wyhahv"><rect id="SvgjsRect1173" width="271" height="357" x="-3" y="-1" rx="0" ry="0" opacity="1" stroke-width="0" stroke="none" stroke-dasharray="0" fill="#fff"></rect></clipPath><clipPath id="gridRectMarkerMaskt5wyhahv"><rect id="SvgjsRect1174" width="269" height="359" x="-2" y="-2" rx="0" ry="0" opacity="1" stroke-width="0" stroke="none" stroke-dasharray="0" fill="#fff"></rect></clipPath></defs><g id="SvgjsG1175" class="apexcharts-pie"></g><line id="SvgjsLine1176" x1="0" y1="0" x2="265" y2="0" stroke="#b6b6b6" stroke-dasharray="0" stroke-width="1" class="apexcharts-ycrosshairs"></line><line id="SvgjsLine1177" x1="0" y1="0" x2="265" y2="0" stroke-dasharray="0" stroke-width="0" class="apexcharts-ycrosshairs-hidden"></line></g><text id="SvgjsText1172" font-family="Helvetica, Arial, sans-serif" x="143.5" y="216" text-anchor="middle" dominant-baseline="auto" font-size="14px" font-weight="regular" fill="#555555" class="apexcharts-text " style="font-family: Helvetica, Arial, sans-serif; opacity: 1;">Kayıt bulunamadı</text><g id="SvgjsG1171" class="apexcharts-annotations"></g></svg></div></div>
+    <div class="resize-triggers"><div class="expand-trigger"><div style="width: 318px; height: 496px;"></div></div><div class="contract-trigger"></div></div></div>
+</div>
+
+<div class="row mt-md">
+    <div id="averageAgeByTitles" class="col-lg-6 min-h-300">
+        <div class="loading-spinner left-42" style="display: none;"></div>
+        <div class="section-title">
+            <h4>Akademik Personel Ünvanlara Göre Yaş Ortalaması</h4>
+        </div>
+        <div id="_averageAgeOfResearchersByTitles" class="js-plotly-plot"><div class="plot-container plotly"><div class="svg-container" style="position: relative; width: 100%; height: 450px;"><svg class="main-svg" xmlns="http://www.w3.org/2000/svg" xmlns:xlink="http://www.w3.org/1999/xlink" width="445.25" height="450" style="background: rgb(255, 255, 255);"><defs id="defs-896389"><g class="clips"><clipPath id="clip896389xyplot" class="plotclip"><rect width="285" height="270"></rect></clipPath><clipPath class="axesclip" id="clip896389x"><rect x="80" y="0" width="285" height="450"></rect></clipPath><clipPath class="axesclip" id="clip896389y"><rect x="0" y="100" width="445.25" height="270"></rect></clipPath><clipPath class="axesclip" id="clip896389xy"><rect x="80" y="100" width="285" height="270"></rect></clipPath></g><g class="gradients"></g></defs><g class="bglayer"></g><g class="draglayer cursor-crosshair"><g class="xy"><rect class="nsewdrag drag" data-subplot="xy" x="80" y="100" width="285" height="270" style="fill: transparent; stroke-width: 0; pointer-events: all;"></rect><rect class="nwdrag drag cursor-nw-resize" data-subplot="xy" x="60" y="80" width="20" height="20" style="fill: transparent; stroke-width: 0; pointer-events: all;"></rect><rect class="nedrag drag cursor-ne-resize" data-subplot="xy" x="365" y="80" width="20" height="20" style="fill: transparent; stroke-width: 0; pointer-events: all;"></rect><rect class="swdrag drag cursor-sw-resize" data-subplot="xy" x="60" y="370" width="20" height="20" style="fill: transparent; stroke-width: 0; pointer-events: all;"></rect><rect class="sedrag drag cursor-se-resize" data-subplot="xy" x="365" y="370" width="20" height="20" style="fill: transparent; stroke-width: 0; pointer-events: all;"></rect><rect class="ewdrag drag cursor-ew-resize" data-subplot="xy" x="108.5" y="370.5" width="228" height="20" style="fill: transparent; stroke-width: 0; pointer-events: all;"></rect><rect class="wdrag drag cursor-w-resize" data-subplot="xy" x="80" y="370.5" width="28.5" height="20" style="fill: transparent; stroke-width: 0; pointer-events: all;"></rect><rect class="edrag drag cursor-e-resize" data-subplot="xy" x="336.5" y="370.5" width="28.5" height="20" style="fill: transparent; stroke-width: 0; pointer-events: all;"></rect><rect class="nsdrag drag cursor-ns-resize" data-subplot="xy" x="59.5" y="127" width="20" height="216" style="fill: transparent; stroke-width: 0; pointer-events: all;"></rect><rect class="sdrag drag cursor-s-resize" data-subplot="xy" x="59.5" y="343" width="20" height="27" style="fill: transparent; stroke-width: 0; pointer-events: all;"></rect><rect class="ndrag drag cursor-n-resize" data-subplot="xy" x="59.5" y="100" width="20" height="27" style="fill: transparent; stroke-width: 0; pointer-events: all;"></rect></g></g><g class="layer-below"><g class="imagelayer"></g><g class="shapelayer"></g></g><g class="cartesianlayer"><g class="subplot xy"><g class="layer-subplot"><g class="shapelayer"></g><g class="imagelayer"></g></g><g class="gridlayer"><g class="x"></g><g class="y"><path class="ygrid crisp" transform="translate(0,262)" d="M80,0h285" style="stroke: rgb(238, 238, 238); stroke-opacity: 1; stroke-width: 1px;"></path><path class="ygrid crisp" transform="translate(0,208)" d="M80,0h285" style="stroke: rgb(238, 238, 238); stroke-opacity: 1; stroke-width: 1px;"></path><path class="ygrid crisp" transform="translate(0,154)" d="M80,0h285" style="stroke: rgb(238, 238, 238); stroke-opacity: 1; stroke-width: 1px;"></path></g></g><g class="zerolinelayer"><path class="yzl zl crisp" transform="translate(0,316)" d="M80,0h285" style="stroke: rgb(68, 68, 68); stroke-opacity: 1; stroke-width: 1px;"></path></g><path class="xlines-below"></path><path class="ylines-below"></path><g class="overlines-below"></g><g class="xaxislayer-below"></g><g class="yaxislayer-below"></g><g class="overaxes-below"></g><g class="plot" transform="translate(80, 100)" clip-path="url(#clip896389xyplot)"><g class="barlayer mlayer"><g class="trace bars" style="opacity: 1;"><g class="points"></g></g></g></g><g class="overplot"></g><path class="xlines-above crisp" d="" style="fill: none; stroke-width: 1px; stroke: rgb(0, 0, 0); stroke-opacity: 0;"></path><path class="ylines-above crisp" d="M0,0" style="fill: none;"></path><g class="overlines-above"></g><g class="xaxislayer-above"><path class="xtick ticks crisp" d="M0,371v5" transform="translate(120.71000000000001,0)" style="stroke: rgb(68, 68, 68); stroke-opacity: 1; stroke-width: 1px;"></path><path class="xtick ticks crisp" d="M0,371v5" transform="translate(202.14,0)" style="stroke: rgb(68, 68, 68); stroke-opacity: 1; stroke-width: 1px;"></path><path class="xtick ticks crisp" d="M0,371v5" transform="translate(283.57,0)" style="stroke: rgb(68, 68, 68); stroke-opacity: 1; stroke-width: 1px;"></path><path class="xtick ticks crisp" d="M0,371v5" transform="translate(365,0)" style="stroke: rgb(68, 68, 68); stroke-opacity: 1; stroke-width: 1px;"></path><g class="xtick"><text text-anchor="middle" x="0" y="390.4" data-unformatted="0" data-math="N" transform="translate(120.71000000000001,0)" style="font-family: &quot;Open Sans&quot;, verdana, arial, sans-serif; font-size: 12px; fill: rgb(68, 68, 68); fill-opacity: 1; white-space: pre;">0</text></g><g class="xtick"><text text-anchor="middle" x="0" y="390.4" data-unformatted="2" data-math="N" transform="translate(202.14,0)" style="font-family: &quot;Open Sans&quot;, verdana, arial, sans-serif; font-size: 12px; fill: rgb(68, 68, 68); fill-opacity: 1; white-space: pre;">2</text></g><g class="xtick"><text text-anchor="middle" x="0" y="390.4" data-unformatted="4" data-math="N" transform="translate(283.57,0)" style="font-family: &quot;Open Sans&quot;, verdana, arial, sans-serif; font-size: 12px; fill: rgb(68, 68, 68); fill-opacity: 1; white-space: pre;">4</text></g><g class="xtick"><text text-anchor="middle" x="0" y="390.4" data-unformatted="6" data-math="N" transform="translate(365,0)" style="font-family: &quot;Open Sans&quot;, verdana, arial, sans-serif; font-size: 12px; fill: rgb(68, 68, 68); fill-opacity: 1; white-space: pre;">6</text></g></g><g class="yaxislayer-above"><g class="ytick"><text text-anchor="end" x="79" y="4.199999999999999" data-unformatted="−1" data-math="N" transform="translate(0,370)" style="font-family: &quot;Open Sans&quot;, verdana, arial, sans-serif; font-size: 12px; fill: rgb(68, 68, 68); fill-opacity: 1; white-space: pre;">−1</text></g><g class="ytick"><text text-anchor="end" x="79" y="4.199999999999999" data-unformatted="0" data-math="N" transform="translate(0,316)" style="font-family: &quot;Open Sans&quot;, verdana, arial, sans-serif; font-size: 12px; fill: rgb(68, 68, 68); fill-opacity: 1; white-space: pre;">0</text></g><g class="ytick"><text text-anchor="end" x="79" y="4.199999999999999" data-unformatted="1" data-math="N" transform="translate(0,262)" style="font-family: &quot;Open Sans&quot;, verdana, arial, sans-serif; font-size: 12px; fill: rgb(68, 68, 68); fill-opacity: 1; white-space: pre;">1</text></g><g class="ytick"><text text-anchor="end" x="79" y="4.199999999999999" data-unformatted="2" data-math="N" transform="translate(0,208)" style="font-family: &quot;Open Sans&quot;, verdana, arial, sans-serif; font-size: 12px; fill: rgb(68, 68, 68); fill-opacity: 1; white-space: pre;">2</text></g><g class="ytick"><text text-anchor="end" x="79" y="4.199999999999999" data-unformatted="3" data-math="N" transform="translate(0,154)" style="font-family: &quot;Open Sans&quot;, verdana, arial, sans-serif; font-size: 12px; fill: rgb(68, 68, 68); fill-opacity: 1; white-space: pre;">3</text></g><g class="ytick"><text text-anchor="end" x="79" y="4.199999999999999" data-unformatted="4" data-math="N" transform="translate(0,100)" style="font-family: &quot;Open Sans&quot;, verdana, arial, sans-serif; font-size: 12px; fill: rgb(68, 68, 68); fill-opacity: 1; white-space: pre;">4</text></g></g><g class="overaxes-above"></g></g></g><g class="polarlayer"></g><g class="ternarylayer"></g><g class="geolayer"></g><g class="pielayer"></g><g class="glimages"></g></svg><div class="gl-container"></div><div class="modebar-container" style="position: absolute; top: 0px; right: 0px; width: 100%;"><div id="modebar-896389" class="modebar modebar--hover ease-bg"><div class="modebar-group"><a rel="tooltip" class="modebar-btn" data-title="Grafiği bir png olarak indir" data-toggle="false" data-gravity="n"><svg viewBox="0 0 1000 1000" class="icon" height="1em" width="1em"><path d="m500 450c-83 0-150-67-150-150 0-83 67-150 150-150 83 0 150 67 150 150 0 83-67 150-150 150z m400 150h-120c-16 0-34 13-39 29l-31 93c-6 15-23 28-40 28h-340c-16 0-34-13-39-28l-31-94c-6-15-23-28-40-28h-120c-55 0-100-45-100-100v-450c0-55 45-100 100-100h800c55 0 100 45 100 100v450c0 55-45 100-100 100z m-400-550c-138 0-250 112-250 250 0 138 112 250 250 250 138 0 250-112 250-250 0-138-112-250-250-250z m365 380c-19 0-35 16-35 35 0 19 16 35 35 35 19 0 35-16 35-35 0-19-16-35-35-35z" transform="matrix(1 0 0 -1 0 850)"></path></svg></a></div><div class="modebar-group"></div><div class="modebar-group"><a rel="tooltip" class="modebar-btn" data-title="Eksenleri sıfırla" data-attr="zoom" data-val="reset" data-toggle="false" data-gravity="n"><svg viewBox="0 0 928.6 1000" class="icon" height="1em" width="1em"><path d="m786 296v-267q0-15-11-26t-25-10h-214v214h-143v-214h-214q-15 0-25 10t-11 26v267q0 1 0 2t0 2l321 264 321-264q1-1 1-4z m124 39l-34-41q-5-5-12-6h-2q-7 0-12 3l-386 322-386-322q-7-4-13-4-7 2-12 7l-35 41q-4 5-3 13t6 12l401 334q18 15 42 15t43-15l136-114v109q0 8 5 13t13 5h107q8 0 13-5t5-13v-227l122-102q5-5 6-12t-4-13z" transform="matrix(1 0 0 -1 0 850)"></path></svg></a></div><div class="modebar-group"><a rel="tooltip" class="modebar-btn" data-title="Üzerine gelince en yakın veriyi göster" data-attr="hovermode" data-val="closest" data-toggle="false" data-gravity="ne"><svg viewBox="0 0 1500 1000" class="icon" height="1em" width="1em"><path d="m375 725l0 0-375-375 375-374 0-1 1125 0 0 750-1125 0z" transform="matrix(1 0 0 -1 0 850)"></path></svg></a><a rel="tooltip" class="modebar-btn active" data-title="Üzerine gelince verileri karşılaştır" data-attr="hovermode" data-val="x" data-toggle="false" data-gravity="ne"><svg viewBox="0 0 1125 1000" class="icon" height="1em" width="1em"><path d="m187 786l0 2-187-188 188-187 0 0 937 0 0 373-938 0z m0-499l0 1-187-188 188-188 0 0 937 0 0 376-938-1z" transform="matrix(1 0 0 -1 0 850)"></path></svg></a></div></div></div><svg class="main-svg" xmlns="http://www.w3.org/2000/svg" xmlns:xlink="http://www.w3.org/1999/xlink" width="445.25" height="450"><defs id="topdefs-896389"><g class="clips"></g></defs><g class="layer-above"><g class="imagelayer"></g><g class="shapelayer"></g></g><g class="infolayer"><g class="g-gtitle"></g><g class="g-xtitle"></g><g class="g-ytitle"></g></g><g class="menulayer"></g><g class="zoomlayer"></g><g class="hoverlayer"></g></svg></div></div></div>
+    </div>
+    <div id="distributionOfResearchArea" class="col-lg-6 min-h-300">
+        <div class="loading-spinner left-42" style="display: none;"></div>
+        <div class="section-title">
+            <h4>Araştırma Alanlarına Göre Personel Dağılımı</h4>
+        </div>
+        <div id="_distributionOfResearchArea" style="min-height: 400px;"><div id="apexchartsqojtzkcuh" class="apexcharts-canvas apexchartsqojtzkcuh apexcharts-theme-light" style="width: 445px; height: 400px;"><svg id="SvgjsSvg1133" width="445" height="400" xmlns="http://www.w3.org/2000/svg" version="1.1" xmlns:xlink="http://www.w3.org/1999/xlink" xmlns:svgjs="http://svgjs.com/svgjs" class="apexcharts-svg" xmlns:data="ApexChartsNS" transform="translate(0, 0)" style="background: transparent;"><foreignObject x="0" y="0" width="445" height="400"><div class="apexcharts-legend" xmlns="http://www.w3.org/1999/xhtml" style="inset: auto 0px 1px; position: absolute; max-height: 200px;"></div><style type="text/css">	
+    	
+      .apexcharts-legend {	
+        display: flex;	
+        overflow: auto;	
+        padding: 0 10px;	
+      }	
+      .apexcharts-legend.position-bottom, .apexcharts-legend.position-top {	
+        flex-wrap: wrap	
+      }	
+      .apexcharts-legend.position-right, .apexcharts-legend.position-left {	
+        flex-direction: column;	
+        bottom: 0;	
+      }	
+      .apexcharts-legend.position-bottom.apexcharts-align-left, .apexcharts-legend.position-top.apexcharts-align-left, .apexcharts-legend.position-right, .apexcharts-legend.position-left {	
+        justify-content: flex-start;	
+      }	
+      .apexcharts-legend.position-bottom.apexcharts-align-center, .apexcharts-legend.position-top.apexcharts-align-center {	
+        justify-content: center;  	
+      }	
+      .apexcharts-legend.position-bottom.apexcharts-align-right, .apexcharts-legend.position-top.apexcharts-align-right {	
+        justify-content: flex-end;	
+      }	
+      .apexcharts-legend-series {	
+        cursor: pointer;	
+        line-height: normal;	
+      }	
+      .apexcharts-legend.position-bottom .apexcharts-legend-series, .apexcharts-legend.position-top .apexcharts-legend-series{	
+        display: flex;	
+        align-items: center;	
+      }	
+      .apexcharts-legend-text {	
+        position: relative;	
+        font-size: 14px;	
+      }	
+      .apexcharts-legend-text *, .apexcharts-legend-marker * {	
+        pointer-events: none;	
+      }	
+      .apexcharts-legend-marker {	
+        position: relative;	
+        display: inline-block;	
+        cursor: pointer;	
+        margin-right: 3px;	
+        border-style: solid;
+      }	
+      	
+      .apexcharts-legend.apexcharts-align-right .apexcharts-legend-series, .apexcharts-legend.apexcharts-align-left .apexcharts-legend-series{	
+        display: inline-block;	
+      }	
+      .apexcharts-legend-series.apexcharts-no-click {	
+        cursor: auto;	
+      }	
+      .apexcharts-legend .apexcharts-hidden-zero-series, .apexcharts-legend .apexcharts-hidden-null-series {	
+        display: none !important;	
+      }	
+      .apexcharts-inactive-legend {	
+        opacity: 0.45;	
+      }</style></foreignObject><g id="SvgjsG1135" class="apexcharts-inner apexcharts-graphical" transform="translate(12, 0)"><defs id="SvgjsDefs1134"><clipPath id="gridRectMaskqojtzkcuh"><rect id="SvgjsRect1138" width="429" height="357" x="-3" y="-1" rx="0" ry="0" opacity="1" stroke-width="0" stroke="none" stroke-dasharray="0" fill="#fff"></rect></clipPath><clipPath id="gridRectMarkerMaskqojtzkcuh"><rect id="SvgjsRect1139" width="427" height="359" x="-2" y="-2" rx="0" ry="0" opacity="1" stroke-width="0" stroke="none" stroke-dasharray="0" fill="#fff"></rect></clipPath></defs><g id="SvgjsG1140" class="apexcharts-pie"></g><line id="SvgjsLine1141" x1="0" y1="0" x2="423" y2="0" stroke="#b6b6b6" stroke-dasharray="0" stroke-width="1" class="apexcharts-ycrosshairs"></line><line id="SvgjsLine1142" x1="0" y1="0" x2="423" y2="0" stroke-dasharray="0" stroke-width="0" class="apexcharts-ycrosshairs-hidden"></line></g><text id="SvgjsText1137" font-family="Helvetica, Arial, sans-serif" x="222.5" y="216" text-anchor="middle" dominant-baseline="auto" font-size="14px" font-weight="regular" fill="#555555" class="apexcharts-text " style="font-family: Helvetica, Arial, sans-serif; opacity: 1;">Kayıt bulunamadı</text><g id="SvgjsG1136" class="apexcharts-annotations"></g></svg></div></div>
+    <div class="resize-triggers"><div class="expand-trigger"><div style="width: 476px; height: 442px;"></div></div><div class="contract-trigger"></div></div></div>
+</div>
+
+<div id="ResearcherList" class="row relative overview-section mt-xl">
+    <div class="col-xs-12 min-h-300">
+        <div class="section-title">
+            <h4>Araştırmacılar</h4>
+        </div>
+        <div class="loading-spinner left-42" style="display: none;"></div>
+        <div id="search-container">
+            <a id="clearAllBtn" class="mr-xl mt-xs" style="display: none;" onclick="clearFilters()">Tümünü Temizle</a>
+            <select id="titleFilter" class="form-control mr-xl"><option value="0">Tümü</option></select>
+            <input type="text" id="searchInput" class="mr-xl" placeholder="Araştırmacı Arama">
+        </div>
+        <hr>
+        <ul id="researcherList"><p class="researcher-no-data-found">Kayıt bulunamadı</p></ul>
+        <div id="pagination" class="row d-flex-j-center hidden">
+            <p id="total-researchers" style="text-align: center;"></p>
+            <nav id="pagination-buttons" class="pagination-container">
+                <button class="pagination-button" id="prev-button" title="Önceki" aria-label="Önceki"><span class="fa fa-chevron-left"></span></button>
+                <div id="pagination-numbers"></div>
+                <button class="pagination-button" id="next-button" title="Sonraki" aria-label="Sonraki"><span class="fa fa-chevron-right"></span></button>
+            </nav>
+        </div>
+    </div>
+</div>
+
+<script src="/bundles/pivottable?v=8n6aSGl_4stEPGJ4MeFzA2q5BHt7W5g8JFExs_UY_EE1"></script>
+
+<link href="/Content/pivottable?v=kNKtAdqsnynelrA1coC8OSfJZaiTOpG5znz5a5bkmdo1" rel="stylesheet">
+
+<script>
+    var pivot = $('#pivot');
+    var isEdit = false;
+
+    function disableEditTable() {
+        pivot.find('td.pvtUnused').hide();
+        pivot.find('.pvtUi > tr:nth-child(2)').hide();
+        pivot.find('td.pvtAxisContainer.pvtRows.ui-sortable').hide();
+    }
+
+    $('#edit-table').click(function () {
+        isEdit = !isEdit;
+        pivot.find('td.pvtUnused').toggle();
+        pivot.find('.pvtUi > tr:nth-child(2)').toggle();
+        pivot.find('td.pvtAxisContainer.pvtRows.ui-sortable').toggle();
+        preparePivotTableForHomePageReports();
+        relayoutPlotly();
+    });
+
+    function buildInclusionArray(upperBound, lowerBound) {
+        var inclusion = [];
+        for (var i = upperBound; i >= lowerBound; i--) {
+            inclusion.push(i.toString());
+        }
+        return inclusion;
+    }
+
+    function relayoutPlotly() {
+        pivot.find('.pvtRendererArea').removeClass('borderless');
+        var graphDiv = pivot.find('.js-plotly-plot');
+        if (graphDiv.length > 0) {
+            var graphName = 'pivotPlotlyGraph';
+            graphDiv.attr('id', graphName);
+
+            var newWidth = pivotUIClosedWidth;
+            var newHeight = pivotUIClosedHeight;
+            if (isEdit) {
+                newWidth = pivotUIOpenedWidth;
+                newHeight = pivotUIOpenedHeight;
+            }
+            Plotly.relayout(graphName, {
+                width: newWidth,
+                height: newHeight
+            });
+        }
+        else {
+            if (!isEdit) {
+                pivot.find('.pvtRendererArea:has(.pvtTable)').addClass('borderless');
+            }
+        }
+    }
+    function removeRowTotals() {
+        pivot.find('.pvtGrandTotal').closest("tr").remove();
+    }
+
+    function removeTotals() {
+        pivot.find('.rowTotal').remove();
+        pivot.find('.pvtTotalLabel').remove();
+        pivot.find('.pvtGrandTotal').closest("tr").remove();
+    }
+
+    function prepareProjectPieData(pieData, pieLayout) {
+        if ($('#pieChart').width() <= 760) {
+            // Display percentages < 1% as other
+            var sliceCount = 0;
+            var totalValue = pieData[0].values.reduce((val1, val2) => val1 + val2);
+            pieData[0].values.forEach(function (val) {
+                if (val / totalValue >= 0.01) {
+                    sliceCount++;
+                }
+            });
+            if (pieData[0].labels.length > sliceCount && pieData[0].labels.length - sliceCount > 1) {
+                var pieDataLabels = pieData[0].labels.slice(0, sliceCount);
+                pieDataLabels.push("Diğer Projeler");
+                pieData[0].labels = pieDataLabels;
+            }
+            if (pieData[0].values.length > sliceCount) {
+                var pieDataValues = pieData[0].values.slice(0, sliceCount);
+                var sumOfOthers = pieData[0].values.slice(sliceCount, pieData[0].values.length).reduce(function (total, num) {
+                    return total + num;
+                });
+                pieDataValues.push(sumOfOthers);
+                pieData[0].values = pieDataValues;
+            }
+            pieData[0].domain = { x: [0.2, 1], y: [0, 0.7] }
+            if (isMobile()) {
+                pieLayout.legend = { x: 0, y: 1, bgcolor: 'transparent', font: { size: 11 } };
+            }
+        }
+
+        if ($('#pieChart').width() > 760 && $('#pieChart').width() < 812 && pieData[0].labels.length > 13) {
+            pieData[0].domain = { x: [0.1, 0.5], y: [0, 0.9] }
+        }
+    }
+
+    function calculateTextpositions(values) {
+        var total = values.reduce((val1, val2) => val1 + val2);
+        // Do not display percentages < 1%
+        return values.map(function (value) {
+            var percent = value / total;
+            return percent < 0.01 ? 'none' : 'auto';
+        });
+    }
+
+    function drawProjectTypePieChart(data, typeName, countName) {
+        var pieData = [{
+            values: new Array(),
+            labels: new Array(),
+            type: 'pie'
+        }];
+        var cf = crossfilter(data.ReportData);
+        var nameDimension = cf.dimension(function (d) {
+            var type = d[typeName];
+            return (type == null) ? "Diğer" : type;
+        });
+        var groupByName = nameDimension.group().reduceSum(function (d) {
+            return d[countName];
+        });
+        groupByName.top(Infinity).forEach(function (p, i) {
+            pieData[0].labels.push(divideText(p.key,4));
+            pieData[0].values.push(p.value);
+        });
+        var pieLayout = {
+            showlegend: true,
+            legend: { x: 0.9, y: 1, bgcolor: 'transparent', font: { size: 11 } },
+            margin: { l: 50, r: 50, b: 50, t:50 }
+        };
+
+        prepareProjectPieData(pieData, pieLayout);
+        pieData[0].textposition = calculateTextpositions(pieData[0].values);
+        if (isMobile()) {
+            pieData[0].textposition = 'inside';
+            if ($('#pieChart').width() <= 760) {
+                pieLayout.legend = { x: 0, y: 1, bgcolor: 'transparent', font: { size: 11 } };
+            }
+        }
+        Plotly.newPlot('pieChart', pieData, pieLayout, defaultPlotlyConfiguration);
+    }
+
+    function excelExport(fn, dl) {
+        var table = $('.pvtTable');
+        var wb = XLSX.utils.table_to_book(table[0]);
+        return XLSX.writeFile(wb, (fn || table.closest('.panel').find('.panel-title').text()) + ('.xlsx'));
+        //return dl ?
+        //    XLSX.write(wb, { bookType: 'xlsx', bookSST: true, type: 'base64' }) :
+        //    XLSX.writeFile(wb, fn || ('avesis.' + ('xlsx')));
+    }
+
+    function initRendererChange() {
+        $('.pvtRenderer').change(function () {
+            var selectedRenderer = $(this).val();
+            if (selectedRenderer == "Tablo") {
+                $('#export-excel').show();
+            } else {
+                $('#export-excel').hide();
+            }
+        });
+    }
+
+    function divideText(text, divideBy) {
+        if (!divideBy && text.split(/\s/g).length > 3) {
+            divideBy = 2;
+        }
+
+        if (divideBy && divideBy > 1) {
+            var count = 1;
+            return text.replace(/\s/g, function () {
+                var value = ' ';
+                if (count % divideBy == 0) {
+                    value = '<br>'
+                }
+                count++;
+                return value;
+            });
+        }
+
+        return text.replace(/\s/g, '<br>')
+    }
+
+    function showOtherUnitInfo(filterValue) {
+        if (filterValue === "0") {
+            $("#otherUnitInfo").closest(".row").removeClass("hidden");
+        } else {
+            $("#otherUnitInfo").closest(".row").addClass("hidden");
+        }
+    }
+
+    function compareUnitsByName(a, b) {
+        if (a === "Diğer Birimler*") {
+            return 1;
+        }
+        if (b === "Diğer Birimler*") {
+            return -1;
+        }
+        return a.localeCompare(b);
+    }
+
+    function preparePivotTableForOverViewReports() {
+        makeCustomPvtRenderer();
+        makeCustomFilterBoxes();
+        makeCustomFilterCheckboxes();
+    }
+	function preparePivotTableForHomePageReports() {
+        makeCustomFilterBoxes();
+        makeCustomFilterCheckboxes();
+    }
+	function makeCustomPvtRenderer() {
+		$(".pvtUi .pvtRenderer").addClass("form-control input-sm");
+	}
+    function makeCustomFilterBoxes() {
+		$(".pvtFilterBox span.value").each(function (index, item) {
+			if ($(item).text() === "null" || $(item).text() === "") {
+				const count = $(item).closest(".pvtCheckContainer").children().length;
+				$(item).closest(".pvtFilterBox").find("h4 span.count").text(`(${count - 1})`);
+				$(item).closest("p").remove();
+			}
+		});
+
+		const filterBoxButtons = $(".pvtFilterBox p").has("button");
+		filterBoxButtons.find("button").addClass("btn");
+		filterBoxButtons.toArray().forEach(p => $(p).find("button").first().addClass("btn-primary"))
+		$(".pvtFilterBox .pvtSearch").addClass("form-control");
+    }
+    function makeCustomFilterCheckboxes() {
+        $(".pvtFilterBox .pvtCheckContainer p").addClass("checkbox-custom");
+    }
+
+    function initPivottable(data, vals, rows, cols, hiddenFromDragDrop, isExportEnabled, exportFileName, clickCallback, onRefresh) {
+        $('#pivot').pivotUI(data,
+            {
+                aggregatorName: "Toplam (tam sayı)",
+                rendererName: "Tablo",
+                hiddenFromDragDrop: Array.isArray(hiddenFromDragDrop) ? hiddenFromDragDrop : [hiddenFromDragDrop],
+                //exclusions: { articleJournalType: ['null'] },
+                vals: Array.isArray(vals) ? vals : [vals],
+                rows: Array.isArray(rows) ? rows : [rows],
+                cols: Array.isArray(cols) ? cols : [cols],
+                //derivedAttributes: { "isInternational": isInternationalDeriver },
+                rendererOptions: {
+                    table: {
+                        clickCallback: clickCallback
+                    }
+                },
+                onRefresh: function (config) {
+                    if (onRefresh) {
+                        onRefresh(config);
+                    }
+                    $(".pvtTable th").each(function (index, item) {
+                        if ($(item).text() === "null") {
+                            $(item).text("Diğer");
+                        }
+                    });
+                    $('.pvtTable td[data-value="null"]').text(0);
+                    $("#pivot").css("min-height", $(".pvtUi").height());
+                }
+            }, false, currentCulture);
+		preparePivotTableForOverViewReports();
+        if (isExportEnabled && exportFileName) {
+            const exportBtn = $(`<button class="btn btn-success btn-sm pull-left" id="export-excel" onclick="excelExport('${exportFileName}')">
+                <i class="fa fa-file-excel-o"></i> Excel
+            </button>`);
+            $(".pvtVals").prepend(exportBtn);
+        }
+        initRendererChange();
+    }
+    document.addEventListener('click', function (e) {
+		if ($(e.target).hasClass("pvtTriangle") || !$(e.target).hasClass("pvtFilterBox") && $(e.target).parents(".pvtFilterBox").length === 0) {
+			var pvtFilterBoxes = $(".pvtFilterBox");
+			pvtFilterBoxes.find(".changed:checked").removeClass("changed").prop("checked", !1);
+			pvtFilterBoxes.find(".changed:not(:checked)").removeClass("changed").prop("checked", !0);
+			pvtFilterBoxes.hide();
+        }
+    }, true);
+</script>
+
+
+<script>
+    var researchersPerPage = 25;
+    var displayedPageNumberCount = 4; // +1 eklenerek gozukur
+    var currentPage = 1;
+    var currentResearchers = [];
+    var allResearchers = [];
+    var filteredResearchers = [];
+    var totalPages;
+    var nextButton = document.getElementById("next-button");
+    var prevButton = document.getElementById("prev-button");
+    var isSearchEmpty = true;
+    var params = { unitId, unitType };
+    colorOption['legend'] = { position: 'bottom' };
+
+    $(function () {
+
+        loadData();
+
+        prevButton.addEventListener("click", () => {
+            currentPage--;
+            handleActivePageNumber();
+            handlePageButtonsView();
+            renderResearchersOnPaginationClick();
+        });
+        nextButton.addEventListener("click", () => {
+            currentPage++;
+            handleActivePageNumber();
+            handlePageButtonsView();
+            renderResearchersOnPaginationClick();
+        });
+    });
+
+    function loadData() {
+        $(".activity-links li:not(.active)").addClass("disabled");
+        $.when(
+            getDistributionOfResearchersByTitles(),
+            getResearchersGenderStatistics(),
+            getResearcherResearchAreaDistribution(),
+            getEducationInfos(),
+            getAverageAgeOfResearchersByTitles(),
+            getUnitResearcherList()
+        )
+        .done(function () {
+            dataLoaded();
+        });
+    }
+
+    function getDistributionOfResearchersByTitles() {
+        const spinner1 = $("#_DistributionOfResearchersByTitles .loading-spinner");
+        const spinner2 = $("#_DistributionOfFacultyStaffByTitles .loading-spinner");
+        spinner1.show();
+        spinner2.show();
+        var url = '/unitreport/getdistributionofresearchers';
+        var titleName = "Ünvan";
+        var staffCount = "Personel Sayısı";
+        return $.getJSON(url, params, function (result) {
+            var researchersByTitleData = result.ReportData
+                                        .filter(d => result.TenuredTitles.includes(d[titleName]))
+                                        .map(d => { return { name: d[titleName], value: d[staffCount] } });
+            var facultyStaffByTitlesData = result.ReportData.map(d => { return { name: d[titleName], value: d[staffCount] } })
+            researchersByTitleData = researchersByTitleData.sort((a, b) => b.value - a.value);
+            facultyStaffByTitlesData = facultyStaffByTitlesData.sort((a, b) => b.value - a.value);
+            _researchersByTitlePieChart = createOrUpdateChart(getPieChartOptions(researchersByTitleData, null, colorOption), "_distributionOfResearchersByTitles", _researchersByTitlePieChart);
+            _distributionOfFacultyStaffByTitlesPieChart = createOrUpdateChart(getPieChartOptions(facultyStaffByTitlesData, null, colorOption), "_distributionOfFacultyStaffByTitles", _distributionOfFacultyStaffByTitlesPieChart);
+            spinner1.hide();
+            spinner2.hide();
+        });
+    }
+
+    function getAverageAgeOfResearchersByTitles() {
+        const spinners = $("#averageAgeByTitles .loading-spinner");
+        spinners.show();
+        var url = '/unitreport/getresearchersagestatistic';
+        var titleName = "Ünvan";
+        var avgAge = "Ortalama Yaş";
+        return $.getJSON(url, params, function (result) {
+                var barData = [{
+                    x: new Array(),
+                    y: new Array(),
+                    marker: {
+                        color: '#04a6b1'
+                    },
+                    type: 'bar'
+                }];
+                var cf = crossfilter(result.ReportData);
+                var titleDimension = cf.dimension(function (d) { return d[titleName]; });
+                var counts = titleDimension.group().reduceCount().all();
+                var countByTitle = {};
+                Array.prototype.slice.call(counts).forEach(function (d) { countByTitle[d.key] = d.value; });
+                var avgAgesByTitles = titleDimension.group().reduceSum(function (d) {
+                    return d[avgAge] / countByTitle[d[titleName]];
+                });
+                avgAgesByTitles.top(Infinity).sort(function(item1,item2) {
+                    var pos1 = $.inArray(item1.key, result.OrderedTitles);
+                    var pos2 = $.inArray(item2.key, result.OrderedTitles);
+                    return pos1 - pos2;
+                }).forEach(function (p, i) {
+                    barData[0].x.push(p.key);
+                    barData[0].y.push(Math.floor(p.value));
+                });
+                var otherDataIndex = barData[0].x.indexOf('Diğer');
+            var otherDataX = barData[0].x[otherDataIndex];
+            var otherDataY = barData[0].y[otherDataIndex];
+            barData[0].x.splice(otherDataIndex, 1);
+            barData[0].y.splice(otherDataIndex, 1);
+            barData[0].x.push(otherDataX);
+            barData[0].y.push(otherDataY);
+
+            barData[0].text = barData[0].y;
+            barData[0].textposition = 'auto';
+            barData[0].hoverinfo = 'x+text';
+
+                var layout = {
+                    xaxis: {
+                        ticks: "outside",
+                        automargin: true
+                    }
+                };
+                if (isMobile()) {
+                    layout.margin = { l:50, r:50 }
+                    layout.xaxis = { tickfont: { size: 11 }, automargin: true, fixedrange: true };
+                    layout.yaxis = { fixedrange: true };
+                }
+                Plotly.newPlot('_averageAgeOfResearchersByTitles', barData, layout, defaultPlotlyConfiguration);
+                spinners.hide();
+            });
+    }
+
+    function getResearchersGenderStatistics() {
+        const spinners = $("#distributionOfGender .loading-spinner");
+        spinners.show();
+        var url = '/unitreport/getresearchersgenderstatistic';
+        var gender = "Cinsiyet";
+        var staffCount = "Personel Sayısı";
+        return $.getJSON(url, params, function (result) {
+            var pieData = result.ReportData.map(d => { return { name: d[gender], value: d[staffCount] } });
+            _distributionOfResearchersByGenderPieData = createOrUpdateChart(getPieChartOptions(pieData, null, colorOption), "_distributionOfResearchersByGender", _distributionOfResearchersByGenderPieData);
+            spinners.hide();
+        });
+    }
+
+    function getResearcherResearchAreaDistribution() {
+        const spinners = $("#distributionOfResearchArea .loading-spinner");
+        spinners.show();
+        var url = '/unitreport/getdistributionofresearchersbyresearcharea';
+        return $.getJSON(url, params, function (result) {
+            var pieData = result.ReportData.map(d => { return { name: d["TopicName"], value: d["StaffCount"] } });
+            pieData = pieData.sort((a, b) => b.value - a.value);
+            _distributionOfResearchAreaPieChart = createOrUpdateChart(getPieChartOptions(pieData, null, colorOption), "_distributionOfResearchArea", _distributionOfResearchAreaPieChart);
+            spinners.hide();
+        });
+    }
+
+    function getEducationInfos() {
+        const spinner1 = $("#_AbroadEducations .loading-spinner");
+        const spinner2 = $("#AbroadEducationsByCountries .loading-spinner");
+        const spinner3 = $("#domesticAndAbroadEducationCounts .loading-spinner");
+        spinner1.show();
+        spinner2.show();
+        spinner3.show();
+        var url = '/unitreport/getcountsoffacultystaffeducatedabroad';
+        var countryName = "Ülke";
+        var educationDegree = "Eğitim Derecesi";
+        var count = "Sayı";
+        var currentCountryName = 'Türkiye';
+        return $.getJSON(url, params, function (result) {
+            var domesticAndAbroadEducationCountsData =
+                [
+                    { name: 'Yurt İçi', value: result.TotalCounts.DomesticEducationCount },
+                    { name: 'Yurt Dışı', value: result.TotalCounts.AbroadEducationCount }
+                ];
+            if (domesticAndAbroadEducationCountsData.length > 0) {
+                _domesticAndAbroadEducationCountPieData = createOrUpdateChart(getPieChartOptions(domesticAndAbroadEducationCountsData, null, colorOption), "_domesticAndAbroadEducationCounts", _domesticAndAbroadEducationCountPieData);
+            } else {
+                $("#_domesticAndAbroadEducationCounts").parents('.div').remove();
+            }
+
+
+            let abroadEducationsData = [];
+            let filteredData = result.ReportData.filter(x => x[countryName] != currentCountryName);
+            var degreeDimension = crossfilter(filteredData).dimension(function (d) { return d[educationDegree]; });
+            var groupByDegree = degreeDimension.group().reduceSum(function (d) { return d[count]; });
+            groupByDegree.top(Infinity).forEach(function (p, i) {
+                if (p.value) {
+                    abroadEducationsData.push({ name: p.key, value: p.value })
+                }
+            });
+            _abroadEducationsPieChart = createOrUpdateChart(getPieChartOptions(abroadEducationsData, null, colorOption), "_abroadEducations", _abroadEducationsPieChart);
+
+            let abroadEducationsByCountriesData = [];
+            var countryDimension = crossfilter(filteredData).dimension(function (d) { return d[countryName]; });
+            var groupByCountry = countryDimension.group().reduceSum(function (d) { return d[count]; });
+            groupByCountry.top(8).forEach(function (p, i) {
+                abroadEducationsByCountriesData.push({ name: p.key, value: p.value });
+            });
+            _abroadEducationsByCountriesPieChart = createOrUpdateChart(getPieChartOptions(abroadEducationsByCountriesData, null, colorOption), "_abroadEducationsByCountries", _abroadEducationsByCountriesPieChart);
+
+            spinner1.hide();
+            spinner2.hide();
+            spinner3.hide();
+        });
+    }
+
+    function getUnitResearcherList() {
+        const spinners = $("#ResearcherList .loading-spinner");
+        spinners.show();
+        const url = "/unitreport/getunitresearcherlist";
+        return $.getJSON(url, params, function (result) {
+            allResearchers = result;
+            renderResearchers(result);
+            setupPagination(result);
+            setupTitleFilter(result);
+            setupSearch(result);
+            spinners.hide();
+        });
+    }
+
+    function renderResearchers(data) {
+        const researcherList = document.getElementById("researcherList");
+        researcherList.innerHTML = "";
+
+        if (data.length > 0) {
+            const startIndex = (currentPage - 1) * researchersPerPage;
+            const endIndex = startIndex + researchersPerPage;
+
+            currentResearchers = data.slice(startIndex, endIndex);
+
+            const displayedResearcherInfo = document.getElementById('total-researchers');
+            if (data.length > currentResearchers.length) {
+                let endIndexInner = endIndex > data.length ? data.length : endIndex;
+                var dataLength = data.length;
+                var startIndexData = startIndex + 1;
+                var endIndexData = endIndexInner;
+                displayedResearcherInfo.innerHTML = `${dataLength} kayıttan ${startIndexData} ile ${endIndexData} arası gösteriliyor.`;
+            } else {
+                displayedResearcherInfo.innerHTML = '';
+            }
+
+            for (let i = 0; i < currentResearchers.length; i++) {
+                const researcher = currentResearchers[i];
+                const listItem = document.createElement("li");
+                listItem.innerHTML = `
+                  <div class="card">
+                        <div class="image">
+                            <div class="image-inner">
+                                <a href="https://avesis.inonu.edu.tr/${researcher.ProfilePageAlias}" hreflang="tr" target="_blank">
+                                    <img src="${'https://avesis.inonu.edu.tr/'.replace(/\/+$/, '')}/user/image?id=${researcher.Id}">
+                                </a>
+                            </div>
+                            <h5 class="researcher-name">
+                                <a href="https://avesis.inonu.edu.tr/${researcher.ProfilePageAlias}" target="_blank">
+                                    <span>${researcher.Title}</span>
+                                    <br />
+                                    <span>${researcher.FullName}</span>
+                                </a>
+                            </h5>
+                        </div>
+                        <div class="content">
+                            ${getVisitingResearcherInfo(researcher)}
+                            ${getResearcherInfo(researcher)}
+                            ${getPreferedEmail(researcher)}
+                            ${getWorkPhone(researcher)}
+                            ${getOffice(researcher)}
+                        </div>
+                  </div>
+                        `;
+                researcherList.appendChild(listItem);
+            }
+        } else {
+            var paragraph = document.createElement("p");
+            paragraph.textContent = "Kayıt bulunamadı";
+            paragraph.className = "researcher-no-data-found";
+            researcherList.appendChild(paragraph);
+        }
+    }
+
+    function getVisitingResearcherInfo(researcher) {
+        if ("False" == "True" && researcher.EnrollmentTypeId) {
+            return `<span class="label label-pill label-primary" style="display: inline-block; margin-bottom: 5px;">Misafir Araştırmacı</span>`;
+        }
+        return '';
+    }
+
+    function getResearcherInfo(researcher) {
+        var researcherUnits = [researcher.Faculty, researcher.Department, researcher.Program];
+        var researcherUnitInfo = "";
+        researcherUnits.forEach((unit) => {
+            if (unit !== null && unit !== '') {
+                if (researcherUnitInfo === '') {
+                    researcherUnitInfo += unit;
+                } else {
+                    researcherUnitInfo += ', ' + unit;
+                }
+            }
+        });
+
+        return `<p class="panel-text unit-info">${researcherUnitInfo}</p>`;
+    }
+
+    function getPreferedEmail(researcher) {
+        if (researcher.PreferedEmail) {
+            return `<div class="contact-info">
+                                <i class="fa fa-envelope fa-lg" style="margin-left: 3px;"></i><a style="word-break: break-all;" href="mailto:${researcher.PreferedEmail}">${researcher.PreferedEmail}</a>
+                            </div>`;
+        }
+        return ``;
+    }
+
+    function getWorkPhone(researcher) {
+        if (researcher.WorkPhone && (researcher.WorkPhoneVisibility !== null && researcher.WorkPhoneVisibility)) {
+            return `<div class="contact-info">
+                                <i class="fa fa-phone fa-lg" style="margin-left: 6px;"></i><a href="tel:+${researcher.WorkPhone}">${researcher.WorkPhone}</a>
+                            </div>`;
+        }
+        return ``;
+    }
+
+    function getOffice(researcher) {
+        if (researcher.Office) {
+            return `<div class="contact-info">
+                                <i class="fa fa-address-card-o fa-lg"></i><span style="margin-top: -5px;">${researcher.Office}</span>
+                            </div>`;
+        }
+        return ``;
+    }
+
+    function setupPagination(data) {
+        totalPages = Math.ceil(data.length / researchersPerPage);
+        if (totalPages > 1) {
+            document.getElementById('pagination').classList.remove('hidden');
+            const pagination = document.getElementById("pagination-numbers");
+            pagination.innerHTML = "";
+            for (let i = 1; i <= totalPages; i++) {
+                const button = document.createElement("button");
+                button.className = "pagination-number";
+                button.setAttribute("id", i);
+                button.innerText = i;
+                button.addEventListener("click", () => {
+                    currentPage = i;
+                    handleActivePageNumber();
+                    handlePageButtonsView();
+                    if (isSearchEmpty) {
+                        renderResearchers(data);
+                    } else {
+                        renderResearchers(filteredResearchers);
+                    }
+                });
+                pagination.appendChild(button);
+            }
+            handleActivePageNumber()
+            handlePageButtonsView();
+        } else {
+            document.getElementById('pagination').classList.add('hidden');
+        }
+    }
+
+    function handleActivePageNumber() {
+        document.querySelectorAll(".pagination-number").forEach((button) => {
+            button.classList.remove("active");
+            const pageIndex = Number(button.getAttribute("id"));
+            if (pageIndex == currentPage) {
+                button.classList.add("active");
+            }
+        });
+    }
+
+    function handlePageButtonsView() {
+        var pageNumbersToShow = [];
+        if (currentPage >= totalPages - displayedPageNumberCount) {
+            for (let i = totalPages; i >= totalPages - displayedPageNumberCount; i--) {
+                pageNumbersToShow.push(i);
+            }
+        } else {
+            for (let i = currentPage; i <= currentPage + displayedPageNumberCount; i++) {
+                pageNumbersToShow.push(i);
+            }
+        }
+
+        for (var i = 1; i <= totalPages; i++) {
+            if (pageNumbersToShow.includes(i)) {
+                document.getElementById(i).classList.remove("hidden");
+            } else {
+                document.getElementById(i).classList.add("hidden");
+            }
+        }
+        handlePageButtonsStatus();
+    }
+
+    function disableButton(button) {
+        button.classList.add("disabled");
+        button.setAttribute("disabled", true);
+    }
+
+    function enableButton(button) {
+        button.classList.remove("disabled");
+        button.removeAttribute("disabled");
+    }
+
+    function handlePageButtonsStatus() {
+        if (currentPage === 1) {
+            disableButton(prevButton);
+        } else {
+            enableButton(prevButton);
+        }
+        if (totalPages === currentPage) {
+            disableButton(nextButton);
+        } else {
+            enableButton(nextButton);
+        }
+    }
+
+    function setupSearch(data) {
+        document.getElementById("searchInput").addEventListener("input", () => {
+            filterApply();
+        });
+    }
+
+    function setupTitleFilter (data) {
+        var titles = [...new Set(data.map(item => item.Title))];
+        var selectElement = document.getElementById("titleFilter");
+        addSelectOption(0, 'Tümü', selectElement);
+        for (var i = 0; i < titles.length; i++) {
+            addSelectOption(titles[i], titles[i], selectElement);
+        }
+        selectElement.addEventListener("change", function () {
+            filterApply();
+        });
+    }
+
+    function filterApply() {
+        const searchInput = document.getElementById("searchInput");
+        const searchTerm = searchInput.value.trim().toLowerCase();
+
+        var selectElement = document.getElementById("titleFilter");
+        let selectedValue = selectElement.value;
+
+        var filteredData = [];
+        if (searchTerm.length > 0 || selectedValue != '0') {
+            $("#clearAllBtn").show();
+            isSearchEmpty = false;
+            filteredData = allResearchers.filter(researcher => {
+                const name = researcher.FullName.toLowerCase();
+                return name.includes(searchTerm) && (selectedValue != '0' ? researcher.Title == selectedValue : true);
+            });
+        } else {
+            $("#clearAllBtn").hide();
+            isSearchEmpty = true;
+            filteredData = allResearchers;
+        }
+
+        filteredResearchers = filteredData;
+        reRenderPage(filteredData);
+    }
+
+    function addSelectOption(value, text, selectElement) {
+        var option = document.createElement("option");
+        option.value = value;
+        option.text = text;
+        selectElement.appendChild(option);
+    }
+
+    function renderResearchersOnPaginationClick() {
+        if (isSearchEmpty) {
+            renderResearchers(allResearchers);
+        } else {
+            renderResearchers(filteredResearchers);
+        }
+    }
+
+    function clearFilters() {
+        $("#clearAllBtn").hide();
+
+        const searchInput = document.getElementById("searchInput");
+        searchInput.value = '';
+
+        var selectElement = document.getElementById("titleFilter");
+        selectElement.value = '0';
+
+        isSearchEmpty = true;
+
+        reRenderPage(allResearchers);
+    }
+
+    function reRenderPage(data) {
+        currentPage = 1;
+        renderResearchers(data);
+        setupPagination(data);
+    }
+</script></div>
+            </div>
+        </div>
+    </div>
+</div>
+
+<div id="asyncmodal-container" class="modal fade" role="dialog">
+    <div id="asyncmodal-dialog" class="modal-dialog">
+        <div id="asyncmodal-content" class="modal-content"></div>
+    </div>
+</div>
+
+<script src="/Content/backoffice/vendor/ion-range-slider/ion.rangeSlider.min.js"></script>
+<script src="/Content/mainpage/vendor/pivottable/crossfilter.min.js"></script>
+<script type="text/javascript">
+    var researchers = "Araştırmacılar"; var all = "Tümü"; var foundRecordTypes = "Bulunan Kayıt Türleri"; var subType = "Alt Tür"; var titleType = "Ünvan"; var beginDateYear = "Yıl"; var endDateYear = "Bitiş Yılı"; var corporate = "Çalışılan Kurum"; var faculty = "Çalışılan Fakülte"; var department = "Çalışılan Bölüm"; var program = "Ana Bilim Dalı"; var clearAllFilters = "Tüm filtreyi temizle"; var resultFound = "{timeTaken} ms içinde {hitCount} kayıt bulundu."; var placeholder = "Arama yapmak istediğiniz kelimeyi giriniz"; var nextPage = "Sonraki Sayfa"; var previousPage = "Önceki Sayfa"; var noResultFound = "Kayıt Bulunamadı."; var didYouMean = "{suggestion} için yeniden ara"; var noResultFoundDidYouMean = "{query} ile ilgili sonuç bulunamadı. Bunu mu demek istediniz {suggestion}?"; var noSearchWithoutFilter = "Filtreler olmadan '{query}' araması yapın"; var viewMore = "daha fazla"; var viewLess = "daha az"; var viewAll = "daha fazla"; var researchAreas = "Araştırma Alanları"; var researchAreaMessage = "Araştırma Alanı Filtrele"; var wosResearchAreas = "WoS Araştırma Alanları"; var wosResearchAreaMessage = "WoS Araştırma Alanı Filtrele"; var scopusResearchAreas = "Scopus Araştırma Alanları"; var scopusResearchAreaMessage = "Scopus Araştırma Alanı Filtrele"; var avesisResearchAreas = "Avesis Araştırma Alanları"; var searchError = "Maalesef, sonuçlarınız alınırken bir sorun oluştu. Lütfen tekrar deneyin."; var searchReset = "Aramayı Yeniden Yap"; var corporateSearch = "Kurum Ara"; var facultySearch = "Fakülte Ara"; var departmentSearch = "Bölüm Ara"; var programSearch = "Ana Bilim Dalı Ara"; var searchRange = "Filtrele"; var subTypeSearch = "Alt Tür Ara"; var titleTypeSearch = "Ünvan Ara"; var refineSortBy = "Sıralama"; var refine = "Filtrele"; var searchModalClose = "Kapat"; var itemAlphabetical = "Alfabetik"; var itemRecordCount = "Kayıt Sayısı"; var beginYearCount = "Başlangıç_Yılı_Sayı"; var beginYearTerm = "Başlangıç_Yılı_Terim"; var beginYearRefineMessage = "Yıl Filtrele"; var topicCount = ""; var topicTerm = ""; var topicRefineMessage = "Araştırma Alanı Filtrele"; var endYearCount = "Bitiş_Yılı_Sayı"; var endYearTerm = "Btiş_Yılı_Terim"; var endYearRefineMessage = "Bitiş Yılı Filtrele"; var country = "Ülke"; var countrySearch = "Ülke Ara"; var nationality = "Uyruk"; var nationalitySearch = "Uyruk Ara"; var countryResearcherSearch = ""; var rightsOwners = "Araştırmacılar"; var rightsOwnersSearch = "Araştırmacı Ara"; var foreignLanguage = "Yabancı Dil"; var foreignLanguageSearch = "Yabancı Dil Ara"; var educationCountry = "Eğitim Aldığı Ülke"; var educationCountrySearch = "Eğitim Aldığı Ülke Ara"; var searchApply = "Uygula"; var pageSizeSelectorRightLabel = "kayıt göster"; var pageSizeSelectorLeftLabel = ""; var maxYear = "2026"; var openAccess = "Açık Erişim"; var openAccessTitle = "Açık Erişim"; var isiIndexed = "ISI İndeksli"; var researchersAnnouncements = "Araştımacının Paylaşımları"; var isIndexedOnUlakbim = "TR Dizin"; var searchBoxPlaceholder = "Ara"; var multiselectPlaceholder = "Tümü"; var noResultsFound = "Sonuç bulunamadı"; var searchInList = "Liste içerisinde ara"; var defaultText = "Varsayılan"; var gender = "Cinsiyet"; var wosTopParentNames = '[{\"Primary\":\"Tarım ve Çevre Bilimleri (Age)\",\"Secondary\":\"Agriculture \u0026 Environment Sciences (Age)\",\"Current\":\"Tarım ve Çevre Bilimleri (Age)\"},{\"Primary\":\"Mühendislik Bilişim ve Teknoloji (Eng)\",\"Secondary\":\"Engineering Computing \u0026 Technology (Eng)\",\"Current\":\"Mühendislik Bilişim ve Teknoloji (Eng)\"},{\"Primary\":\"Sanat ve Beşeri Bilimler (Ahci)\",\"Secondary\":\"Arts \u0026 Humanities (Ahci)\",\"Current\":\"Sanat ve Beşeri Bilimler (Ahci)\"},{\"Primary\":\"Klinik Tıp (Med)\",\"Secondary\":\"Clinical Medicine (Med)\",\"Current\":\"Klinik Tıp (Med)\"},{\"Primary\":\"Temel Bilimler (Sci)\",\"Secondary\":\"Natural Sciences (Sci)\",\"Current\":\"Temel Bilimler (Sci)\"},{\"Primary\":\"Yaşam Bilimleri (Life)\",\"Secondary\":\"Life Sciences (Life)\",\"Current\":\"Yaşam Bilimleri (Life)\"},{\"Primary\":\"Sosyal Bilimler (Soc)\",\"Secondary\":\"Social Sciences (Soc)\",\"Current\":\"Sosyal Bilimler (Soc)\"}]'; var scopusTopParentNames = '[{\"Primary\":\"Sağlık Bilimleri\",\"Secondary\":\"Health Sciences\",\"Current\":\"Sağlık Bilimleri\"},{\"Primary\":\"Fizik Bilimleri\",\"Secondary\":\"Physical Sciences\",\"Current\":\"Fizik Bilimleri\"},{\"Primary\":\"Sosyal Bilimler ve Beşeri Bilimler\",\"Secondary\":\"Social Sciences \u0026 Humanities\",\"Current\":\"Sosyal Bilimler ve Beşeri Bilimler\"},{\"Primary\":\"Yaşam Bilimleri\",\"Secondary\":\"Life Sciences\",\"Current\":\"Yaşam Bilimleri\"},{\"Primary\":\"Multidisipliner\",\"Secondary\":\"Multidisciplinary\",\"Current\":\"Multidisipliner\"}]'; var password = "Şifre"; var download = "İndir"; var downloadFileMessage = "Dosyayı indirmek için belirlenen şifreyi giriniz."; var documentDownload = "Dosya İndir"; var summary = 'Özet'; var projectState = "Proje Durumu"; var zeroResultFound = "Kayıt Bulunamadı."; var SDGCount = "17"; var covid19Title = "Covid-19'la ilgili"; var sustainableDevelopment = "Sürdürülebilir Kalkınma"; var checkAllBoxes = "Tümünü Seç"; var sustainability = "BM Sürdürülebilir Kalkınma Amaçları"; var sdgTitleDictionary = {}; var sdgDictionary = {}; var isSustainabilityModuleEnabled = true; var baseAddress = "https://avesis.inonu.edu.tr/"; var sustainabilityDetail = "Detay sayfası için tıklayınız"; var sustainabilityRouteName = "surdurulebilirlik"; var journalIndex = "Derginin Tarandığı İndeks"; var journalIndexMessage = "Derginin Tarandığı İndeksi Filtrele"; var search = "Ara"; var journalIndexSearch = ""; var withinInstitutionScope = "WithinTheInstitution"; var facultyLabel = "Fakülte"; var departmentLabel = "Bölüm"; var programLabel = "Anabilim Dalı"; var scopeLabel = "Kapsam"; var publication = "Yayın"; var project = "Proje"; var thesis = "Tez"; var advisingThesis = "Yönetilen Tez"; var patent = "Patent"; var clickForDetailPage = "Detay sayfası için tıklayın."; var similarResearchGroups = "Benzer Araştırma Grupları"; var relatedSustainability = "İlgili Sürdürülebilirlik"; var researchTeamSiteDetail1 = "Araştırma Grubu Detayı"; var researchTeamSiteDetail2 = "Araştırma Merkezi Detayı"; var researchTeamSiteDetail3 = "Araştırma Laboratuvarı Detayı"; var selectAll = "Hepsini Seç"; var researchGroups = "Araştırma Grupları ve Birimler"; var announcementTypes = "Duyuru Tipleri"; var urlPathResearchGroup = "arastirma-grubu"; var urlPathGroupMembers = "grup-uyeleri"; var urlPathPublications = "yayinlar"; var urlPathProjects = "projeler"; var urlPathTheses = "tezler"; var urlPathPatents = "patentler"; var researchGroupResearcher = "Araştırmacı"; var researchGroupPublication = "Yayın"; var researchGroupProject = "Proje"; var researchGroupThesis = "Tez"; var researchGroupAdvisingThesis = "Yönetilen Tez"; var researchGroupPatent = "Patent"; var avesisAreasTopParentNames = '[\"Sosyal ve Beşeri Bilimler\",\"Tarımsal Bilimler\",\"Sağlık Bilimleri\",\"Temel Bilimler\",\"Mühendislik ve Teknoloji\"]'; var isShowSustainabilityFilterAndInfo = true; var indexesDatabase = "Veritabanı"; var avesisBaseAddress = 'https://avesis.inonu.edu.tr/'; var isShowOpenAccessIconAndFilter = true; var subTypes = "Alt Türler"; var corporateSpecialization = "Kurumsal Tematik Alan"; var isShowCorporateSpecialization = false; var projectTypeSearch = "Proje Türü Ara"; var intellectualProperty = "Fikri Mülkiyet"; var intellectualPropertyTypeSearch = "Fikri Mülkiyet Türü Ara"; var collectionName = "Açık Arşiv Koleksiyonu"; var collectionNameSearch = "Koleksiyon Ara"; var dataTypes = "Veri Türleri"; var filterDataTypesMessage = ""; var dataTypesCount = "16"; var publishDateYear = "Yayınlanma Yılı"; var publishYearCount = "Yayınlanma_Yılı_Sayı"; var publishYearRefineMessage = "Yayınlanma Yılı Filtrele"; var publishYearTerm = "Yayınlanma_Yılı_Terim"; var files = "Dosyalar"; var downloadAll = "Tümünü İndir"; var activityTypes = "Faaliyet Türleri"; var activityTypeSearch = "Faaliyet Türü Ara"; var isShowOpenArchiveCollections = true; var fileExists = "Dosyası Var"; var collectionPlaceholder = "Koleksiyon kapsamında arama yapınız"; var artificialIntelligencePlaceholder = "Yapay zekâ araştırmaları kapsamında arama yapınız"; var activityLanguageName = "Faaliyetin Dili";
+
+    var researcherPerformanceAnalysis = "Araştırmacı Performans Analizi";
+    var downloadResumeFile = "Özgeçmiş Dosyası İndir";
+    var isUserHasPermission = false;
+    var showExcelExport = true;
+    var SDGNamesPrimary =   { 1: "YOKSULLUĞA SON", 2: "AÇLIĞA SON", 3: "SAĞLIKLI BİREYLER", 4: "NİTELİKLİ EĞİTİM", 5: "CİNSİYET EŞİTLİĞİ", 6: "TEMİZ SU VE SIHHİ KOŞULLAR", 7: "ERİŞİLEBİLİR VE TEMİZ ENERJİ", 8: "İNSANA YAKIŞIR İŞ VE EKONOMİK BÜYÜME", 9: "SANAYİ, YENİLİKÇİLİK VE ALTYAPI", 10: "EŞİTSİZLİKLERİN AZALTILMASI", 11: "SÜRDÜRÜLEBİLİR ŞEHİR VE YAŞAM ALANLARI", 12: "SORUMLU ÜRETİM VE TÜKETİM", 13: "İKLİM EYLEMİ", 14: "SUDAKİ YAŞAM", 15: "KARASAL YAŞAM", 16: "BARIŞ VE ADALET", 17: "AMAÇLAR İÇİN ORTAKLIKLAR" };
+    var SDGNamesSecondary = { 1: 'NO POVERTY', 2: 'ZERO HUNGER', 3: 'GOOD HEALTH AND WELL-BEING', 4: 'QUALITY EDUCATION', 5: 'GENDER EQUALITY', 6: 'CLEAN WATER AND SANITATION', 7: 'AFFORDABLE AND CLEAN ENERGY', 8: 'DECENT WORK AND ECONOMIC GROWTH', 9: 'INDUSTRIAL INNOVATION AND INFRASTRUCTURE', 10: 'REDUCED INEQUALITIES', 11: 'SUSTAINABLE CITIES AND COMMUNITIES', 12: 'RESPONSIBLE CONSUMPTION AND PRODUCTION', 13: 'CLIMATE ACTION', 14: 'LIFE BELOW WATER', 15: 'LIFE ON HAND', 16: 'PEACE, JUSTICE AND STRONG INSTITUTIONS', 17: 'PARTNERSHIPS FOR THE GOALS' };
+
+             Object.assign(sdgTitleDictionary, { 1: "AMAÇ 1: YOKSULLUĞA SON" }); 
+             Object.assign(sdgTitleDictionary, { 2: "AMAÇ 2: AÇLIĞA SON" }); 
+             Object.assign(sdgTitleDictionary, { 3: "AMAÇ 3: SAĞLIKLI BİREYLER" }); 
+             Object.assign(sdgTitleDictionary, { 4: "AMAÇ 4: NİTELİKLİ EĞİTİM" }); 
+             Object.assign(sdgTitleDictionary, { 5: "AMAÇ 5: CİNSİYET EŞİTLİĞİ" }); 
+             Object.assign(sdgTitleDictionary, { 6: "AMAÇ 6: TEMİZ SU VE SIHHİ KOŞULLAR" }); 
+             Object.assign(sdgTitleDictionary, { 7: "AMAÇ 7: ERİŞİLEBİLİR VE TEMİZ ENERJİ" }); 
+             Object.assign(sdgTitleDictionary, { 8: "AMAÇ 8: İNSANA YAKIŞIR İŞ VE EKONOMİK BÜYÜME" }); 
+             Object.assign(sdgTitleDictionary, { 9: "AMAÇ 9: SANAYİ, YENİLİKÇİLİK VE ALTYAPI" }); 
+             Object.assign(sdgTitleDictionary, { 10: "AMAÇ 10: EŞİTSİZLİKLERİN AZALTILMASI" }); 
+             Object.assign(sdgTitleDictionary, { 11: "AMAÇ 11: SÜRDÜRÜLEBİLİR ŞEHİR VE YAŞAM ALANLARI" }); 
+             Object.assign(sdgTitleDictionary, { 12: "AMAÇ 12: SORUMLU ÜRETİM VE TÜKETİM" }); 
+             Object.assign(sdgTitleDictionary, { 13: "AMAÇ 13: İKLİM EYLEMİ" }); 
+             Object.assign(sdgTitleDictionary, { 14: "AMAÇ 14: SUDAKİ YAŞAM" }); 
+             Object.assign(sdgTitleDictionary, { 15: "AMAÇ 15: KARASAL YAŞAM" }); 
+             Object.assign(sdgTitleDictionary, { 16: "AMAÇ 16: BARIŞ VE ADALET" }); 
+             Object.assign(sdgTitleDictionary, { 17: "AMAÇ 17: AMAÇLAR İÇİN ORTAKLIKLAR" }); 
+    Object.assign(sdgDictionary, true ? SDGNamesPrimary : SDGNamesSecondary);
+    var journalIndexNames =
+        [
+            'Science Citation Index Expanded (SCI-EXPANDED)',
+            'Arts and Humanities Citation Index (AHCI)',
+            'Social Sciences Citation Index (SSCI)',
+            'Emerging Sources Citation Index (ESCI)',
+            'Scopus',
+            'TR DİZİN (ULAKBİM)'
+        ];
+    var PublicationTypes = {
+        Article : 1,
+        Book : 2,
+        BookChapter : 3,
+        ConferencePaper : 4,
+        Encyclopedia : 5,
+        OtherPublication : 6,
+        ExpertReport : 7
+    };
+
+    var IndexesDatabaseNamesPrimary =
+        [
+            'WoS SCIE',
+            'WoS SSCI',
+            'WoS AHCI',
+            'WoS ESCI',
+            'WoS Bildiriler',
+            'WoS (Scopus Indeksinde Taranmayan)',
+            'WoS Indeksinde Taranmayan',
+            'Scopus',
+            'Scopus (WoS SCIE, AHCI, SSCI, ESCI Taranmayan)',
+            'Scopus (WoS SCIE, AHCI, SSCI Taranmayan)',
+            'Scopus Indeksinde Taranmayan',
+            'PubMed'
+        ];
+
+    var IndexesDatabaseNamesSecondary =
+        [
+            'WoS SCIE',
+            'WoS SSCI',
+            'WoS AHCI',
+            'WoS ESCI',
+            'WoS Conference Papers',
+            'WoS (Not in Scopus)',
+            'Not Indexed In WoS',
+            'Scopus',
+            'Scopus (Not WoS SCIE, AHCI, SSCI, ESCI)',
+            'Scopus (Not WoS SCIE, AHCI, SSCI)',
+            'Not Indexed In Scopus',
+            'PubMed'
+        ];
+
+    var ResearchTeamSiteType = {
+        ResearchGroup: 1,
+        ResearchCenter: 2,
+        ResearchLaboratory: 3,
+    };
+
+</script>
+
+
+
+<script>
+    var topTenMostCitedResearchersSubTitle = "Yalnızca Hukuk adresli yayınlara yapılan atıflar.";
+    const $yearRangeSlider = $(".js-range-slider");
+
+    let unitType = "Department",
+        unitId = "3";
+    let _section = "_Overview";
+
+    let _ovrPublicationChart, _ovrCitationChart, _ovrAvgCiteChart, _ovrProjectChart, _ovrThesisChart, _ovrResearchersChart, _activitiesResearchAreaPieChart, _collaborationsStackedColumnChart, _collaborationsBarChart, _topPublishedJournalsLineChart, _intellectualPropertiesByYearsColumnChart, _inventionStatusesPieChart, _thesesByYearsLineChart, _thesesByResearchAreaPieChart, _projectNationalCollaborationsBarChart, _projectInternationalcollaborationsBarChart, _intellectualPropertyNationalityByYearsColumnChart, _nationalityInventionStatusesPieChart, _mostCitedResearchersBarChart, _researchersByTitlePieChart, _distributionOfFacultyStaffByTitlesPieChart, _distributionOfResearchersByGenderPieData, _distributionOfResearchAreaPieChart, _domesticAndAbroadEducationCountPieData, _abroadEducationsPieChart, _abroadEducationsByCountriesPieChart, _thesesByTypePieChart, _publicationIndexLineChart, _publicationDatabaseLineChart;
+
+    let _parentResearchAreas = [];
+    const hasJcrSubscription = "False" === "True";
+
+    $(() => {
+        $("#navigationList ul li:last-child").addClass("active");
+        initcontentView();
+        $yearRangeSlider.ionRangeSlider({
+            type: "double",
+            min: 1980,
+            max: 2026,
+            from: 2021,
+            to: 2026,
+            grid: true,
+            hide_min_max: true,
+            prettify_enabled: false,
+            skin: "square", // "flat", "big","modern", "sharp", "round", "square"
+            extra_classes: "irs-primary", //irs-original
+            onFinish: function (data) {
+                data.input.data("ionRangeSlider").update({disable: true})
+                initcontentView();
+            }
+        });
+    });
+
+    function dataLoaded() {
+        $(".activity-links li").removeClass("disabled");
+        $yearRangeSlider.data("ionRangeSlider").update({ disable: false });
+    }
+
+    function getYearRange() {
+        const slider = $yearRangeSlider.data("ionRangeSlider");
+        const beginYear = slider.result.from;
+        const endYear = slider.result.to;
+        return { beginYear, endYear }
+    }
+
+    function getReportParameters(paramsObj) {
+        const yearRange = getYearRange();
+        let params = { beginYear: yearRange.beginYear, endYear: yearRange.endYear };
+        return $.extend(params, paramsObj);
+    }
+
+    function getStackedColumnChartSeries(data, categories, seriePropName, categoryPropName, countPropName) {
+        const cf = crossfilter(data);
+        const dimension = cf.dimension(function (d) {
+            return d[seriePropName];
+        });
+        const dimensionGroup = dimension.group().top(Infinity);
+        return dimensionGroup.map(p => {
+            return {
+                name: p.key,
+                data: categories.map(x => {
+                    const itemsByCategory = data.filter(f => f[seriePropName] === p.key && f[categoryPropName] === x);
+                    return itemsByCategory.length > 0 ? sumOfArrayData(itemsByCategory, countPropName || "Count") : 0;
+                })
+            }
+        });
+    }
+
+    $(".activity-links a").click(function (e) {
+        e.preventDefault();
+        const li = $(this).closest("li");
+        if (li.hasClass("active") || li.hasClass("disabled")) {
+            return;
+        }
+        _section = $(this).data("section")
+        initcontentView();
+        const activeLink = $(".activity-links li.active");
+        activeLink.removeClass("active");
+        li.addClass("active");
+        if (_section == '_Researcher') {
+            document.getElementById('range-slider').classList.add('hidden');
+        } else {
+            document.getElementById('range-slider').classList.remove('hidden');
+        }
+    });
+
+    function initcontentView() {
+        $("#contentView").empty();
+        const url = "/unitreport/getcontentview";
+        $.get(url, { section: _section }, function (result) {
+            _allCharts.forEach(c => destroyChart(c));
+            _allCharts = [];
+            $("#contentView").html(result);
+        });
+    }
+
+    function changeView($btn) {
+        const view = $btn.data("view");
+        if ($btn.hasClass("focus")) { return; }
+
+        const activeBtn = $btn.parent().find(".focus");
+        activeBtn.removeClass("focus");
+        $btn.addClass("focus");
+        const section = $btn.closest(".overview-section");
+        section.find(`[data-content="${activeBtn.data('view')}"]`).hide();
+        section.find(`[data-content="${view}"]`).show();
+    }
+
+    $('[data-toggle=sidebar-colapse]').click(function (e) {
+        e.preventDefault();
+        departmenListCollapse();
+    });
+
+    const departmenListCollapse = () => {
+        $('#collapseIconDiv').toggleClass('collapseIconDiv-margin-left-20');
+        $('#collapse-icon').toggleClass('fa-angle-double-left fa-angle-double-right');
+        $('#unitsPanel').toggleClass('show hide');
+        $('#contentPanel').toggleClass('col-lg-9 col-lg-12').toggleClass('col-md-8 col-md-12').toggleClass('content-padding-0 padding-30');
+    }
+
+    function showActivityListModal(activityTypeId, activityName, postFilters = []) {
+        const yearFilter = postFilters.find(s => s.Key === "begindate_year");
+        const yearRange = yearFilter ? { beginYear: yearFilter.Value, endYear: yearFilter.Value } : getYearRange();
+        const beginYear = yearRange.beginYear;
+        const endYear = yearRange.endYear;
+        var url = `/unitreport/showunitactivitylist?unitId=${unitId}&unitType=${unitType}&activityTypeId=${activityTypeId}&activityName=${encodeURI(activityName)}&beginYear=${beginYear}&endYear=${endYear}`;
+        if (postFilters) {
+            url = `${url}&postFilters=${encodeURI(JSON.stringify(postFilters))}`;
+        }
+        var anchor = $("<a>");
+        $(anchor).data("asyncmodal-size", "xl");
+        $(anchor).attr('href', url);
+        showDialog(anchor);
+    }
+
+    var datatableInit = function (opt,id) {
+            var pageLength = 15;
+        var options = {
+                sDom: "<'row datatables-header'<'col-sm-12 col-md-6'l><'col-sm-12 col-md-6'f>r><'table-responsive't><'row datatables-footer'<'col-sm-12 col-md-4'><'col-sm-12 col-md-4'ip><'col-sm-12 col-md-4'>>",
+                pageLength: pageLength,
+                lengthChange: false,
+                autoWidth: false,
+                aaSorting: [],
+                columnDefs: [
+                    { orderable: false, targets: [-1] }
+                ],
+                language: { url: "/Content/backoffice/vendor/jquery-datatables/langs/Turkish.json" },
+                initComplete: function (settings, json) {
+                    $('div.dataTables_filter input').attr('placeholder', "Ara");
+                    if ($(this).find('tbody tr').length <= 1) {
+                        $('#' + settings.sTableId + '_filter').hide();
+                    }
+                },
+                drawCallback: function (settings) {
+                    if (settings.aoData.length) {
+                        $('#' + settings.sTableId + '_info').show();
+                    } else {
+                        $('#' + settings.sTableId + '_info').hide();
+                    }
+                }
+            };
+
+            if (opt) {
+                $.extend(options, opt);
+            }
+            return id ? $(`#${id}`).DataTable(options) : $('.datatable').DataTable(options);
+    };
+
+    function changeView($btn) {
+        const view = $btn.data("view");
+        if ($btn.hasClass("focus")) { return; }
+
+        const activeBtn = $btn.parent().find(".focus");
+        activeBtn.removeClass("focus");
+        $btn.addClass("focus");
+        const section = $btn.closest(".overview-section");
+        section.find(`[data-content="${activeBtn.data('view')}"]`).hide();
+        section.find(`[data-content="${view}"]`).show();
+    }
+
+    function getSearchkitFiltersOnPivotClick(matchingRecords, filterArr, attributeDefinitions) {
+        return filterArr.filter(f => attributeDefinitions.some(s => s.Key === f[0]) && f[1]).map(a => {
+            const attrDef = attributeDefinitions.find(s => s.Key === a[0]);
+            const attrName = attrDef.RecordValueName || a[0];
+            return { Key: attrDef.SearchkitKey, Value: matchingRecords[0][attrName] }
+        });
+    }
+
+    function preparePivotConfig(config, properties) {
+        return {
+            cols: config["cols"].map(m => properties.find(f => f.value == m).name),
+            rows: config["rows"].map(m => properties.find(f => f.value == m).name)
+        };
+    }
+
+    function initDataTableForList(datatable, lastColumnIndex, dateColumnList) {
+        datatable = datatableInit({
+            "ordering": false,
+            initComplete: function (settings, json) {
+                $('div.dataTables_filter input').attr('placeholder', localizeSearch);
+                if ($(this).find('tbody tr').length <= 1) {
+                    $('#' + settings.sTableId + '_filter').hide();
+                }
+                for (var i = 1; i <= lastColumnIndex; i++) {
+                    changeTableHeaderToSelectList(i, dateColumnList.includes(i))
+                }
+            }
+        });
+    }
+
+    function changeTableHeaderToSelectList(index, isDateColumn) {
+        $('.datatable').DataTable().columns(index).every(function () {
+            var column = this;
+            var select = $('<select><option value="">' + localizeAll + '</option></select>')
+                .appendTo($(column.header()).empty())
+                .on('change',
+                    function () {
+                        var val = $.fn.dataTable.util.escapeRegex(
+                            $(this).val()
+                        );
+                        column
+                            .search(val ? '^' + val + '$' : '', true, false)
+                            .draw();
+                    })
+                .addClass("form-control");
+            column.data().unique().each(function (d, j) {
+                select.append('<option value="' + d + '">' + d + '</option>');
+            });
+            sortSelect(select[0], isDateColumn);
+        });
+    }
+
+    function sortSelect(selElem, isDateColumn) {
+        var allOption = selElem.options[0];
+        selElem.options[0].remove();
+        var tmpAry = new Array();
+        var indexOfOther;
+        var otherOption;
+
+        for (var i = 0; i < selElem.options.length; i++) {
+            if (selElem.options[i].text && selElem.options[i].value) {
+                tmpAry[i] = new Array();
+                tmpAry[i][0] = selElem.options[i].text;
+                tmpAry[i][1] = selElem.options[i].value;
+            }
+        }
+
+        tmpAry.sort();
+
+        if (isDateColumn) {
+            tmpAry.reverse();
+        }
+
+        while (selElem.options.length > 0) {
+            selElem.options[0] = null;
+        }
+
+        for (var i = 0; i < tmpAry.length; i++) {
+            if (tmpAry[i]) {
+                var op = new Option(tmpAry[i][0], tmpAry[i][1]);
+                selElem.options[i] = op;
+
+                if (tmpAry[i][0] == 'Diğer') {
+                    indexOfOther = i;
+                    otherOption = op;
+                }
+            }
+        }
+
+        if (indexOfOther) {
+            selElem.remove(indexOfOther);
+            selElem.appendChild(otherOption);
+        }
+
+        selElem.prepend(allOption);
+
+        return;
+    }
+</script>
+
+    <footer id="footer" class="color color-quaternary">
+        
+
+<div class="container-fluid">
+    <div class="row">
+        <div class="col-md-4 hidden-xs">
+            <div class="newsletter">
+                <img src="/Content/images/logo-big.png " alt="" class="aves-logo">
+                <nav class="footer-mini-nav">
+                    <a href="/">Ana Sayfa</a>&nbsp;|&nbsp;
+                    <a href="/hakkinda">AVESİS Hakkında</a>&nbsp;|&nbsp;
+                    <a href="/iletisim">İletişim</a>
+                </nav>
+            </div>
+        </div>
+        
+
+<div class="col-md-4 col-md-offset-4">
+    <div class="contact-details">
+        <h4>İletişim Bilgileri</h4>
+        <ul class="contact media-list">
+            <li class="media">
+                <div class="media-left">
+                    <i class="fa fa-map-marker"></i>
+                </div>
+                <div class="media-body">
+                            <span>İnönü Üniversitesi Bilimsel Araştırma Projeleri Koordinasyon Birimi Rektörlük İdari Bina, 6. Kat, 44280</span>
+                            <br><span>MALATYA</span>
+
+                </div>
+            </li>
+                    <li class="media">
+                        <div class="media-left">
+                            <i class="fa fa-envelope"></i>
+                        </div>
+                        <div class="media-body">
+                            <a href="mailto:avesis@inonu.edu.tr">avesis@inonu.edu.tr</a>
+                        </div>
+                    </li>
+                    <li class="media">
+                        <div class="media-left">
+                            <i class="fa fa-phone"></i>
+                        </div>
+                        <div class="media-body">
+                            <span>        <a href="tel:0422 377 37 18">0422 377 37 18</a>
+</span>
+                        </div>
+                    </li>
+                    <li class="media">
+                        <div class="media-left">
+                            <i class="fa fa-fax"></i>
+                        </div>
+                        <div class="media-body">
+                            <span>        <a href="tel:0422 341 12 37">0422 341 12 37</a>
+</span>
+                        </div>
+                    </li>
+
+        </ul>
+    </div>
+</div>
+        
+        <div class="col-md-4 hidden visible-xs">
+            <div class="newsletter text-center">
+                <a href="#">
+                    <img src="/Content/images/logo-big.png" alt="" class="aves-logo">
+                </a>
+                <nav class="footer-mini-nav">
+                    <a href="/">Ana Sayfa</a>&nbsp;|&nbsp;
+                    <a href="/hakkinda">AVESİS Hakkında</a>&nbsp;|&nbsp;
+                    <a href="/iletisim">İletişim</a>
+                </nav>
+            </div>
+        </div>
+    </div>
+</div>
+<div class="footer-copyright">
+    <div class="container-fluid">
+        <div class="row ">
+            <div class="col-md-6">
+                <p>
+                    Akademik Veri Yönetim Sistemi
+                </p>
+            </div>
+            <div class="col-md-6 text-right company-name">
+                <p>
+                    <a href="http://www.abisteknoloji.com.tr" target="_blank">Abis Teknoloji</a> © 2026
+                </p>
+            </div>
+        </div>
+    </div>
+</div>
+    </footer>
+    <script src="/bundles/mainpage-sync?v=239XX3LFeFKIK5EvBSPxgOlkkECqgE2SGFS-PWKipno1"></script>
+
+<script src=" /bundles/mainpage?v=s6ndMHyw4dRDSOYuKGvmbenscR0pNfZTCALf6IdtgME1" defer=""></script>
+
+<script src=" /bundles/mainpage-theme?v=-u9c4hYa0G4c6RWm03tMGzpJH26W555A6brrD5skn-41" defer=""></script>
+
+<script type="text/javascript">
+    var resultHit;
+    var resultList = {};
+    var resultdata = null;
+    var userResumeRouteKey;
+    var foundRecodTypesUrl = 'Bulunan Kayıt Türleri' + "[0]";
+    var localization = currentCulture == "tr" ? "primary" : "secondary";
+    function getFaIcon(typeid_value) {
+        const icons = {
+            "11": "fa fa-users",
+            "15": "fa fa-tasks",
+            "23": "fa fa-book",
+            "8": "fa fa-graduation-cap",
+            "1": "fa fa-briefcase",
+            "6": "fa fa-certificate",
+            "13": "fa fa-balance-scale",
+            "14": "fa fa-calendar",
+            "5": "fa fa-trophy",
+            "9": "fa fa-user-circle",
+            "27": "fa fa-file",
+            "18": "fa fa-flask",
+            "12": "fa fa-book",
+            "24": "fa fa-book",
+            "26": "fa fa-gift",
+            "19": "fa fa-gavel",
+            "16": "fa fa-user",
+            "25": "fa fa-users",
+            "7": "fa fa-pencil",
+            "22": "fa fa-image",
+            "10": "fa fa-lightbulb-o",
+            "3": "fa fa-music",
+            "34": "fa fa-database",
+            "33": "fa fa-users",
+            "29": "fa fa-user",
+            "28": "fa fa-globe",
+            "31": "fa fa-book",
+            "30": "fa fa-cogs",
+            "32": "fa fa-industry",
+            "20": "fa fa-book"
+        };
+
+        return icons[typeid_value] || "fa fa-star";
+    }
+
+
+    var siteSearchDebounceTimer;
+    if (!isMobile()) {
+        $("#searchBox").on("keyup", function () {
+            var searchBoxValue = $(this).val().trim();
+            clearTimeout(siteSearchDebounceTimer);
+            if (searchBoxValue.length < 3 || searchBoxValue.length === 0) {
+                $("#resultsContainer").hide();
+                $("#resultCategories li").remove();
+                $("#resultsList li").remove();
+                $("#categoryHeader").hide();
+            }
+            if (searchBoxValue.length >= 3) {
+                siteSearchDebounceTimer = setTimeout(function () {
+                    siteSearch(searchBoxValue, 0, 300, searchSuccess);
+                }, 500);
+            }
+        });
+        $("#bgOverlay").on("click", function () {
+            $("#resultsContainer").hide();
+        });
+    }
+    function searchSuccess(result) {
+        resultdata = result;
+        $("#resultsList li").remove();
+        $("#moreResult li").remove();
+        $("#resultCategories li").remove();
+        $("#categoryHeader").hide();
+        if (currentCulture == "tr") {
+            resultList = resultdata.aggregations.type_primary.filtered_categories.buckets;
+        }
+        else {
+            resultList = resultdata.aggregations.type_secondary.filtered_categories.buckets;
+        }
+        var searchUrl = "/arama?scope=All" + "&q=" + $("#searchBox").val().trim();
+        resultList.forEach(function (type) {
+            if (type.key === "Araştırmacılar" || type.key === "User") {
+                $("#resultCategories").append(
+                    $("<li/>").attr('style', 'display:flex; align-items:center;').data("category-id", type.key).append(
+                        $('<i/>').attr('class','fa fa-user').attr('style', 'margin-right:5px;font-size: 12px;'),
+                    $("<a/>")
+                    .attr('target', '_blank')
+                    .attr("href", searchUrl + "&" + foundRecodTypesUrl + "=" + type.key)
+                    .text(type.key)
+                    .attr('style', 'color:#22395C'),
+                        $('<a/>').attr('style', 'margin-left:5px; font-weight:bold; color:#22395C').text(type.doc_count)
+                    ).hover(function () {
+                        resultListItem($(this));
+                    }).attr("onclick", "window.open($(this).find('a').attr('href'), '_blank');").css("cursor", "pointer")
+                );
+            }
+        });
+        for (var i = 0; i < resultList.length; i++)
+            if (resultList[i].key === "Araştırmacılar" || resultList[i].key === "User") {
+                resultListItem(resultList[i], 1);
+                resultList.splice(i, 1);
+                break;
+            }
+            else {
+                resultListItem(resultList[0], 1);
+            }
+        resultList.slice(0, 8).forEach(function (type) {
+            $("#resultCategories").append(
+                $("<li/>").attr('style', 'display:flex; align-items:center;').data("category-id", type.key).append(
+                    $('<i/>').attr('class', getFaIcon(type.typeid_value.buckets[0].key)).attr('style', 'margin-right:5px; font-size: 12px;'),
+                    $("<a/>")
+                        .attr('target', '_blank')
+                        .attr("href", searchUrl + "&" + foundRecodTypesUrl + "=" + type.key)
+                        .text(type.key)
+                        .attr('style', 'color:#22395C'),
+                    $('<a/>').attr('style', 'margin-left:5px; font-weight:bold; color:#22395C').text(type.doc_count)
+                ).hover(function () {
+                    $('#resultsRightPane').scrollTop(0);
+                    resultListItem($(this));
+                }).attr("onclick", "window.open($(this).find('a').attr('href'), '_blank');").css("cursor", "pointer")
+            );
+        });
+        $("#moreResult").append(
+            $("<li/>").attr('style', 'color:white').append(
+                $("<button/>").attr("onclick", "window.open($(this).find('a').attr('href'), '_blank');").attr('class', 'btn d-flex align-items-center').attr('style','background-color: #017F94;').append(
+                    $("<i/>").attr('class', 'fa fa-search me-2').attr('style','margin-right:5px; color:white;'),
+                    $("<a/>")
+            .attr('target', '_blank')
+            .attr("href", searchUrl + "")
+            .text("Tüm Sonuçlar")
+            .attr('style', 'color:white')
+                        )
+                    )
+                )
+        if (resultdata.hits.total === 0) {
+            $("#resultCategories li").remove();
+            $("#resultsList li").remove();
+            $("#categoryHeader").text("Arama sonucu bulunamadı");
+            $("#categoryHeader").show();
+        }
+        $("#resultsContainer").show();
+    }
+    function filterResultsHomePage(data, category) {
+        var filtered = [];
+        data.hits.hits.map(function (el) {
+            if (currentCulture == "tr") {
+                if (el._type === category) {
+                    filtered.push(el._source);
+                }
+            }
+            else {
+                if (el._source.type_secondary === category) {
+                    filtered.push(el._source);
+                }
+            }
+        });
+        return filtered;
+    }
+    function resultListItem(item, count) {
+        var key = count != null ? item.key : item.data("category-id");
+        $("#categoryHeader").hide();
+        $("#resultsList li").remove();
+        $("#categoryHeader").text(key);
+        $("#categoryHeader").show();
+        filterResultsHomePage(resultdata, key).forEach(function (hit) {
+            userResumeRouteKey = (key === "Araştırmacılar" || key === "User") ? true : false;
+            var title = hit["title_" + localization];
+            var resumeRouteKeyUrl = getActivityDetailPageUrl(hit, title);
+            currentCulture == "tr" ?
+             resultHit = hit.reference_primary.DefaultReference :
+             resultHit = hit.reference_secondary.DefaultReference;
+            $("#resultsList").append(
+                $("<li/>").append(
+                $("<a/>")
+                .attr('target', '_blank')
+                .attr("href", resumeRouteKeyUrl)
+                .text(resultHit)
+                .attr('style', 'color:white')
+                )
+                );
+        });
+    }
+</script>
+    
+    
+        <!-- Global site tag (gtag.js) - Google Analytics -->
+    <script async="" src="https://www.googletagmanager.com/gtag/js?id=UA-83638822-36"></script>
+    <script>
+        window.dataLayer = window.dataLayer || [];
+        function gtag(){dataLayer.push(arguments);}
+        gtag('js', new Date());
+        gtag('config', 'UA-83638822-36');
+    </script>
+
+    <script type="text/javascript" src="/Content/backoffice/vendor/apexcharts/apexcharts.min.js"></script>
+
+<script type="text/javascript">
+    const apex_localization_tr = { "name": "tr", "options": { "months": ["Ocak", "Şubat", "Mart", "Nisan", "Mayıs", "Haziran", "Temmuz", "Ağustos", "Eylül", "Ekim", "Kasım", "Aralık"], "shortMonths": ["Oca", "Şub", "Mar", "Nis", "May", "Haz", "Tem", "Ağu", "Eyl", "Eki", "Kas", "Ara"], "days": ["Pazar", "Pazartesi", "Salı", "Çarşamba", "Perşembe", "Cuma", "Cumartesi"], "shortDays": ["Paz", "Pzt", "Sal", "Çar", "Per", "Cum", "Cmt"], "toolbar": { "exportToSVG": "SVG İndir", "exportToPNG": "PNG İndir", "exportToCSV": "CSV İndir", "menu": "Menü", "selection": "Seçim", "selectionZoom": "Seçim Yakınlaştır", "zoomIn": "Yakınlaştır", "zoomOut": "Uzaklaştır", "pan": "Kaydır", "reset": "Yakınlaştırmayı Sıfırla" } } }
+    const apex_localization_en = { "name": "en", "options": { "months": ["January", "February", "March", "April", "May", "June", "July", "August", "September", "October", "November", "December"], "shortMonths": ["Jan", "Feb", "Mar", "Apr", "May", "Jun", "Jul", "Aug", "Sep", "Oct", "Nov", "Dec"], "days": ["Sunday", "Monday", "Tuesday", "Wednesday", "Thursday", "Friday", "Saturday"], "shortDays": ["Sun", "Mon", "Tue", "Wed", "Thu", "Fri", "Sat"], "toolbar": { "exportToSVG": "Download SVG", "exportToPNG": "Download PNG", "exportToCSV": "Download CSV", "menu": "Menu", "selection": "Selection", "selectionZoom": "Selection Zoom", "zoomIn": "Zoom In", "zoomOut": "Zoom Out", "pan": "Panning", "reset": "Reset Zoom" } } }
+    const apex_localization_ru = { "name": "ru", "options": { "months": ["Январь", "Февраль", "Март", "Апрель", "Май", "Июнь", "Июль", "Август", "Сентябрь", "Октябрь", "Ноябрь", "Декабрь"], "shortMonths": ["Янв", "Фев", "Мар", "Апр", "Май", "Июн", "Июл", "Авг", "Сен", "Окт", "Ноя", "Дек"], "days": ["Воскресенье", "Понедельник", "Вторник", "Среда", "Четверг", "Пятница", "Суббота"], "shortDays": ["Вс", "Пн", "Вт", "Ср", "Чт", "Пт", "Сб"], "toolbar": { "exportToSVG": "Сохранить SVG", "exportToPNG": "Сохранить PNG", "exportToCSV": "Сохранить CSV", "menu": "Меню", "selection": "Выбор", "selectionZoom": "Выбор с увеличением", "zoomIn": "Увеличить", "zoomOut": "Уменьшить", "pan": "Перемещение", "reset": "Сбросить увеличение" } } }
+    const apex_localization_kk = { "name": "kk", "options": { "months": ["Қаңтар", "Ақпан", "Наурыз", "Сәуір", "Мамыр", "Маусым", "Шілде", "Тамыз", "Қыркүйек", "Қазан", "Қараша", "Желтоқсан"], "shortMonths": ["Қаң", "Ақп", "Нау", "Сәу", "Мамыр", "Мау", "Шлд", "Тмз", "Қыр", "Қзн", "Қар", "Жел"], "days": ["Дүйсенбі", "Сейсенбі", "Сәрсенбі", "Бейсенбі", "Жұма", "Сенбі", "Жексенбі"], "shortDays": ["Дүй", "Сей", "Сәр", "Бей", "Жұм", "Сен", "Жек"], "toolbar": { "exportToSVG": "SVG жүктеп алу", "exportToPNG": "PNG жүктеп алу", "exportToCSV": "CSV жүктеп алу", "menu": "Мәзір", "selection": "таңдау", "selectionZoom": "Таңдауды масштабтау", "zoomIn": "үлкейту", "zoomout": "кішірейту", "pan": "пан", "reset": "масштабты қалпына келтіру" } } }
+    const apex_localization_az = { "name": "az", "options": { "months": ["Yanvar", "Fevral", "Mart", "Aprel", "May", "İyun", "İyul", "Avqust", "Sentyabr", "Oktyabr", "Noyabr", "Dekabr"], "shortMonths": ["Yan", "Fev", "Mar", "Apr", "May", "İyun", "İyul", "Avq", "Sen", "Okt", "Noy", "Dek"], "days": ["Bazar", "Bazar ertəsi", "Çərşənbə axşamı", "Çərşənbə", "Cümə axşamı", "Cümə", "Şənbə"], "shortDays": ["B.", "B.e", "Ç.a", "Ç.", "C.a", "C.", "Ş."], "toolbar": { "exportToSVG": "SVG Yüklə", "exportToPNG": "PNG Yüklə", "exportToCSV": "CSV Yüklə", "menu": "Menyu", "selection": "Seçim", "selectionZoom": "Seçimi Yaxınlaşdır", "zoomIn": "Yaxınlaşdır", "zoomOut": "Uzaqlaşdır", "pan": "Sürüşdür", "reset": "Yaxınlaşdırmanı Sıfırla" } } }
+
+    const colorOption = { // ApexChart default renkleri yetersiz kaldiginda kullanilabilir.
+        colors: ['#008FFB', '#00E396', '#FEB019', '#FF4560', '#775DD0', '#F9A3A4', '#2E294E', '#662E9B', '#5A2A27', '#43BCCD']
+    };
+
+    function getNumberRangeAsArray(begin, end) {
+        return Array.from({ length: end - begin + 1 }, function (_, i) { return begin + i; });
+    }
+
+    function sumOfArrayData(data, prop) {
+        return prop ? data.reduce(function (a, b) { return a + (b[prop] || 0) }, 0) : data.reduce(function (a, b) { return a + b }, 0);
+    }
+
+    function destroyChart(chart) {
+        if (chart) {
+            chart.destroy();
+            return null;
+        }
+    }
+
+    function createOrUpdateChart(opt, id, chart) {
+        if (chart && chart.data) {
+            chart.updateOptions(opt);
+        } else {
+            chart = new ApexCharts(document.querySelector('#'+id), opt);
+            chart.render();
+            _allCharts.push(chart);
+        }
+
+        return chart;
+    }
+
+    function setDefaultOptions(opt) {
+        opt.chart.locales = [apex_localization_tr, apex_localization_en, apex_localization_ru, apex_localization_kk, apex_localization_az];
+        opt.chart.defaultLocale = 'tr';
+        opt.noData = {
+            text: 'Kayıt bulunamadı',
+            align: 'center',
+            verticalAlign: 'middle',
+            //offsetX: -100,
+            offsetY: 0,
+            style: {
+                color: '#555',
+                fontSize: '14px'
+            }
+        };
+    }
+
+    function chartLabelFormatter(val) {
+        return val ? val.toString().replace('.', ',') : "0";
+    }
+
+    function getSparkLineChartOptions(series, labels, value, clickFunc, inverseOrder) {
+        const options = {
+            series: series,
+            labels: labels,
+            chart: {
+                type: 'area',
+                height: 140,
+                sparkline: {
+                    enabled: true
+                },
+                redrawOnParentResize: true,
+                redrawOnWindowResize: true,
+                events: {
+                    mounted: function (chartContext, config) {
+                        if (clickFunc) {
+                            sparkLineTitleOnClick(chartContext, clickFunc, series);
+                        }
+                    },
+                    updated: function (chartContext, config) {
+                        if (clickFunc) {
+                            sparkLineTitleOnClick(chartContext, clickFunc, series);
+                        }
+                    }
+                }
+            },
+            stroke: {
+                curve: 'straight'
+            },
+            fill: {
+                opacity: 0.3
+            },
+            xaxis: {
+                crosshairs: {
+                    width: 1
+                },
+            },
+            title: {
+                text: value || series.map(function (i) { return sumOfArrayData(i.data); }).join('/'), //data.sum(),
+                style: {
+                    fontSize: '20px'
+                }
+            },
+            subtitle: {
+                text: series.length == 1 ? series[0].name : series.map(function (i) { return i.name; }).join('/'), //map(s => s.name).join('/'),
+                style: {
+                    fontSize: '14px'
+                }
+            },
+            tooltip: {
+                inverseOrder: inverseOrder === undefined || inverseOrder,
+                y: {
+                    formatter: chartLabelFormatter
+                }
+            }
+        };
+        setDefaultOptions(options);
+        return options;
+    }
+
+    function getPieChartOptions(items, dataPointSelect, opt) {
+        const options = {
+            series: items.map(function (i) { return i.value; }), //.map(i => i.value) rotativada çalışmıyor
+            chart: {
+                type: 'pie',
+                events: {
+                    dataPointSelection: function (event, chartContext, config) {
+                        // The last parameter config contains additional information like `seriesIndex` and `dataPointIndex` for cartesian charts
+                        const clickedName = config.w.config.labels[config.dataPointIndex];
+                        const clickedItem = items.find(function (i) { return i.name === clickedName; })//.find(i => i.name === clickedName);
+                        if (dataPointSelect && clickedItem) {
+                            dataPointSelect(clickedItem);
+                        }
+                    }
+                },
+                animations: {
+                    enabled: true,
+                    easing: 'easeinout',
+                    speed: 400,
+                    animateGradually: {
+                        enabled: true,
+                        delay: 150
+                    },
+                    dynamicAnimation: {
+                        enabled: true,
+                        speed: 350
+                    }
+                },
+                height: 400,
+                toolbar: {
+                    show: true
+                }
+            },
+            labels: items.map(function (i) { return i.name; }), //.map(i => i.name)
+            theme: {
+                monochrome: {
+                    enabled: false
+                }
+            },
+            responsive: [{
+                breakpoint: 1200,
+                options: {
+                    chart: {
+                        width: '100%'
+                    },
+                    legend: {
+                        position: 'bottom',
+                        offsetX: 0
+                    }
+                }
+            }]
+        };
+        setDefaultOptions(options);
+
+        if (opt) {
+            return $.extend(true, {}, options, opt);
+        }
+
+        return options;
+    }
+
+    function getLineChartOptions(series, categories, title, markerClick, opt) {
+        const options = {
+            series: series,
+            chart: {
+                height: 350,
+                type: 'line',
+                zoom: {
+                    enabled: false
+                },
+                events: {
+                    markerClick: function (event, chartContext, settings) { //{ seriesIndex, dataPointIndex, config }
+                        const clickedName = series[settings.seriesIndex].name;
+                        const clickedCategory = categories[settings.dataPointIndex]
+                        const clickedValue = series[settings.seriesIndex].data[settings.dataPointIndex];
+                        if (markerClick && clickedValue > 0) {
+                            markerClick(clickedName, clickedCategory);
+                        }
+                    }
+                },
+            },
+            dataLabels: {
+                enabled: false
+            },
+            stroke: {
+                curve: 'straight'
+            },
+            title: {
+                text: title || '',
+                align: 'left'
+            },
+            grid: {
+                borderColor: '#e7e7e7',
+                row: {
+                    colors: ['#f8f8f8', 'transparent'], // takes an array which will be repeated on columns
+                    opacity: 0.5
+                },
+            },
+            xaxis: {
+                categories: categories,
+                tickAmount: categories.length / 3,
+            },
+            yaxis: {
+                labels: {
+                    formatter: chartLabelFormatter
+                }
+            },
+            markers: {
+                size: [5],
+                onClick: function (e) {
+                    //
+                }
+            },
+            tooltip: {
+                shared: false,
+                //intersect: true,
+                y: {
+                    formatter: chartLabelFormatter
+                }
+                //theme: 'dark'
+                //custom: function ({ series, seriesIndex, dataPointIndex, w }) {
+
+                //}
+            }
+        };
+        setDefaultOptions(options);
+        if (opt) {
+            return $.extend(true, {}, options, opt);
+        }
+        return options;
+    }
+
+    function getColumnChartOptions(series, categories, isStacked, dataPointSelection, opt) {
+        var options = {
+            series: series,
+            chart: {
+                type: 'bar',
+                height: 350,
+                stacked: isStacked || false,
+                toolbar: {
+                    show: true
+                },
+                events: {
+                    dataPointSelection: dataPointSelection
+                },
+                animations: {
+                    dynamicAnimation: {
+                        enabled: true,
+                        speed: 350
+                    }
+                }
+            },
+            responsive: [{
+                breakpoint: 480,
+                options: {
+                    legend: {
+                        position: 'bottom',
+                        offsetX: -10,
+                        offsetY: 0
+                    }
+                }
+            }],
+            plotOptions: {
+                bar: {
+                    borderRadius: 8,
+                    horizontal: false,
+                },
+            },
+            xaxis: {
+                categories: categories,
+            },
+            //yaxis: {
+            //    axisBorder: {
+            //        show: true
+            //    },
+            //    axisTicks: {
+            //        show: true
+            //    }
+            //},
+            legend: {
+                position: 'right',
+                offsetY: 40
+            },
+            fill: {
+                opacity: 1
+            }
+        };
+        setDefaultOptions(options);
+        if (opt) {
+            return $.extend(true, {}, options, opt);
+        }
+        return options;
+    }
+
+    function getBarChartOptions(data, title, dataPointSelection, opt) {
+        var options = {
+            series: [{
+                data: data.map(function (i) { return i.value; }) //.map(m => m.value)
+            }],
+            chart: {
+                type: 'bar',
+                height: 350
+            },
+            plotOptions: {
+                bar: {
+                    borderRadius: 4,
+                    horizontal: true,
+                }
+            },
+            dataLabels: {
+                enabled: false
+            },
+            xaxis: {
+                categories: data.map(function (i) { return i.name; })//.map(m => m.name)
+            },
+            tooltip: {
+                y: {
+                    formatter: chartLabelFormatter,
+                    title: {
+                        formatter: function () { return ""; }
+                    }
+                }
+            },
+            title: {
+                text: title
+            }
+        };
+        setDefaultOptions(options);
+        if (opt) {
+            return $.extend(true, {}, options, opt);
+        }
+        return options;
+    }
+
+    function sparkLineTitleOnClick(chartContext, clickFunc, series) {
+        const el = $(chartContext.el);
+        const textEl = el.find("text.apexcharts-title-text");
+        if (series.length > 1) {
+            const textSplit = textEl.text().split('/');
+            series.forEach(function (serie, idx) {
+                const activityType = serie.activityType;
+                const activityName = serie.name;
+                const postFilters = serie.postFilters;
+                const val = textSplit[idx];
+                if (idx === 0) {
+                    textEl.text(val);
+                    if (val > 0) {
+                        textEl.click(function () {
+                            clickFunc(activityType, activityName, postFilters);
+                        });
+                    }
+                } else {
+                    var splitter = textEl.clone();
+                    splitter.removeClass("apexcharts-title-text")
+                    splitter.text("/");
+                    splitter.attr("x", parseInt(textEl.attr('x')) + textEl[0].getBoundingClientRect().width);
+                    splitter.attr('id', textEl.attr('id') + idx + "s");
+                    textEl.after($(splitter));
+
+                    const newTextEl = textEl.clone();
+                    xValue = parseInt(splitter.attr('x')) + splitter[0].getBoundingClientRect().width;
+                    newTextEl.attr('x', xValue);
+                    newTextEl.text(val);
+                    newTextEl.attr('id', textEl.attr('id') + idx);
+                    if (val > 0) {
+                        newTextEl.click(function () {
+                            clickFunc(activityType, activityName, postFilters);
+                        });
+                    }
+
+                    textEl.after(newTextEl);
+                }
+            });
+
+
+        } else {
+            if (textEl.text() > 0) {
+                const activityType = series[0].activityType;
+                const activityName = series[0].name;
+                const postFilters = series[0].postFilters;
+                textEl.click(function () {
+                    clickFunc(activityType, activityName, postFilters);
+                });
+            }
+        }
+    }
+
+    //pivottable bozulduğu için kapatıldı.
+    //// check if an element exists in array using a comparer function
+    //// comparer : function(currentElement)
+    //Array.prototype.inArray = function (comparer) {
+    //    for (var i = 0; i < this.length; i++) {
+    //        if (comparer(this[i])) return true;
+    //    }
+    //    return false;
+    //};
+
+    //// adds an element to the array if it does not already exist using a comparer
+    //// function
+    //Array.prototype.pushIfNotExist = function (element, comparer) {
+    //    if (comparer && !this.inArray(comparer)) {
+    //        this.push(element);
+    //    } else if (!comparer && !this.includes(element)) {
+    //        this.push(element);
+    //    }
+    //};
+
+    //Array.prototype.removeItem = function (item) {
+    //    const index = this.indexOf(item);
+    //    if (index > -1) {
+    //        this.splice(index, 1);
+    //    }
+    //};
+
+    //Array.prototype.sum = function (prop) {
+    //    return prop ? this.reduce((a, b) => a + (b[prop] || 0), 0) : this.reduce((a, b) => a + b, 0)
+    //}
+
+    function getLineTickAmountChartOptions(series, categories, title, markerClick, opt, tickAmount) {
+        const options = {
+            series: series,
+            chart: {
+                height: 350,
+                type: 'line',
+                stacked: true,
+                zoom: {
+                    enabled: false
+                },
+                events: {
+                    markerClick: function (event, chartContext, settings) { //{ seriesIndex, dataPointIndex, config }
+                        const clickedName = series[settings.seriesIndex].name;
+                        const clickedCategory = categories[settings.dataPointIndex]
+                        const clickedValue = series[settings.seriesIndex].data[settings.dataPointIndex];
+                        if (markerClick && clickedValue > 0) {
+                            markerClick(clickedName, clickedCategory);
+                        }
+                    }
+                },
+                toolbar: {
+                    tools: {
+                      download: false,
+                      customIcons: [{
+                      icon: '<i class="fa fa-camera" style="font-size: 18px" />',
+                      title: 'PNG İndir',
+                      class: 'custom-icon',
+                      click: async function (chart, options, e) { //Chart'ın png tipinde base64 içeriğini alıp indirme işlemini yapıyoruz.
+                            return await chart.dataURI().then(dataURI => {
+                                const downloadLink = document.createElement("a");
+                                downloadLink.href = dataURI.imgURI;
+                                downloadLink.download = `yillara-gore-yayin-ve-atif-sayilari${".png"}`;
+                                downloadLink.click();
+                            });
+                          }
+                      }]
+                    }
+                }
+            },
+            dataLabels: {
+                enabled: false
+            },
+            stroke: {
+                curve: 'straight'
+            },
+            title: {
+                text: title || '',
+                align: 'left'
+            },
+            grid: {
+                borderColor: '#e7e7e7',
+                row: {
+                    colors: ['#f8f8f8', 'transparent'], // takes an array which will be repeated on columns
+                    opacity: 0.5
+                },
+            },
+            xaxis: {
+                categories: categories,
+                tickAmount: tickAmount,
+                labels: {
+                    rotateAlways: true,
+                    rotate: -45,
+                },
+            },
+            yaxis: {
+                labels: {
+                    formatter: chartLabelFormatter
+                }
+            },
+            markers: {
+                size: [7],
+                onClick: function (e) {
+                    //
+                }
+            },
+            tooltip: {
+                shared: false,
+                //intersect: true,
+                y: {
+                    formatter: chartLabelFormatter
+                }
+                //theme: 'dark'
+                //custom: function ({ series, seriesIndex, dataPointIndex, w }) {
+
+                //}
+            }
+        };
+        setDefaultOptions(options);
+        if (opt) {
+            return $.extend(true, {}, options, opt);
+        }
+        return options;
+    }
+
+    function getRadialChartOptions(series, labels, opt) {
+        var options = {
+            chart: {
+                type: 'radialBar',
+                height: 350,
+                toolbar: {
+                    show: true
+                }
+            },
+            plotOptions: {
+                radialBar: {
+                    startAngle: 0,
+                    endAngle: 360,
+                    dataLabels: {
+                        name: {
+                            show: false,
+                        },
+                        value: {
+                            offsetY: 15,
+                            fontSize: '22px',
+                        },
+                    },
+                },
+            },
+            series: series,
+            labels: labels
+        };
+        setDefaultOptions(options);
+        if (opt) {
+            return $.extend(true, {}, options, opt);
+        }
+        return options;
+    }
+</script>
+
+
+    <script type="text/javascript" src="//cdn.plu.mx/widget-popup.js"></script>
+    <script>
+        let _allCharts = [];
+    </script>
+
+<a class="scroll-to-top hidden-mobile" href="#"><i class="fa fa-chevron-up"></i></a><svg id="SvgjsSvg1001" width="2" height="0" xmlns="http://www.w3.org/2000/svg" version="1.1" xmlns:xlink="http://www.w3.org/1999/xlink" xmlns:svgjs="http://svgjs.com/svgjs" style="overflow: hidden; top: -100%; left: -100%; position: absolute; opacity: 0;"><defs id="SvgjsDefs1002"></defs><polyline id="SvgjsPolyline1003" points="0,0"></polyline><path id="SvgjsPath1004" d="M0 0 "></path></svg><svg id="js-plotly-tester" xmlns="http://www.w3.org/2000/svg" xmlns:xlink="http://www.w3.org/1999/xlink" style="position: absolute; left: -10000px; top: -10000px; width: 9000px; height: 9000px; z-index: 1;"><path class="js-reference-point" d="M0,0H1V1H0Z" style="stroke-width: 0; fill: black;"></path></svg></body></html>
