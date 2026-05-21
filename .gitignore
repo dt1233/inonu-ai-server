@@ -5,3 +5,8 @@ venv/
 .venv/
 .vscode/
 
+# Data files
+data/
+crawl_results.json
+run_indexer.py
+chunks_output.json

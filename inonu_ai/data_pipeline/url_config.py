@@ -164,21 +164,21 @@ REKTORLUK_TARGETS: list[UrlTarget] = [
 # ─────────────────────────────────────────────────────────────────
 
 FAKULTELER = [
-    ("fen.edebiyat",   "Fen Edebiyat Fakültesi",             2),
-    ("muhendislik",    "Mühendislik Fakültesi",               3),
-    ("tip",            "Tıp Fakültesi",                       4),
-    ("dishekimligi",   "Diş Hekimliği Fakültesi",             5),
-    ("eczacilik",      "Eczacılık Fakültesi",                  6),
-    ("egitim",         "Eğitim Fakültesi",                    7),
-    ("iibf",           "İktisadi ve İdari Bilimler Fakültesi", 8),
-    ("ilahiyat",       "İlahiyat Fakültesi",                   9),
-    ("gsf",            "Güzel Sanatlar ve Tasarım Fakültesi", 10),
-    ("sporbilimleri",  "Spor Bilimleri Fakültesi",            11),
-    ("hukuk",          "Hukuk Fakültesi",                     12),
-    ("sbf",            "Sağlık Bilimleri Fakültesi",          13),
-    ("veteriner",      "Veteriner Fakültesi",                  14),
-    ("mimarlik",       "Mimarlık Fakültesi",                   15),
-    ("iletisim",       "İletişim Fakültesi",                   16),
+    ("fen.edebiyat",   "Fen Edebiyat Fakültesi",             155),
+    ("muhendislik",    "Mühendislik Fakültesi",               375),
+    ("tip",            "Tıp Fakültesi",                       517),
+    ("dishekimligi",   "Diş Hekimliği Fakültesi",             77),
+    ("eczacilik",      "Eczacılık Fakültesi",                  87),
+    ("egitim",         "Eğitim Fakültesi",                    116),
+    ("iibf",           "İktisadi ve İdari Bilimler Fakültesi", 263),
+    ("ilahiyat",       "İlahiyat Fakültesi",                   297),
+    ("gsf",            "Güzel Sanatlar ve Tasarım Fakültesi", 212),
+    ("sporbilimleri",  "Spor Bilimleri Fakültesi",            51),
+    ("hukuk",          "Hukuk Fakültesi",                     243),
+    ("sbf",            "Sağlık Bilimleri Fakültesi",          445),
+    ("veteriner",      "Veteriner Fakültesi",                  None),
+    ("mimarlik",       "Mimarlık Fakültesi",                   None),
+    ("iletisim",       "İletişim Fakültesi",                   320),
 ]
 
 
@@ -200,13 +200,14 @@ def _fakulte_targets() -> list[UrlTarget]:
             extra={"fakulte": label},
         ))
         # AVESİS akademik kadro
-        targets.append(UrlTarget(
-            key=f"{unit_key}_avesis", label=f"{label} AVESİS Akademik Kadro",
-            url=f"https://avesis.inonu.edu.tr/unitreport/reports?unitId={avesis_id}",
-            crawl_type=CrawlType.AVESIS, frequency=CrawlFrequency.WEEKLY, priority=2,
-            js_wait_ms=3000,
-            extra={"unit_id": avesis_id, "fakulte": label},
-        ))
+        if avesis_id is not None:
+            targets.append(UrlTarget(
+                key=f"{unit_key}_avesis", label=f"{label} AVESİS Akademik Kadro",
+                url=f"https://avesis.inonu.edu.tr/unitreport/reports?unitId={avesis_id}",
+                crawl_type=CrawlType.AVESIS, frequency=CrawlFrequency.WEEKLY, priority=2,
+                js_wait_ms=3000,
+                extra={"unit_id": avesis_id, "fakulte": label},
+            ))
         # Fakülte ana sayfası (HTML)
         targets.append(UrlTarget(
             key=f"{unit_key}_anasayfa", label=f"{label} Ana Sayfası",
@@ -224,10 +225,10 @@ FAKULTE_TARGETS: list[UrlTarget] = _fakulte_targets()
 # ─────────────────────────────────────────────────────────────────
 
 ENSTITU_LISTESI = [
-    ("fbe",                "Fen Bilimleri Enstitüsü",      20),
-    ("sosyalbilimler",     "Sosyal Bilimler Enstitüsü",     21),
-    ("egitimbilimleri",    "Eğitim Bilimleri Enstitüsü",    22),
-    ("saglikbilimleriens", "Sağlık Bilimleri Enstitüsü",    23),
+    ("fbe",                "Fen Bilimleri Enstitüsü",      144),
+    ("sosyalbilimler",     "Sosyal Bilimler Enstitüsü",     480),
+    ("egitimbilimleri",    "Eğitim Bilimleri Enstitüsü",    105),
+    ("saglikbilimleriens", "Sağlık Bilimleri Enstitüsü",    422),
 ]
 
 
@@ -255,6 +256,43 @@ def _enstitu_targets() -> list[UrlTarget]:
     return targets
 
 ENSTITU_TARGETS: list[UrlTarget] = _enstitu_targets()
+
+
+# ─────────────────────────────────────────────────────────────────
+# AVESIS SADECE (PANEL API'DE OLMAYAN / EKSİK OLAN BİRİMLER)
+# ─────────────────────────────────────────────────────────────────
+
+AVESIS_ONLY_BIRIMLER = [
+    ("hemsirelik", "Hemşirelik Fakültesi", 99896503),
+    ("malatya_saglik_yo", "Malatya Sağlık Yüksekokulu", 368),
+    ("yabanci_diller_yo", "Yabancı Diller Yüksekokulu", 564),
+    ("alevilik_ens", "Alevilik Araştırmaları Enstitüsü", 99896904),
+    ("karaciger_ens", "Karaciğer Nakli Enstitüsü Müdürlüğü", 99896415),
+    ("adalet_myo", "Adalet Meslek Yüksekokulu", 2),
+    ("kale_myo", "Kale Turizm ve Otel İşletmeciliği Meslek Yüksekokulu", 334),
+    ("malatya_myo", "Malatya Meslek Yüksekokulu", 345),
+    ("osb_myo", "Osb Meslek Yüksekokulu", 585),
+    ("saglik_hizm_myo", "Sağlık Hizmetleri Meslek Yüksekokulu", 461),
+    ("beslenme_diyetetik", "Beslenme ve Diyetetik", 317276),
+    ("devlet_konservatuvari", "Devlet Konservatuvarı", 73),
+    ("hemsirelik_esaslari", "Hemşirelik Esasları Anabilim Dalı", 3265),
+    ("reklamcilik_tanitim", "Reklamcılık ve Tanıtım", 201277),
+    ("rektorluk_avesis", "Rektörlük (AVESİS)", 419),
+]
+
+def _avesis_only_targets() -> list[UrlTarget]:
+    targets = []
+    for unit_key, label, avesis_id in AVESIS_ONLY_BIRIMLER:
+        targets.append(UrlTarget(
+            key=f"{unit_key}_avesis", label=f"{label} AVESİS",
+            url=f"https://avesis.inonu.edu.tr/unitreport/reports?unitId={avesis_id}",
+            crawl_type=CrawlType.AVESIS, frequency=CrawlFrequency.WEEKLY, priority=2,
+            js_wait_ms=3000,
+            extra={"unit_id": avesis_id, "birim": label},
+        ))
+    return targets
+
+AVESIS_ONLY_TARGETS: list[UrlTarget] = _avesis_only_targets()
 
 
 # ─────────────────────────────────────────────────────────────────
@@ -397,6 +435,7 @@ ALL_TARGETS: list[UrlTarget] = (
     + STATIC_CONTENT_SOURCES
     + FAKULTE_TARGETS
     + ENSTITU_TARGETS
+    + AVESIS_ONLY_TARGETS
     + MYO_TARGETS
 )
 
