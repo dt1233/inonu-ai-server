@@ -694,13 +694,13 @@ class BatchCrawler:
             logger.error(f"avesis_crawler import hatası: {e}")
             return []
 
-        crawler = AvesisCrawler(headless=True)
+        crawler = AvesisCrawler()
         raw_results = await crawler.crawl_all()
         # chunker uyumlu formata çevir
         chunk_ready = avesis_results_to_chunk_input(raw_results)
 
         total = sum(len(r.get("content", [])) for r in raw_results)
-        logger.info(f"AVESİS tamamlandı: {total} personel, {len(raw_results)} birim")
+        logger.info(f"AVESİS tamamlandı: {total} personel")
         return chunk_ready
 
     # ── Fakülte Duyuruları ────────────────────────────────────────
@@ -849,10 +849,23 @@ class BatchCrawler:
         }
 
     async def run_daily(self) -> dict[str, list[dict]]:
-        """Sadece günlük hedefleri tarar (duyurular)."""
+        """Sadece günlük hedefleri tarar (duyurular ve günlük JS hedefleri)."""
+        from .url_config import DAILY_TARGETS, CrawlType
+        
         async with AsyncWebCrawler(config=_browser_cfg()) as crawler:
             announcements = await self.run_all_announcements(crawler)
-        return {"announcements": announcements, "static_contents": [], "avesis_staff": []}
+            
+            # Günlük olan HTML_JS (Yemekhane vs.) veya HTML_STATIC hedefleri de topla
+            static_contents = []
+            for target in DAILY_TARGETS:
+                if target.crawl_type == CrawlType.HTML_JS:
+                    res = await self._process_html_js_target(target, crawler)
+                    static_contents.append(res)
+                elif target.crawl_type == CrawlType.HTML_STATIC:
+                    res = await self._process_html_static_target(target)
+                    static_contents.append(res)
+                    
+        return {"announcements": announcements, "static_contents": static_contents, "avesis_staff": []}
 
     async def run_weekly(self) -> dict[str, list[dict]]:
         """Haftalık hedefleri tarar (personel, bazı statikler, AVESİS)."""
@@ -903,7 +916,18 @@ async def _main():
         print("Kullanım: python -m data_pipeline.batch_crawler [--all|--daily|--weekly|--avesis|--html]")
         return
 
-    out = Path("crawl_results.json")
+    out = Path("data/crawl_results.json")
+    out.parent.mkdir(exist_ok=True)
+    
+    if out.exists() and arg != "--all":
+        try:
+            existing = json.loads(out.read_text(encoding="utf-8"))
+            existing.update(results)
+            results = existing
+            logger.info("Mevcut veriyle birleştirildi (merge).")
+        except Exception as e:
+            logger.error(f"Eski veri okunamadı, üzerine yazılacak: {e}")
+
     out.write_text(json.dumps(results, ensure_ascii=False, indent=2), encoding="utf-8")
 
     total_ann   = len(results.get("announcements", []))

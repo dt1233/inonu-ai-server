@@ -6,6 +6,11 @@ venv/
 .vscode/
 
 # Data files
-data/
-run_indexer.py
+data/*
+!data/final_dekanlar.json
+!data/final_bolum_baskanlari.json
+!data/inonu_universitesi_yonetim_rehberi.json
+!data/idari_personel.json
+!data/aktif_yonetim.json
 chunks_output.json
+crawl_results.json

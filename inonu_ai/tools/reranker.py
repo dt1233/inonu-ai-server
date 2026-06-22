@@ -3,9 +3,11 @@
 """
 İnönü AI — Re-Ranker
 BAAI/bge-reranker-v2-m3 ile top-20 → top-3 seçimi
+(Transformers native implementasyon - Tokenizer hatasını çözer)
 """
 
-from FlagEmbedding import FlagReranker
+import torch
+from transformers import AutoModelForSequenceClassification, AutoTokenizer
 from loguru import logger
 from config import get_settings
 
@@ -14,15 +16,21 @@ _settings = get_settings()
 MODEL_PATH = _settings.reranker_model_path
 TOP_N      = 3
 
-_reranker = None
+_tokenizer = None
+_model = None
 
-def get_reranker() -> FlagReranker:
-    global _reranker
-    if _reranker is None:
-        logger.info("Re-ranker yükleniyor [CUDA, FP16]...")
-        _reranker = FlagReranker(MODEL_PATH, use_fp16=True, device="cuda")
+def get_reranker():
+    global _tokenizer, _model
+    if _model is None:
+        logger.info("Re-ranker yükleniyor [CUDA, FP16, Native]...")
+        _tokenizer = AutoTokenizer.from_pretrained(MODEL_PATH)
+        _model = AutoModelForSequenceClassification.from_pretrained(
+            MODEL_PATH, 
+            torch_dtype=torch.float16
+        ).cuda()
+        _model.eval()
         logger.info("Re-ranker yüklendi ✓")
-    return _reranker
+    return _tokenizer, _model
 
 
 def rerank(query: str, points: list, top_n: int = TOP_N) -> list:
@@ -36,17 +44,29 @@ def rerank(query: str, points: list, top_n: int = TOP_N) -> list:
     if len(points) <= top_n:
         return points
 
-    reranker = get_reranker()
+    tokenizer, model = get_reranker()
     texts  = [p.payload.get("text", "") for p in points]
     pairs  = [[query, t] for t in texts]
 
     try:
-        scores = reranker.compute_score(pairs, normalize=True)
+        with torch.no_grad():
+            inputs = tokenizer(
+                pairs, 
+                padding=True, 
+                truncation=True, 
+                max_length=512, 
+                return_tensors='pt'
+            ).to('cuda')
+            
+            # bge-reranker outputs logits of shape (batch_size, 1)
+            scores = model(**inputs, return_dict=True).logits.view(-1,).float()
+            scores_list = scores.cpu().tolist()
+            
     except Exception as e:
         logger.warning(f"Re-rank hatası: {e} — orijinal sıra korunuyor")
         return points[:top_n]
 
-    scored = sorted(zip(scores, points), key=lambda x: x[0], reverse=True)
+    scored = sorted(zip(scores_list, points), key=lambda x: x[0], reverse=True)
     top    = [p for _, p in scored[:top_n]]
     logger.debug(f"Re-rank: {len(points)} → {len(top)} chunk")
     return top

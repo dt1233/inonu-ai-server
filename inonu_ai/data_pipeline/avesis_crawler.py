@@ -3,18 +3,17 @@
 """
 ╔═════════════════════════════════════════════════════════════════╗
 ║ İNÖNÜ AI │ avesis_crawler.py                                   ║
-║ AVESİS Akademik Personel Sistemi — Toplu Kazıyıcı              ║
+║ AVESİS Akademik Personel Sistemi — Elasticsearch API Crawler    ║
 ║                                                                 ║
-║ avesis.inonu.edu.tr sayfalarını Playwright ile tarar,          ║
-║ tüm akademik personeli çeker ve chunk'a hazır dict döndürür.   ║
+║ avesis.inonu.edu.tr Elasticsearch API'sine doğrudan istek atarak║
+║ TÜM akademik personeli (Rektörlük, MYO, Enstitü dahil) çeker  ║
+║ ve chunk'a hazır dict döndürür.                                 ║
 ╚═════════════════════════════════════════════════════════════════╝
 
 Kullanım:
     from data_pipeline.avesis_crawler import AvesisCrawler
     crawler = AvesisCrawler()
-    results = await crawler.crawl_all()   # tüm fakülteler
-    # ya da tek fakülte:
-    results = await crawler.crawl_unit(unit_id=3, label="Mühendislik")
+    results = await crawler.crawl_all()   # tüm araştırmacılar
 """
 
 import asyncio
@@ -22,20 +21,20 @@ import re
 from datetime import datetime, timezone
 from typing import Optional
 
+import aiohttp
 from loguru import logger
 
 # ─────────────────────────────────────────────────────────────────
-# SABITLER
+# SABİTLER
 # ─────────────────────────────────────────────────────────────────
 
 AVESIS_BASE      = "https://avesis.inonu.edu.tr"
-UNIT_REPORT_URL  = f"{AVESIS_BASE}/unitreport/reports?unitId={{unit_id}}"
-RESEARCHER_TAB   = f"{AVESIS_BASE}/unitreport/researchers?unitId={{unit_id}}"
-PROFILE_BASE     = f"{AVESIS_BASE}"
+ES_API_URL       = f"{AVESIS_BASE}/proxy/search/_search"
+PROFILE_BASE     = AVESIS_BASE
 
-REQUEST_DELAY    = 1.2   # saniye — AVESİS'e nazik ol
-PAGE_TIMEOUT_MS  = 30000
-JS_WAIT_MS       = 3000  # Araştırmacılar sekmesi yüklenmesi için
+PAGE_SIZE        = 100     # Elasticsearch'ten tek seferde çekilecek kayıt
+MAX_RESULTS      = 10000   # Güvenlik sınırı (ES varsayılan max_result_window)
+REQUEST_DELAY    = 0.3     # Saniye — API'ye nazik ol
 
 
 # ─────────────────────────────────────────────────────────────────
@@ -48,8 +47,10 @@ def _empty_person() -> dict:
         "unvan":           "",
         "bolum":           "",
         "fakulte":         "",
+        "anabilim_dali":   "",
         "email":           "",
         "telefon":         "",
+        "cinsiyet":        "",
         "calisma_alanlari": [],
         "profil_url":      "",
         "avesis_id":       "",
@@ -69,16 +70,11 @@ def _clean(text: str) -> str:
     return re.sub(r"\s+", " ", text).strip()
 
 
-def _parse_email(text: str) -> str:
-    """Metinden e-posta adresini ayıkla."""
-    match = re.search(r"[\w.+-]+@[\w.-]+\.\w+", text)
-    return match.group(0).lower() if match else ""
-
-
-def _parse_phone(text: str) -> str:
-    """Metinden telefon numarasını ayıkla."""
-    match = re.search(r"(\+90[\s\-]?)?(\(?\d{3,4}\)?[\s\-]?\d{3}[\s\-]?\d{2}[\s\-]?\d{2})", text)
-    return match.group(0).strip() if match else ""
+def _safe_str(val) -> str:
+    """Değer list ise ilk elemanı, str ise kendisini döndür."""
+    if isinstance(val, list):
+        return val[0] if val else ""
+    return str(val) if val else ""
 
 
 def _person_to_chunk_text(p: dict) -> str:
@@ -95,10 +91,14 @@ def _person_to_chunk_text(p: dict) -> str:
         parts.append(f"Bölüm: {p['bolum']}")
     if p["fakulte"]:
         parts.append(f"Fakülte: {p['fakulte']}")
+    if p.get("anabilim_dali"):
+        parts.append(f"Anabilim Dalı: {p['anabilim_dali']}")
     if p["email"]:
         parts.append(f"E-posta: {p['email']}")
     if p["telefon"]:
         parts.append(f"Tel: {p['telefon']}")
+    if p.get("cinsiyet"):
+        parts.append(f"Cinsiyet: {p['cinsiyet']}")
     if p["calisma_alanlari"]:
         alans = ", ".join(p["calisma_alanlari"][:5])  # max 5 alan
         parts.append(f"Çalışma Alanları: {alans}")
@@ -108,487 +108,220 @@ def _person_to_chunk_text(p: dict) -> str:
 
 
 # ─────────────────────────────────────────────────────────────────
-# PLAYWRIGHT TABANLI CRAWLER
+# ELASTICSEARCH API TABANLI CRAWLER
 # ─────────────────────────────────────────────────────────────────
 
 class AvesisCrawler:
     """
-    AVESİS'ten akademik personel bilgilerini çeker.
+    AVESİS Elasticsearch API üzerinden TÜM akademik personeli çeker.
 
-    Önce /unitreport/researchers endpoint'ini dener (sayfalı tablo),
-    başarısız olursa /unitreport/reports sayfasını tarar.
+    Playwright yerine doğrudan /proxy/search/_search endpoint'ine
+    HTTP POST istekleri atar. Sayfalama (from/size) ile tüm
+    araştırmacıları döner.
     """
 
-    def __init__(self, headless: bool = True, request_delay: float = REQUEST_DELAY):
-        self.headless      = headless
+    HEADERS = {
+        "Content-Type": "application/json",
+        "Accept": "application/json",
+        "Referer": f"{AVESIS_BASE}/arama",
+        "User-Agent": "Mozilla/5.0 (Windows NT 10.0; Win64; x64) "
+                      "AppleWebKit/537.36 (KHTML, like Gecko) "
+                      "Chrome/120.0.0.0 Safari/537.36",
+    }
+
+    def __init__(self, request_delay: float = REQUEST_DELAY):
         self.request_delay = request_delay
 
     # ── Ana metodlar ──────────────────────────────────────────────
 
     async def crawl_all(self, unit_list: Optional[list[tuple]] = None) -> list[dict]:
         """
-        Tüm birimlerin personelini çeker.
+        Tüm üniversite personelini Elasticsearch API üzerinden çeker.
 
-        unit_list: [(unit_id, label, fakulte_adi), ...]
-                   None ise url_config'den AVESIS_TARGETS kullanılır.
+        unit_list parametresi artık kullanılmıyor (geriye uyumluluk).
+        API tek seferde tüm araştırmacıları döndürür, biz fakültelere
+        göre grupluyoruz.
 
         Döndürür: batch_crawler ile uyumlu kayıt listesi
         [
           {
-            "key":      "muhendislik_avesis",
-            "label":    "Mühendislik Fakültesi AVESİS Akademik Kadro",
-            "url":      "https://avesis...",
+            "key":      "avesis_tum_personel",
+            "label":    "AVESİS Tüm Akademik Personel",
+            "url":      "https://avesis.inonu.edu.tr/proxy/search/_search",
             "fetchedAt": "...",
             "content":  [{"ad_soyad": ..., "unvan": ..., ...}, ...],
-            "extra":    {"count": N, "unit_id": X},
+            "extra":    {"count": N, "fakulte_dagilimi": {...}},
             "error":    None,
-          },
-          ...
+          }
         ]
         """
-        if unit_list is None:
-            from .url_config import AVESIS_TARGETS
-            unit_list = [
-                (t.extra["unit_id"], t.label, t.extra.get("fakulte", ""), t.key, t.url)
-                for t in AVESIS_TARGETS
-            ]
+        logger.info("═══ AVESİS ELASTİCSEARCH API TARAMASI BAŞLIYOR ═══")
 
-        logger.info(f"═══ AVESİS TARAMASI BAŞLIYOR: {len(unit_list)} birim ═══")
-        all_results = []
+        all_staff = []
+        offset = 0
+        total_count = None
 
         try:
-            from playwright.async_api import async_playwright
-        except ImportError:
-            logger.error("Playwright yüklü değil. Çalıştır: pip install playwright && playwright install chromium")
-            return []
+            async with aiohttp.ClientSession(headers=self.HEADERS) as session:
+                while True:
+                    payload = self._build_query(offset=offset, size=PAGE_SIZE)
+                    async with session.post(
+                        ES_API_URL, json=payload, timeout=aiohttp.ClientTimeout(total=30)
+                    ) as resp:
+                        if resp.status != 200:
+                            body = await resp.text()
+                            logger.error(f"API hatası: HTTP {resp.status} — {body[:200]}")
+                            break
 
-        async with async_playwright() as pw:
-            browser = await pw.chromium.launch(
-                headless=self.headless,
-                args=["--no-sandbox", "--disable-dev-shm-usage"],
-            )
-            context = await browser.new_context(
-                viewport={"width": 1280, "height": 800},
-                user_agent="Mozilla/5.0 (compatible; InönüAI-Bot/1.0)",
-                locale="tr-TR",
-            )
+                        data = await resp.json()
 
-            for item in unit_list:
-                # unit_list hem 3'lü hem 5'li tuple destekli
-                if len(item) == 5:
-                    unit_id, label, fakulte, key, url = item
-                elif len(item) == 3:
-                    unit_id, label, fakulte = item
-                    key = f"avesis_{unit_id}"
-                    url = UNIT_REPORT_URL.format(unit_id=unit_id)
-                else:
-                    logger.warning(f"Geçersiz unit_list öğesi: {item}")
-                    continue
+                    hits_obj = data.get("hits", {})
+                    if total_count is None:
+                        total_count = hits_obj.get("total", 0)
+                        logger.info(f"Toplam araştırmacı: {total_count}")
 
-                try:
-                    record = await self._crawl_unit_with_context(
-                        context, unit_id, label, fakulte, key, url
-                    )
-                    all_results.append(record)
-                    logger.info(
-                        f"✓ {label}: {len(record['content'])} personel"
-                        if record["content"]
-                        else f"✗ {label}: hata — {record['error']}"
-                    )
-                except Exception as e:
-                    logger.error(f"AVESİS birim hatası [{label}]: {e}")
-                    all_results.append({
-                        "key": key, "label": label, "url": url,
-                        "fetchedAt": _now_iso(),
-                        "content": [], "extra": {"count": 0, "unit_id": unit_id},
-                        "error": str(e),
-                    })
+                    hits = hits_obj.get("hits", [])
+                    if not hits:
+                        break
 
-                await asyncio.sleep(self.request_delay)
+                    for hit in hits:
+                        person = self._parse_hit(hit)
+                        if person:
+                            all_staff.append(person)
 
-            await context.close()
-            await browser.close()
+                    offset += len(hits)
+                    logger.debug(f"  Sayfa {offset // PAGE_SIZE}: "
+                                 f"{len(hits)} kayıt okundu (toplam: {offset}/{total_count})")
 
-        total = sum(len(r["content"]) for r in all_results)
-        logger.info(f"═══ AVESİS TAMAMLANDI: {total} personel, {len(all_results)} birim ═══")
-        return all_results
+                    if offset >= total_count or offset >= MAX_RESULTS:
+                        break
 
-    async def crawl_unit(
-        self,
-        unit_id: int,
-        label: str,
-        fakulte: str = "",
-        key: str = "",
-        url: str = "",
-    ) -> dict:
-        """Tek birim için kısayol."""
-        if not url:
-            url = UNIT_REPORT_URL.format(unit_id=unit_id)
-        if not key:
-            key = f"avesis_{unit_id}"
+                    await asyncio.sleep(self.request_delay)
 
-        try:
-            from playwright.async_api import async_playwright
-        except ImportError:
-            logger.error("Playwright yüklü değil.")
-            return {"key": key, "label": label, "url": url,
-                    "fetchedAt": _now_iso(), "content": [], "extra": {}, "error": "playwright eksik"}
+        except Exception as e:
+            logger.error(f"AVESİS API hatası: {e}")
+            return [{
+                "key": "avesis_tum_personel",
+                "label": "AVESİS Tüm Akademik Personel",
+                "url": ES_API_URL,
+                "fetchedAt": _now_iso(),
+                "content": all_staff,
+                "extra": {"count": len(all_staff), "error": str(e)},
+                "error": str(e),
+            }]
 
-        async with async_playwright() as pw:
-            browser = await pw.chromium.launch(headless=self.headless)
-            context = await browser.new_context(locale="tr-TR")
-            record = await self._crawl_unit_with_context(context, unit_id, label, fakulte, key, url)
-            await context.close()
-            await browser.close()
-        return record
+        # Fakülte dağılımını hesapla
+        fakulte_dagilimi = {}
+        for p in all_staff:
+            fak = p.get("fakulte", "Bilinmiyor")
+            fakulte_dagilimi[fak] = fakulte_dagilimi.get(fak, 0) + 1
 
-    # ── İç metodlar ───────────────────────────────────────────────
+        logger.info(f"═══ AVESİS TAMAMLANDI: {len(all_staff)} personel ═══")
+        for fak, cnt in sorted(fakulte_dagilimi.items(), key=lambda x: -x[1]):
+            logger.info(f"  {fak}: {cnt} kişi")
 
-    async def _crawl_unit_with_context(
-        self,
-        context,
-        unit_id: int,
-        label: str,
-        fakulte: str,
-        key: str,
-        url: str,
-    ) -> dict:
+        # Tek bir kayıt olarak döndür (fakülte bazlı gruplama gerekirse
+        # batch_crawler tarafında yapılabilir)
+        return [{
+            "key": "avesis_tum_personel",
+            "label": "AVESİS Tüm Akademik Personel",
+            "url": ES_API_URL,
+            "fetchedAt": _now_iso(),
+            "content": all_staff,
+            "extra": {
+                "count": len(all_staff),
+                "fakulte_dagilimi": fakulte_dagilimi,
+            },
+            "error": None,
+        }]
+
+    # ── Elasticsearch sorgusu oluştur ─────────────────────────────
+
+    @staticmethod
+    def _build_query(offset: int = 0, size: int = PAGE_SIZE) -> dict:
         """
-        Birim personellerini yeni AVESİS Arama sayfasını kullanarak çeker.
+        Sadece 'Araştırmacılar' tipindeki kayıtları döndüren
+        Elasticsearch sorgusu.
         """
-        fetched_at = _now_iso()
-        base_record = {
-            "key":       key,
-            "label":     label,
-            "url":       url,
-            "fetchedAt": fetched_at,
-            "content":   [],
-            "extra":     {"count": 0, "unit_id": unit_id, "fakulte": fakulte},
-            "error":     None,
+        return {
+            "query": {
+                "bool": {
+                    "must": [
+                        {"term": {"isdeleted": "false"}},
+                        {"term": {"type_primary.keyword": "Araştırmacılar"}},
+                    ]
+                }
+            },
+            "size": size,
+            "from": offset,
         }
 
-        staff = await self._search_researchers(context, label, fakulte, unit_id)
+    # ── Tek hit'i personel dict'e dönüştür ───────────────────────
 
-        if not staff:
-            base_record["error"] = "Personel çekilemedi (Arama sayfası başarısız veya boş)"
-            return base_record
-
-        base_record["content"] = staff
-        base_record["extra"]["count"] = len(staff)
-        return base_record
-
-    async def _search_researchers(
-        self, context, label: str, fakulte: str, unit_id: int
-    ) -> list[dict]:
+    @staticmethod
+    def _parse_hit(hit: dict) -> Optional[dict]:
         """
-        AVESİS arama sayfasını (arama?aranan=Fakülte Adı) kullanarak
-        Araştırmacılar sekmesindeki tüm personeli çeker.
+        Elasticsearch _source nesnesini iç veri yapısına dönüştür.
+
+        API'den gelen alanlar:
+          name, surname, fullnamewithtitle_primary,
+          title_primary (unvan), subtype_primary (kadro),
+          facultyname_primary (fakülte listesi),
+          departmentname_primary (bölüm listesi),
+          programname_primary (anabilim dalı listesi),
+          reference_primary (referans dict),
+          profilepagealias, id, gendername_primary
         """
-        import urllib.parse
-        search_term = urllib.parse.quote(fakulte or label)
-        url = f"https://avesis.inonu.edu.tr/arama?aranan={search_term}"
-        
-        page = await context.new_page()
-        staff: list[dict] = []
+        src = hit.get("_source", {})
+        if not src:
+            return None
 
-        try:
-            await page.goto(url, timeout=PAGE_TIMEOUT_MS, wait_until="domcontentloaded")
-            await page.wait_for_timeout(JS_WAIT_MS)
+        p = _empty_person()
 
-            # "Araştırmacılar" filtresine tıkla (Eğer varsa)
-            arastirmacilar_btn = page.locator("a:has-text('Araştırmacılar')").first
-            if await arastirmacilar_btn.count() > 0:
-                await arastirmacilar_btn.click()
-                await page.wait_for_timeout(JS_WAIT_MS)
-            
-            # Sayfalama döngüsü
-            page_num = 1
-            while True:
-                page_staff = await self._parse_html_researchers_table(page, label, fakulte, unit_id)
-                
-                # Mükerrer kayıtları engellemek için url veya isim kontrolü
-                new_staff = []
-                for p in page_staff:
-                    if not any(s["ad_soyad"] == p["ad_soyad"] for s in staff):
-                        new_staff.append(p)
-                
-                if not new_staff:
-                    break
-                    
-                staff.extend(new_staff)
-                logger.debug(f"  Sayfa {page_num}: {len(new_staff)} kişi eklendi [{label}]")
-
-                # Sonraki sayfa butonuna tıkla
-                next_btn = page.locator(".pagination .sk-toggle__item:not(.is-disabled):has-text('›')").first
-                if await next_btn.count() == 0:
-                    next_btn = page.locator("a[aria-label='Next'], li.next:not(.disabled) a").first
-
-                try:
-                    if await next_btn.count() > 0 and await next_btn.is_enabled():
-                        await next_btn.click()
-                        await page.wait_for_timeout(1500)
-                        page_num += 1
-                    else:
-                        break
-                except Exception:
-                    break
-
-                if page_num > 50:
-                    break
-
-        except Exception as e:
-            logger.debug(f"Arama sayfası başarısız [{label}]: {e}")
-        finally:
-            await page.close()
-
-        return staff
-
-    async def _parse_html_researchers_table(
-        self, page, label: str, fakulte: str, unit_id: int
-    ) -> list[dict]:
-        """
-        Sayfadaki personel tablosunu veya listesini parse et.
-        AVESİS farklı sayfalarda farklı yapılar kullanıyor.
-        """
-        staff: list[dict] = []
-
-        # Strateji A: <table> içindeki satırlar
-        rows = await page.query_selector_all("table tbody tr")
-        if rows:
-            for row in rows:
-                p = await self._parse_table_row(row, label, fakulte, unit_id)
-                if p and p["ad_soyad"]:
-                    staff.append(p)
-            if staff:
-                return staff
-
-        # Strateji B: Kart yapısı (.card, .researcher-card vb.)
-        cards = await page.query_selector_all(
-            ".researcher-title a, .researcher-card, .staff-card, .person-card, "
-            ".card:has(.card-title), [class*='researcher']"
-        )
-        if cards:
-            for card in cards:
-                p = await self._parse_card(card, label, fakulte, unit_id)
-                if p and p["ad_soyad"]:
-                    staff.append(p)
-            if staff:
-                return staff
-
-        # Strateji C: Liste elemanları
-        items = await page.query_selector_all(
-            "ul.researcher-list li, "
-            ".staff-list li, "
-            "[class*='staff'] li"
-        )
-        if items:
-            for item in items:
-                p = await self._parse_list_item(item, label, fakulte, unit_id)
-                if p and p["ad_soyad"]:
-                    staff.append(p)
-
-        return staff
-
-    async def _parse_table_row(self, row, label: str, fakulte: str, unit_id: int) -> Optional[dict]:
-        """<tr> satırından personel bilgisi çıkar."""
-        try:
-            cells = await row.query_selector_all("td")
-            if len(cells) < 2:
-                return None
-
-            p = _empty_person()
-            p["unit_id"] = unit_id
-            p["fakulte"] = fakulte
-
-            # Hücrelerden metni al
-            cell_texts = []
-            for cell in cells:
-                t = _clean(await cell.inner_text())
-                cell_texts.append(t)
-
-            if not cell_texts[0]:
-                return None
-
-            # İlk hücre genellikle ad-soyad veya bağlantı
-            link = await cells[0].query_selector("a")
-            if link:
-                p["ad_soyad"] = _clean(await link.inner_text())
-                href = await link.get_attribute("href") or ""
-                if href:
-                    p["profil_url"] = href if href.startswith("http") else PROFILE_BASE + href
-                    # AVESİS ID URL'den çıkar: /author/12345
-                    m = re.search(r"/author/(\d+)", href)
-                    if m:
-                        p["avesis_id"] = m.group(1)
+        # İsim-Soyisim
+        name = _clean(src.get("name", ""))
+        surname = _clean(src.get("surname", ""))
+        if name and surname:
+            p["ad_soyad"] = f"{name} {surname}"
+        elif src.get("fullnamewithtitle_primary"):
+            # Unvansız isim al
+            full = _clean(src["fullnamewithtitle_primary"])
+            # Unvanı çıkart
+            title = _clean(src.get("title_primary", ""))
+            if title and full.startswith(title):
+                p["ad_soyad"] = full[len(title):].strip()
             else:
-                p["ad_soyad"] = cell_texts[0]
+                p["ad_soyad"] = full
 
-            # Diğer hücreler
-            for i, text in enumerate(cell_texts[1:], 1):
-                if not text:
-                    continue
-                text_lower = text.lower()
-                # Unvan tespiti
-                if any(u in text_lower for u in [
-                    "prof.", "doç.", "dr.", "öğr.", "arş.", "uzm.", "yrd."
-                ]):
-                    p["unvan"] = text
-                elif "@" in text:
-                    p["email"] = _parse_email(text)
-                elif re.search(r"\d{3}", text):
-                    p["telefon"] = _parse_phone(text)
-                elif not p["bolum"]:
-                    p["bolum"] = text
+        if not p["ad_soyad"]:
+            return None  # İsimsiz kayıtları atla
 
-            return p if p["ad_soyad"] else None
+        # Unvan
+        p["unvan"] = _clean(src.get("title_primary", ""))
 
-        except Exception as e:
-            logger.debug(f"Tablo satırı parse hatası: {e}")
-            return None
+        # Fakülte (liste olarak geliyor)
+        p["fakulte"] = _safe_str(src.get("facultyname_primary", ""))
 
-    async def _parse_card(self, card, label: str, fakulte: str, unit_id: int) -> Optional[dict]:
-        """Kart elemanından personel bilgisi çıkar."""
-        try:
-            p = _empty_person()
-            p["unit_id"] = unit_id
-            p["fakulte"] = fakulte
+        # Bölüm
+        p["bolum"] = _safe_str(src.get("departmentname_primary", ""))
 
-            full_text = _clean(await card.inner_text())
-            if not full_text:
-                return None
+        # Anabilim Dalı
+        p["anabilim_dali"] = _safe_str(src.get("programname_primary", ""))
 
-            # Başlık / ad-soyad
-            for sel in [".card-title", "h5", "h4", "h3", ".name", "[class*='name']"]:
-                el = await card.query_selector(sel)
-                if el:
-                    p["ad_soyad"] = _clean(await el.inner_text())
-                    break
+        # Cinsiyet
+        p["cinsiyet"] = _clean(src.get("gendername_primary", ""))
 
-            if not p["ad_soyad"]:
-                # İlk satırı ad-soyad kabul et
-                lines = [l.strip() for l in full_text.split("\n") if l.strip()]
-                if lines:
-                    p["ad_soyad"] = lines[0]
+        # Profil URL ve ID
+        avesis_id = src.get("id", "")
+        alias = src.get("profilepagealias", "")
+        if alias:
+            p["profil_url"] = f"{PROFILE_BASE}/{alias}"
+        elif avesis_id:
+            p["profil_url"] = f"{PROFILE_BASE}/user/{avesis_id}"
 
-            # Profil linki veya AVESIS ID
-            link = await card.query_selector("a")
-            if link:
-                href = await link.get_attribute("href") or ""
-                if href and href != "#":
-                    p["profil_url"] = href if href.startswith("http") else PROFILE_BASE + href
-                    m = re.search(r"/author/(\d+)", href)
-                    if m:
-                        p["avesis_id"] = m.group(1)
-                
-                # Yeni Arama Sayfası Yapısı (Searchkit)
-                network_id = await link.get_attribute("data-networkuserid")
-                if network_id:
-                    p["profil_url"] = f"https://avesis.inonu.edu.tr/{network_id}" # Geçici profil URL'si
+        p["avesis_id"] = str(avesis_id) if avesis_id else ""
 
-            # Arama sayfasında ID genellikle img etiketinin içinde id=XXX olarak bulunur
-            if not p["avesis_id"]:
-                img = await card.query_selector("img.researcher-img, img[src*='user/image']")
-                if img:
-                    src = await img.get_attribute("src") or ""
-                    m = re.search(r"id=(\d+)", src)
-                    if m:
-                        p["avesis_id"] = m.group(1)
-                        p["profil_url"] = f"https://avesis.inonu.edu.tr/profil/{p['avesis_id']}"
-
-            # E-posta
-            p["email"] = _parse_email(full_text)
-
-            # Unvan
-            for unvan_kw in ["Prof. Dr.", "Doç. Dr.", "Dr. Öğr. Üyesi",
-                             "Arş. Gör. Dr.", "Arş. Gör.", "Öğr. Gör. Dr.",
-                             "Öğr. Gör.", "Uzm. Dr.", "Uzm."]:
-                if unvan_kw.lower() in full_text.lower():
-                    p["unvan"] = unvan_kw
-                    break
-
-            # Bölüm
-            for sel in [".department", ".bolum", "[class*='department']", ".card-subtitle"]:
-                el = await card.query_selector(sel)
-                if el:
-                    p["bolum"] = _clean(await el.inner_text())
-                    break
-
-            return p if p["ad_soyad"] else None
-
-        except Exception as e:
-            logger.debug(f"Kart parse hatası: {e}")
-            return None
-
-    async def _parse_list_item(self, item, label: str, fakulte: str, unit_id: int) -> Optional[dict]:
-        """Liste elemanından personel bilgisi çıkar."""
-        try:
-            p = _empty_person()
-            p["unit_id"] = unit_id
-            p["fakulte"] = fakulte
-
-            full_text = _clean(await item.inner_text())
-            if not full_text:
-                return None
-
-            link = await item.query_selector("a")
-            if link:
-                p["ad_soyad"] = _clean(await link.inner_text())
-                href = await link.get_attribute("href") or ""
-                if href:
-                    p["profil_url"] = href if href.startswith("http") else PROFILE_BASE + href
-            else:
-                p["ad_soyad"] = full_text.split("\n")[0].strip()
-
-            p["email"] = _parse_email(full_text)
-            return p if p["ad_soyad"] else None
-
-        except Exception as e:
-            logger.debug(f"Liste öğesi parse hatası: {e}")
-            return None
-
-    def _parse_json_researchers(
-        self, data, label: str, fakulte: str, unit_id: int
-    ) -> list[dict]:
-        """JSON formatındaki araştırmacı listesini parse et."""
-        staff: list[dict] = []
-        if not isinstance(data, list):
-            data = data.get("data", data.get("researchers", data.get("content", [])))
-        if not isinstance(data, list):
-            return []
-
-        for item in data:
-            if not isinstance(item, dict):
-                continue
-            p = _empty_person()
-            p["unit_id"] = unit_id
-            p["fakulte"] = fakulte
-
-            # AVESİS JSON alan isimleri (birden fazla olabilir)
-            p["ad_soyad"] = _clean(
-                item.get("fullName") or
-                item.get("name") or
-                f"{item.get('firstName','')} {item.get('lastName','')}".strip()
-            )
-            p["unvan"]  = _clean(item.get("title") or item.get("academicTitle") or "")
-            p["bolum"]  = _clean(item.get("department") or item.get("unit") or "")
-            p["email"]  = _clean(item.get("email") or "")
-            p["telefon"] = _clean(item.get("phone") or item.get("tel") or "")
-
-            aid = item.get("authorId") or item.get("id") or ""
-            if aid:
-                p["avesis_id"] = str(aid)
-                p["profil_url"] = f"{PROFILE_BASE}/author/{aid}"
-
-            if isinstance(item.get("researchAreas"), list):
-                p["calisma_alanlari"] = [
-                    _clean(a.get("name", a) if isinstance(a, dict) else a)
-                    for a in item["researchAreas"][:10]
-                ]
-
-            if p["ad_soyad"]:
-                staff.append(p)
-
-        return staff
+        return p
 
 
 # ─────────────────────────────────────────────────────────────────
@@ -601,7 +334,7 @@ async def crawl_avesis_all() -> list[dict]:
     batch_crawler.run_all() ile aynı formatı döndürür.
     crawler_results["avesis_staff"] listesine eklenir.
     """
-    crawler = AvecisCrawler()
+    crawler = AvesisCrawler()
     return await crawler.crawl_all()
 
 
@@ -648,29 +381,17 @@ if __name__ == "__main__":
     from pathlib import Path
 
     async def main():
-        arg = sys.argv[1] if len(sys.argv) > 1 else "--all"
+        crawler = AvesisCrawler()
+        results = await crawler.crawl_all()
 
-        if arg == "--all":
-            crawler = AvecisCrawler(headless=True)
-            results = await crawler.crawl_all()
-        elif arg == "--unit" and len(sys.argv) >= 4:
-            unit_id = int(sys.argv[2])
-            label   = sys.argv[3]
-            crawler = AvecisCrawler(headless=False)  # debug için görünür
-            results = [await crawler.crawl_unit(unit_id, label)]
-        else:
-            print("Kullanım:")
-            print("  python -m data_pipeline.avesis_crawler --all")
-            print("  python -m data_pipeline.avesis_crawler --unit 3 'Mühendislik'")
-            return
-
-        out = Path("avesis_results.json")
+        out = Path("data/avesis_results.json")
+        out.parent.mkdir(exist_ok=True)
         out.write_text(
             json.dumps(results, ensure_ascii=False, indent=2),
             encoding="utf-8",
         )
         total = sum(len(r.get("content", [])) for r in results)
-        print(f"\n✓ {total} personel çekildi, {len(results)} birim")
-        print(f"✓ Kaydedildi: {out}")
+        logger.info(f"{total} personel cekildi")
+        logger.info(f"Kaydedildi: {out}")
 
     asyncio.run(main())

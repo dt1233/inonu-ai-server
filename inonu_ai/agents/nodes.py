@@ -7,6 +7,8 @@ Router, Query Rewriter, Retriever (HyDE + Re-Rank), Generator, Grader
 
 import re
 
+import json
+import os
 from openai import OpenAI
 from data_pipeline.indexer import Indexer, encode_batch
 from tools.reranker import rerank
@@ -14,6 +16,26 @@ from .state import AgentState
 from config import get_settings
 
 _settings = get_settings()
+
+def get_aktif_yonetim_notu() -> str:
+    path = os.path.join(os.path.dirname(os.path.dirname(os.path.dirname(__file__))), "data", "aktif_yonetim.json")
+    if not os.path.exists(path):
+        return ""
+    try:
+        with open(path, "r", encoding="utf-8") as f:
+            data = json.load(f)
+        yonetim = data.get("yonetim", {})
+        rek = yonetim.get("rektor", {}).get("unvan_ad_soyad", "")
+        rek_yrd = [y.get("unvan_ad_soyad", "") for y in yonetim.get("rektor_yardimcilari", [])]
+        gs = yonetim.get("genel_sekreter", {}).get("unvan_ad_soyad", "")
+        
+        notu = "\n\nGÜNCEL BİLGİ NOTU (BU BİLGİ KESİNDİR VE ASLA DEĞİŞTİRİLEMEZ):\n"
+        notu += f"- İnönü Üniversitesi Aktif Rektörü: {rek}\n"
+        notu += f"- Rektör Yardımcıları: {', '.join(rek_yrd)}\n"
+        notu += f"- Genel Sekreter: {gs}\n"
+        return notu
+    except Exception:
+        return ""
 
 SGLANG_BASE_URL = _settings.sglang_base_url
 SGLANG_MODEL    = _settings.sglang_model
@@ -86,6 +108,7 @@ Kullanıcının sorusunu analiz et ve yalnızca tek kelime yanıt ver.
 - Sadece selamlama (merhaba, selam, günaydın, iyi günler, naber)
 - Teşekkür veya vedalaşma (teşekkürler, görüşürüz, hoşça kal)
 - Kişisel yorum veya iltifat (çok iyisin, harikasın)
+- Asistanın kimliğine yönelik sorular (seni kim yaptı, kim geliştirdi, yaratıcın kim)
 - Üniversiteyle hiçbir ilgisi olmayan duygusal veya anlamsız ifadeler"""
 
 def router_node(state: AgentState) -> AgentState:
@@ -107,13 +130,18 @@ def router_node(state: AgentState) -> AgentState:
 REWRITER_PROMPT = """Bir üniversite asistanı için sorgu yeniden yazma yapıyorsun.
 
 Konuşma geçmişine bakarak kullanıcının mevcut sorusunu bağımsız ve tam bir soruya dönüştür.
-Soru zaten tam ve bağımsızsa olduğu gibi bırak.
+Eğer kullanıcının sorusu geçmişten tamamen BAĞIMSIZ yeni bir konuya geçiyorsa (örneğin "peki rektör kim"), önceki konuyu (örneğin Erasmus) YENİ SORUYA DAHİL ETME.
+Soru zaten tam ve bağımsızsa veya yeni bir konuya geçiş yapıyorsa, bağlamı bozmadan sadece kendi başına anlaşılır hale getir (örn. başına İnönü Üniversitesi ekle) veya olduğu gibi bırak.
 Yalnızca yeniden yazılmış soruyu döndür, başka hiçbir şey yazma.
 
 Örnekler:
 Geçmiş: "erasmus nedir" → "Erasmus değişim programıdır..."
 Soru: "nasıl başvurulur"
 Yeniden yazılmış: "Erasmus programına nasıl başvurulur?"
+
+Geçmiş: "erasmus nedir" → "Erasmus değişim programıdır..."
+Soru: "peki rektör yardımcıları kimler"
+Yeniden yazılmış: "İnönü Üniversitesi rektör yardımcıları kimler?"
 
 Geçmiş: "tacettin kimdir" → "Tacettin KOYUNOĞLU daire başkanıdır..."
 Soru: "iletişim bilgileri"
@@ -165,10 +193,8 @@ bir hipotetik cevap yaz (2-3 cümle).
 Bu cevap, veritabanında benzer içerikleri bulmak için kullanılacak."""
 
 def retriever_node(state: AgentState) -> AgentState:
-    # Rewrite edilmiş soruyu kullan, yoksa orijinal soru
     soru = state.get("rewritten_question") or state["question"]
 
-    # HyDE: hipotetik cevap üret
     hyde_cevap = llm(
         messages=[
             {"role": "system", "content": HYDE_PROMPT},
@@ -178,20 +204,51 @@ def retriever_node(state: AgentState) -> AgentState:
         temperature=0.3,
     )
 
-    # HyDE cevabının vektörünü al
-    out = encode_batch([hyde_cevap])
-    vec = out["dense"][0]
+    keyword_prompt = """Verilen sorudaki en belirleyici ÖZEL İSİMLERİ (kişi adı, mekan, ders) ve UNVANLARI (Rektör, Rektör Yardımcısı, Dekan) çıkar.
+Eğer soru unvan veya özel isim içermiyorsa (örneğin "ne zaman açılacak", "kaç personel var") sadece "GENEL" yaz.
+"Rektör Yardımcısı" ifadesini ayırmadan tek bir kelime grubu olarak çıkar.
+"kim, ne, nerede, üniversite, İnönü" gibi kelimeleri ASLA yazma."""
+    
+    keywords = llm([
+        {"role": "system", "content": keyword_prompt},
+        {"role": "user", "content": soru}
+    ], max_tokens=20, temperature=0.0).strip()
 
-    # Qdrant'tan top-20 çek
-    res = get_indexer().client.query_points(
-        collection_name=_settings.qdrant_collection,
-        query=vec,
-        using="dense",
-        limit=TOP_K_RETRIEVE,
-        with_payload=True,
-    )
+    out_hyde = encode_batch([hyde_cevap])
+    dense_vec = out_hyde["dense"][0]
 
-    # Re-rank: top-20 → top-3
+    from qdrant_client.models import Prefetch, SparseVector, FusionQuery, Fusion
+
+    if keywords == "GENEL" or not keywords or len(keywords) < 3:
+        res = get_indexer().client.query_points(
+            collection_name=_settings.qdrant_collection,
+            query=dense_vec,
+            using="dense",
+            limit=TOP_K_RETRIEVE,
+            with_payload=True,
+        )
+    else:
+        out_sparse = encode_batch([keywords])
+        sparse_vec = out_sparse["sparse"][0]
+        
+        from data_pipeline.indexer import _sparse_to_qdrant
+        qdrant_sparse = _sparse_to_qdrant(sparse_vec)
+        
+        res = get_indexer().client.query_points(
+            collection_name=_settings.qdrant_collection,
+            prefetch=[
+                Prefetch(query=dense_vec, using="dense", limit=TOP_K_RETRIEVE),
+                Prefetch(
+                    query=SparseVector(indices=qdrant_sparse["indices"], values=qdrant_sparse["values"]),
+                    using="sparse",
+                    limit=TOP_K_RETRIEVE,
+                )
+            ],
+            query=FusionQuery(fusion=Fusion.RRF),
+            limit=TOP_K_RETRIEVE,
+            with_payload=True,
+        )
+
     reranked = rerank(soru, res.points, top_n=TOP_K_RERANK)
     return {**state, "documents": reranked}
 
@@ -201,14 +258,16 @@ GENERATOR_SYSTEM = """Rol: İnönü Üniversitesi Öğrenci İşleri yapay zeka 
 
 Kurallar:
 1. Yalnızca Türkçe yaz
-2. Yalnızca verilen BAĞLAM bilgisini kullan, asla uydurma
-3. Bağlamda cevap yoksa: "Bu konuda bilgim bulunmuyor." yaz
-4. Üniversite adını daima "İnönü Üniversitesi" yaz
-5. Teknik kaynak adları (duyurular_api vb.) yanıtta geçmesin
-6. Kısa ve net ol"""
+2. Yalnızca verilen BAĞLAM bilgisini ve GÜNCEL BİLGİ NOTU'nu kullan, asla uydurma
+3. GÜNCEL BİLGİ NOTU'ndaki isimler kesindir, bağlamda eski bir isim görsen bile bunu kullanma
+4. Bağlamda cevap yoksa: "Bu konuda bilgim bulunmuyor." yaz
+5. Üniversite adını daima "İnönü Üniversitesi" yaz
+6. Teknik kaynak adları (duyurular_api vb.) yanıtta geçmesin
+7. Kısa ve net ol"""
 
 DIRECT_SYSTEM = """İnönü Üniversitesi Öğrenci İşleri yapay zeka asistanısın.
 Selamlama, iltifat ve vedalaşmalara kısa ve samimi Türkçe yanıt ver.
+Eğer "Seni kim yaptı?", "Kim geliştirdi?", "Yaratıcın kim?", "Kodlayan kim?" gibi seni geliştirenler hakkında sorular gelirse, gururla şu cevabı ver: "Beni Ferhat Yıldız ve Muhammet Bilal Yıldız geliştirdi."
 Üniversiteyle ilgisi olmayan konularda: "Yalnızca öğrenci işleri konularında yardımcı olabilirim." de."""
 
 def generator_node(state: AgentState) -> AgentState:
@@ -244,7 +303,9 @@ def generator_node(state: AgentState) -> AgentState:
                 links.append(url)
                 seen.add(url)
 
-    messages = [{"role": "system", "content": GENERATOR_SYSTEM}]
+    yonetim_notu = get_aktif_yonetim_notu()
+    
+    messages = [{"role": "system", "content": GENERATOR_SYSTEM + yonetim_notu}]
     messages += history[-4:]
     messages.append({
         "role": "user",

@@ -66,8 +66,14 @@ def get_qdrant() -> QdrantClient:
     return QdrantClient(host=QDRANT_HOST, port=QDRANT_PORT)
 
 
-def ensure_collection(client: QdrantClient) -> None:
+def ensure_collection(client: QdrantClient, reset: bool = False) -> None:
     existing = [c.name for c in client.get_collections().collections]
+    
+    if reset and COLLECTION_NAME in existing:
+        logger.warning(f"Eski koleksiyon siliniyor (Reset): {COLLECTION_NAME}")
+        client.delete_collection(COLLECTION_NAME)
+        existing.remove(COLLECTION_NAME)
+
     if COLLECTION_NAME in existing:
         logger.info(f"Koleksiyon mevcut: {COLLECTION_NAME}")
         return
@@ -117,9 +123,9 @@ def _sparse_to_qdrant(sparse_weights: dict) -> dict:
 
 class Indexer:
 
-    def __init__(self):
+    def __init__(self, reset: bool = False):
         self.client = get_qdrant()
-        ensure_collection(self.client)
+        ensure_collection(self.client, reset=reset)
 
     def index_chunks(self, chunks: list[Chunk], batch_size: int = 64) -> int:
         if not chunks:

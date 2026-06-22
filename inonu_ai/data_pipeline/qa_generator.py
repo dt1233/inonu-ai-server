@@ -50,10 +50,10 @@ QA_GENERATION_PROMPT = """Aşağıdaki metni dikkatlice oku. Bu metin İnönü �
 Bu metne dayanarak, bir üniversite öğrencisinin veya personelinin sorabileceği {qa_count} adet soru-cevap çifti üret.
 
 KURALLAR:
-1. Sorular doğal ve gerçekçi olmalı (bir öğrenci gerçekten bunu sorar mı?).
-2. Cevaplar SADECE verilen metindeki bilgilere dayanmalı. Uydurma bilgi YASAK.
-3. Cevaplar açık, net ve yardımsever bir dille yazılmalı.
-4. Her soru-cevap çifti birbirinden farklı olmalı.
+1. Sorular çok çeşitli olmalı (Nasıl, Kim, Nerede, Listeleyebilir misin, Farkı nedir, Neden?).
+2. Sorular doğrudan ve doğal bir insan ağzından sorulmalı (örn: "Tıp fakültesi dekanı kim?").
+3. Cevaplar SADECE verilen metindeki bilgilere dayanmalı. Uydurma bilgi YASAK.
+4. Her soru-cevap çifti birbirinden tamamen farklı açılardan sorulmalı (Tekrarlardan kaçın).
 5. Kısa "evet/hayır" soruları yerine açıklayıcı sorular tercih et.
 
 METİN:
@@ -67,13 +67,13 @@ METİN:
   {{"soru": "...", "cevap": "..."}}
 ]"""
 
-# Chunk kategorisine göre üretilecek QA sayısı
+# Chunk kategorisine göre üretilecek QA sayısı (Agresif Mod)
 QA_COUNTS = {
-    "duyuru":          2,
-    "statik":          3,
-    "avesis_personel": 2,
-    "kisi":            1,
-    "default":         2,
+    "duyuru":          6,
+    "statik":          8,
+    "avesis_personel": 5,
+    "kisi":            4,
+    "default":         5,
 }
 
 # Kalite filtreleri
@@ -459,6 +459,54 @@ def _append_raw_pairs(path: str, pairs: list[QAPair]):
 
 
 # ─────────────────────────────────────────────────────────────────
+# GOLDEN DATA (KUSURSUZ YÖNETİM VERİSİ)
+# ─────────────────────────────────────────────────────────────────
+
+def _get_golden_qa_pairs() -> list[QAPair]:
+    """Aktif yönetim verilerinden şaşmaz Soru-Cevap çiftleri üretir."""
+    try:
+        path = os.path.join(os.path.dirname(os.path.dirname(os.path.dirname(__file__))), "data", "aktif_yonetim.json")
+        with open(path, "r", encoding="utf-8") as f:
+            data = json.load(f)
+        yonetim = data.get("yonetim", {})
+        rek = yonetim.get("rektor", {}).get("unvan_ad_soyad", "")
+        rek_yrd = [y.get("unvan_ad_soyad", "") for y in yonetim.get("rektor_yardimcilari", [])]
+        gs = yonetim.get("genel_sekreter", {}).get("unvan_ad_soyad", "")
+        
+        rek_yrd_str = ", ".join(rek_yrd)
+        
+        golden_pairs = [
+            ("İnönü Üniversitesi rektörü kimdir?", f"İnönü Üniversitesi aktif Rektörü {rek}'tır."),
+            ("Rektör kim?", f"İnönü Üniversitesi Rektörü {rek}'tır."),
+            ("İnönü Üniversitesi rektör yardımcıları kimlerdir?", f"İnönü Üniversitesi Rektör Yardımcıları: {rek_yrd_str}."),
+            ("Rektör yardımcısı kim?", f"İnönü Üniversitesi'nin Rektör Yardımcıları şunlardır: {rek_yrd_str}."),
+            ("Genel Sekreter kimdir?", f"İnönü Üniversitesi Genel Sekreteri {gs}'dır."),
+            ("İnönü Üniversitesi genel sekreteri kim?", f"İnönü Üniversitesi Genel Sekreteri {gs}'dır."),
+            ("Mevcut rektör kim?", f"İnönü Üniversitesi'nin mevcut (aktif) rektörü {rek}'tır."),
+            ("Güncel rektör yardımcılarının isimleri neler?", f"Güncel Rektör Yardımcıları: {rek_yrd_str}."),
+            # Asistan Kimlik (Identity) Soruları
+            ("Seni kim yaptı?", "Beni Ferhat Yıldız ve Muhammet Bilal Yıldız geliştirdi."),
+            ("Kim geliştirdi?", "İnönü Üniversitesi'nin yapay zeka asistanı olarak beni Ferhat Yıldız ve Muhammet Bilal Yıldız kodladı."),
+            ("Yaratıcın kim?", "Beni Ferhat Yıldız ve Muhammet Bilal Yıldız geliştirdi."),
+            ("Seni kim kodladı?", "Bu yapay zeka sistemi Ferhat Yıldız ve Muhammet Bilal Yıldız tarafından kodlanarak geliştirilmiştir.")
+        ]
+        
+        results = []
+        for q, a in golden_pairs:
+            results.append(QAPair(
+                instruction=q,
+                output=a,
+                source_key="golden_data",
+                source_url="aktif_yonetim.json",
+                category="yonetim_golden",
+                chunk_hash=_hash(q+a)
+            ))
+        return results
+    except Exception as e:
+        logger.warning(f"Golden data yüklenirken hata: {e}")
+        return []
+
+# ─────────────────────────────────────────────────────────────────
 # SHAREGPT FORMATI DÖNÜŞTÜRÜCÜ
 # ─────────────────────────────────────────────────────────────────
 
@@ -606,6 +654,12 @@ async def run_pipeline(
                     continue
 
     logger.info(f"Toplam benzersiz QA çifti: {len(all_pairs_final)}")
+
+    # 4.5 Golden Dataset Ekle
+    golden_pairs = _get_golden_qa_pairs()
+    if golden_pairs:
+        all_pairs_final.extend(golden_pairs)
+        logger.info(f"Golden Dataset'ten {len(golden_pairs)} kusursuz QA çifti eklendi.")
 
     # 5. Çıktı formatını oluştur ve kaydet
     if output_format == "sharegpt":

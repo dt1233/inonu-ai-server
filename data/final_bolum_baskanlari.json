@@ -1,0 +1,658 @@
+[
+  {
+    "fakulte": "Dis Hekimligi Fakultesi",
+    "bolum": "Agiz Dis ve Cene Cerrahisi",
+    "slug": null,
+    "baskan_menu_id": null,
+    "baskan_url": null,
+    "bolum_baskani": null
+  },
+  {
+    "fakulte": "Dis Hekimligi Fakultesi",
+    "bolum": "Agiz Dis Cene Radyolojisi",
+    "slug": null,
+    "baskan_menu_id": null,
+    "baskan_url": null,
+    "bolum_baskani": null
+  },
+  {
+    "fakulte": "Dis Hekimligi Fakultesi",
+    "bolum": "Endodonti",
+    "slug": "endodonti",
+    "baskan_menu_id": null,
+    "baskan_url": null,
+    "bolum_baskani": null
+  },
+  {
+    "fakulte": "Dis Hekimligi Fakultesi",
+    "bolum": "Cocuk Dis Hekimligi",
+    "slug": null,
+    "baskan_menu_id": null,
+    "baskan_url": null,
+    "bolum_baskani": null
+  },
+  {
+    "fakulte": "Dis Hekimligi Fakultesi",
+    "bolum": "Ortodonti",
+    "slug": "ortodonti",
+    "baskan_menu_id": null,
+    "baskan_url": null,
+    "bolum_baskani": null
+  },
+  {
+    "fakulte": "Dis Hekimligi Fakultesi",
+    "bolum": "Periodontoloji",
+    "slug": "periodontoloji",
+    "baskan_menu_id": null,
+    "baskan_url": null,
+    "bolum_baskani": null
+  },
+  {
+    "fakulte": "Dis Hekimligi Fakultesi",
+    "bolum": "Protetik Dis Tedavisi",
+    "slug": "protetik",
+    "baskan_menu_id": null,
+    "baskan_url": null,
+    "bolum_baskani": null
+  },
+  {
+    "fakulte": "Dis Hekimligi Fakultesi",
+    "bolum": "Restoratif Dis Tedavisi",
+    "slug": "restoratif",
+    "baskan_menu_id": null,
+    "baskan_url": null,
+    "bolum_baskani": null
+  },
+  {
+    "fakulte": "Eczacilik Fakultesi",
+    "bolum": "Eczacilik Teknolojisi",
+    "slug": "eczacilik",
+    "baskan_menu_id": null,
+    "baskan_url": null,
+    "bolum_baskani": null
+  },
+  {
+    "fakulte": "Eczacilik Fakultesi",
+    "bolum": "Farmasotik Botanik",
+    "slug": "isgk",
+    "baskan_menu_id": null,
+    "baskan_url": null,
+    "bolum_baskani": null
+  },
+  {
+    "fakulte": "Eczacilik Fakultesi",
+    "bolum": "Farmasotik Kimya",
+    "slug": "isgk",
+    "baskan_menu_id": null,
+    "baskan_url": null,
+    "bolum_baskani": null
+  },
+  {
+    "fakulte": "Eczacilik Fakultesi",
+    "bolum": "Farmasotik Mikrobiyoloji",
+    "slug": "isgk",
+    "baskan_menu_id": null,
+    "baskan_url": null,
+    "bolum_baskani": null
+  },
+  {
+    "fakulte": "Eczacilik Fakultesi",
+    "bolum": "Farmasotik Toksikoloji",
+    "slug": "isgk",
+    "baskan_menu_id": null,
+    "baskan_url": null,
+    "bolum_baskani": null
+  },
+  {
+    "fakulte": "Eczacilik Fakultesi",
+    "bolum": "Farmakognozi",
+    "slug": "isgk",
+    "baskan_menu_id": null,
+    "baskan_url": null,
+    "bolum_baskani": null
+  },
+  {
+    "fakulte": "Eczacilik Fakultesi",
+    "bolum": "Farmakoloji",
+    "slug": "farmakoloji",
+    "baskan_menu_id": null,
+    "baskan_url": null,
+    "bolum_baskani": null
+  },
+  {
+    "fakulte": "Eczacilik Fakultesi",
+    "bolum": "Biyofarmasi ve Farmakokinetik",
+    "slug": "isgk",
+    "baskan_menu_id": null,
+    "baskan_url": null,
+    "bolum_baskani": null
+  },
+  {
+    "fakulte": "Egitim Fakultesi",
+    "bolum": "Bilgisayar ve Ogretim Teknolojileri",
+    "slug": "bilgisayar",
+    "baskan_menu_id": 31275,
+    "baskan_url": "https://www.inonu.edu.tr/bilgisayar/menu/31275/bolum-baskani",
+    "bolum_baskani": "Prof. Dr.Barış Baykant"
+  },
+  {
+    "fakulte": "Egitim Fakultesi",
+    "bolum": "Egitim Bilimleri",
+    "slug": "egitimbilimleri",
+    "baskan_menu_id": 5214,
+    "baskan_url": "https://www.inonu.edu.tr/egitimbilimleri/menu/5214/bolum-baskani",
+    "bolum_baskani": null
+  },
+  {
+    "fakulte": "Egitim Fakultesi",
+    "bolum": "Guzel Sanatlar Egitimi",
+    "slug": "inuhaber",
+    "baskan_menu_id": null,
+    "baskan_url": null,
+    "bolum_baskani": null
+  },
+  {
+    "fakulte": "Egitim Fakultesi",
+    "bolum": "Ilkogretim",
+    "slug": "inuhaber",
+    "baskan_menu_id": null,
+    "baskan_url": null,
+    "bolum_baskani": null
+  },
+  {
+    "fakulte": "Egitim Fakultesi",
+    "bolum": "Matematik ve Fen Bilimleri",
+    "slug": "matematik",
+    "baskan_menu_id": 16808,
+    "baskan_url": "https://www.inonu.edu.tr/matematik/menu/16808/bolum-baskani",
+    "bolum_baskani": "Prof. Dr.Alaattin ESEN"
+  },
+  {
+    "fakulte": "Egitim Fakultesi",
+    "bolum": "Ozel Egitim",
+    "slug": "ozelegitim",
+    "baskan_menu_id": 28302,
+    "baskan_url": "https://www.inonu.edu.tr/ozelegitim/menu/28302/bolum-baskani",
+    "bolum_baskani": "Doç. Dr.Arzu TANRIVERDİ"
+  },
+  {
+    "fakulte": "Egitim Fakultesi",
+    "bolum": "PDR",
+    "slug": "pdr",
+    "baskan_menu_id": 25644,
+    "baskan_url": "https://www.inonu.edu.tr/pdr/menu/25644/bolum-baskani",
+    "bolum_baskani": "Prof. Dr.Mehmet ÜSTÜNER"
+  },
+  {
+    "fakulte": "Egitim Fakultesi",
+    "bolum": "Turk Dili ve Edebiyati",
+    "slug": "turkdili",
+    "baskan_menu_id": 3460,
+    "baskan_url": "https://www.inonu.edu.tr/turkdili/menu/3460/bolum-baskani",
+    "bolum_baskani": "Prof. Dr.Cafer MUM"
+  },
+  {
+    "fakulte": "Egitim Fakultesi",
+    "bolum": "Yabanci Diller",
+    "slug": "inuhaber",
+    "baskan_menu_id": null,
+    "baskan_url": null,
+    "bolum_baskani": null
+  },
+  {
+    "fakulte": "Fen Edebiyat Fakultesi",
+    "bolum": "Biyoloji",
+    "slug": "biyoloji",
+    "baskan_menu_id": 17090,
+    "baskan_url": "https://www.inonu.edu.tr/biyoloji/menu/17090/bolum-baskani",
+    "bolum_baskani": "Prof. Dr.Elif APOHAN"
+  },
+  {
+    "fakulte": "Fen Edebiyat Fakultesi",
+    "bolum": "Cografya",
+    "slug": "cografya",
+    "baskan_menu_id": 16563,
+    "baskan_url": "https://www.inonu.edu.tr/cografya/menu/16563/bolum-baskani",
+    "bolum_baskani": "Prof. Dr.Zeki BOYRAZ"
+  },
+  {
+    "fakulte": "Fen Edebiyat Fakultesi",
+    "bolum": "Felsefe",
+    "slug": "felsefe",
+    "baskan_menu_id": 16887,
+    "baskan_url": "https://www.inonu.edu.tr/felsefe/menu/16887/bolum-baskani",
+    "bolum_baskani": "Prof. Dr.Mehmet ÖNAL"
+  },
+  {
+    "fakulte": "Fen Edebiyat Fakultesi",
+    "bolum": "Fizik",
+    "slug": "fizik",
+    "baskan_menu_id": 16896,
+    "baskan_url": "https://www.inonu.edu.tr/fizik/menu/16896/bolum-baskani",
+    "bolum_baskani": "Prof. Dr.M. Ali AKSAN"
+  },
+  {
+    "fakulte": "Fen Edebiyat Fakultesi",
+    "bolum": "Kimya",
+    "slug": "kimya",
+    "baskan_menu_id": 32079,
+    "baskan_url": "https://www.inonu.edu.tr/kimya/menu/32079/bolum-baskani",
+    "bolum_baskani": "Prof. Dr.Ayşe SARIMEŞELİ PAÇACI"
+  },
+  {
+    "fakulte": "Fen Edebiyat Fakultesi",
+    "bolum": "Matematik",
+    "slug": "matematik",
+    "baskan_menu_id": 16808,
+    "baskan_url": "https://www.inonu.edu.tr/matematik/menu/16808/bolum-baskani",
+    "bolum_baskani": "Prof. Dr.Alaattin ESEN"
+  },
+  {
+    "fakulte": "Fen Edebiyat Fakultesi",
+    "bolum": "Psikoloji",
+    "slug": "psikoloji",
+    "baskan_menu_id": 30808,
+    "baskan_url": "https://www.inonu.edu.tr/psikoloji/menu/30808/bolum-baskani",
+    "bolum_baskani": "Doç. Dr.Gökay KELDAL"
+  },
+  {
+    "fakulte": "Fen Edebiyat Fakultesi",
+    "bolum": "Sosyoloji",
+    "slug": "sosyoloji",
+    "baskan_menu_id": 16327,
+    "baskan_url": "https://www.inonu.edu.tr/sosyoloji/menu/16327/bolum-baskani",
+    "bolum_baskani": "Prof. Dr.Abdullah Korkmaz"
+  },
+  {
+    "fakulte": "Fen Edebiyat Fakultesi",
+    "bolum": "Tarih",
+    "slug": "tarih",
+    "baskan_menu_id": 16288,
+    "baskan_url": "https://www.inonu.edu.tr/tarih/menu/16288/bolum-baskani",
+    "bolum_baskani": "Prof. Dr.Neslihan Durak"
+  },
+  {
+    "fakulte": "Fen Edebiyat Fakultesi",
+    "bolum": "Turk Dili ve Edebiyati",
+    "slug": "turkdili",
+    "baskan_menu_id": 3460,
+    "baskan_url": "https://www.inonu.edu.tr/turkdili/menu/3460/bolum-baskani",
+    "bolum_baskani": "Prof. Dr.Cafer MUM"
+  },
+  {
+    "fakulte": "Guzel Sanatlar ve Tasarim Fakultesi",
+    "bolum": "Grafik Tasarim",
+    "slug": "grafik",
+    "baskan_menu_id": 18495,
+    "baskan_url": "https://www.inonu.edu.tr/grafik/menu/18495/bolum-baskani",
+    "bolum_baskani": "Doç. Dr.Binnaz KOCA"
+  },
+  {
+    "fakulte": "Guzel Sanatlar ve Tasarim Fakultesi",
+    "bolum": "Heykel",
+    "slug": null,
+    "baskan_menu_id": null,
+    "baskan_url": null,
+    "bolum_baskani": null
+  },
+  {
+    "fakulte": "Guzel Sanatlar ve Tasarim Fakultesi",
+    "bolum": "Ic Mimarlik",
+    "slug": null,
+    "baskan_menu_id": null,
+    "baskan_url": null,
+    "bolum_baskani": null
+  },
+  {
+    "fakulte": "Guzel Sanatlar ve Tasarim Fakultesi",
+    "bolum": "Moda Tasarim",
+    "slug": null,
+    "baskan_menu_id": null,
+    "baskan_url": null,
+    "bolum_baskani": null
+  },
+  {
+    "fakulte": "Guzel Sanatlar ve Tasarim Fakultesi",
+    "bolum": "Muzik",
+    "slug": "muzik",
+    "baskan_menu_id": null,
+    "baskan_url": null,
+    "bolum_baskani": null
+  },
+  {
+    "fakulte": "Guzel Sanatlar ve Tasarim Fakultesi",
+    "bolum": "Resim",
+    "slug": "resimbolumu",
+    "baskan_menu_id": null,
+    "baskan_url": "https://www.inonu.edu.tr/resimbolumu/menu/7763/bolum-baskani",
+    "bolum_baskani": "Prof.Dr.Yüksel GÖĞEBAKAN"
+  },
+  {
+    "fakulte": "Guzel Sanatlar ve Tasarim Fakultesi",
+    "bolum": "Seramik ve Cam Tasarimi",
+    "slug": "seramik",
+    "baskan_menu_id": 10582,
+    "baskan_url": "https://www.inonu.edu.tr/seramik/menu/10582/bolum-baskani",
+    "bolum_baskani": "Doç.HALİL FAZIL ERCAN"
+  },
+  {
+    "fakulte": "Hemsirelik Fakultesi",
+    "bolum": "Hemsirelik",
+    "slug": "hemsirelik",
+    "baskan_menu_id": null,
+    "baskan_url": null,
+    "bolum_baskani": null
+  },
+  {
+    "fakulte": "Hukuk Fakultesi",
+    "bolum": "Kamu Hukuku",
+    "slug": "kamuhukuku",
+    "baskan_menu_id": 23129,
+    "baskan_url": "https://www.inonu.edu.tr/kamuhukuku/menu/23129/bolum-baskani",
+    "bolum_baskani": null
+  },
+  {
+    "fakulte": "Hukuk Fakultesi",
+    "bolum": "Ozel Hukuk",
+    "slug": "hukukegitimleri",
+    "baskan_menu_id": null,
+    "baskan_url": null,
+    "bolum_baskani": null
+  },
+  {
+    "fakulte": "Iktisadi ve Idari Bilimler Fakultesi",
+    "bolum": "Calisma Ekonomisi ve End. Iliskileri",
+    "slug": "ceko",
+    "baskan_menu_id": null,
+    "baskan_url": "https://www.inonu.edu.tr/ceko/menu/14863/bolum-baskani",
+    "bolum_baskani": "Prof. Dr.İbrahim GÖRÜCÜ"
+  },
+  {
+    "fakulte": "Iktisadi ve Idari Bilimler Fakultesi",
+    "bolum": "Isletme",
+    "slug": "isletme",
+    "baskan_menu_id": 5422,
+    "baskan_url": "https://www.inonu.edu.tr/isletme/menu/5422/bolum-baskani",
+    "bolum_baskani": "Prof. Dr.Recep KARABULUT"
+  },
+  {
+    "fakulte": "Iktisadi ve Idari Bilimler Fakultesi",
+    "bolum": "Iktisat",
+    "slug": "iktisat",
+    "baskan_menu_id": 5643,
+    "baskan_url": "https://www.inonu.edu.tr/iktisat/menu/5643/bolum-baskani",
+    "bolum_baskani": "Prof.Dr.Ahmet UĞUR"
+  },
+  {
+    "fakulte": "Iktisadi ve Idari Bilimler Fakultesi",
+    "bolum": "Kamu Yonetimi",
+    "slug": "ogrencitopluluklari",
+    "baskan_menu_id": null,
+    "baskan_url": null,
+    "bolum_baskani": null
+  },
+  {
+    "fakulte": "Iktisadi ve Idari Bilimler Fakultesi",
+    "bolum": "Maliye",
+    "slug": "maliye",
+    "baskan_menu_id": 10509,
+    "baskan_url": "https://www.inonu.edu.tr/maliye/menu/10509/bolum-baskani",
+    "bolum_baskani": "Prof. Dr.Kadir Kartalcı"
+  },
+  {
+    "fakulte": "Iktisadi ve Idari Bilimler Fakultesi",
+    "bolum": "Siyaset Bilimi ve Kamu Yonetimi",
+    "slug": "sbky",
+    "baskan_menu_id": 14717,
+    "baskan_url": "https://www.inonu.edu.tr/sbky/menu/14717/bolum-baskani",
+    "bolum_baskani": "Prof. Dr.Murat SEZİK"
+  },
+  {
+    "fakulte": "Iktisadi ve Idari Bilimler Fakultesi",
+    "bolum": "Uluslararasi Iliskiler",
+    "slug": "ogrencitopluluklari",
+    "baskan_menu_id": null,
+    "baskan_url": null,
+    "bolum_baskani": null
+  },
+  {
+    "fakulte": "Ilahiyat Fakultesi",
+    "bolum": "Felsefe ve Din Bilimleri",
+    "slug": "felsefevedinbilimleri",
+    "baskan_menu_id": null,
+    "baskan_url": null,
+    "bolum_baskani": null
+  },
+  {
+    "fakulte": "Ilahiyat Fakultesi",
+    "bolum": "Islam Tarihi ve Sanatlari",
+    "slug": "islamtarihivesanatlari",
+    "baskan_menu_id": 34712,
+    "baskan_url": "https://www.inonu.edu.tr/islamtarihivesanatlari/menu/34712/bolum-baskani",
+    "bolum_baskani": "Prof. Dr.Mehmet Korkut ÇEÇEN"
+  },
+  {
+    "fakulte": "Ilahiyat Fakultesi",
+    "bolum": "Temel Islam Bilimleri",
+    "slug": "temelislambilimleri",
+    "baskan_menu_id": null,
+    "baskan_url": null,
+    "bolum_baskani": null
+  },
+  {
+    "fakulte": "Iletisim Fakultesi",
+    "bolum": "Gazetecilik",
+    "slug": "gazetecilik",
+    "baskan_menu_id": 30101,
+    "baskan_url": "https://www.inonu.edu.tr/gazetecilik/menu/30101/bolum-baskani",
+    "bolum_baskani": "Prof. Dr.Eylem Şentürk Kara"
+  },
+  {
+    "fakulte": "Iletisim Fakultesi",
+    "bolum": "Halkla Iliskiler ve Tanitim",
+    "slug": null,
+    "baskan_menu_id": null,
+    "baskan_url": null,
+    "bolum_baskani": null
+  },
+  {
+    "fakulte": "Iletisim Fakultesi",
+    "bolum": "Radyo Televizyon ve Sinema",
+    "slug": "rts",
+    "baskan_menu_id": 5591,
+    "baskan_url": "https://www.inonu.edu.tr/rts/menu/5591/bolum-baskani",
+    "bolum_baskani": "Doç. Dr.Ersin AYCAN"
+  },
+  {
+    "fakulte": "Iletisim Fakultesi",
+    "bolum": "Yeni Medya ve Iletisim",
+    "slug": null,
+    "baskan_menu_id": null,
+    "baskan_url": null,
+    "bolum_baskani": null
+  },
+  {
+    "fakulte": "Muhendislik Fakultesi",
+    "bolum": "Biyomedikal Muhendisligi",
+    "slug": "biyomedikal",
+    "baskan_menu_id": 31200,
+    "baskan_url": "https://www.inonu.edu.tr/biyomedikal/menu/31200/bolum-baskani",
+    "bolum_baskani": "Prof. Dr.Berat DOĞAN"
+  },
+  {
+    "fakulte": "Muhendislik Fakultesi",
+    "bolum": "Bilgisayar Muhendisligi",
+    "slug": "bilgisayar",
+    "baskan_menu_id": 31275,
+    "baskan_url": "https://www.inonu.edu.tr/bilgisayar/menu/31275/bolum-baskani",
+    "bolum_baskani": "Prof. Dr.Barış Baykant"
+  },
+  {
+    "fakulte": "Muhendislik Fakultesi",
+    "bolum": "Elektrik Elektronik Muhendisligi",
+    "slug": "elektrikelektronik",
+    "baskan_menu_id": 31529,
+    "baskan_url": "https://www.inonu.edu.tr/elektrikelektronik/menu/31529/bolum-baskani",
+    "bolum_baskani": "Prof. Dr.Asım KAYGUSUZ"
+  },
+  {
+    "fakulte": "Muhendislik Fakultesi",
+    "bolum": "Endustri Muhendisligi",
+    "slug": "kariyermerkezi",
+    "baskan_menu_id": null,
+    "baskan_url": null,
+    "bolum_baskani": null
+  },
+  {
+    "fakulte": "Muhendislik Fakultesi",
+    "bolum": "Insaat Muhendisligi",
+    "slug": "insaat",
+    "baskan_menu_id": 31121,
+    "baskan_url": "https://www.inonu.edu.tr/insaat/menu/31121/bolum-baskani",
+    "bolum_baskani": "Prof. Dr.Mehmet Burhan KARAKOÇ"
+  },
+  {
+    "fakulte": "Muhendislik Fakultesi",
+    "bolum": "Kimya Muhendisligi",
+    "slug": "kimya",
+    "baskan_menu_id": 32079,
+    "baskan_url": "https://www.inonu.edu.tr/kimya/menu/32079/bolum-baskani",
+    "bolum_baskani": "Prof. Dr.Ayşe SARIMEŞELİ PAÇACI"
+  },
+  {
+    "fakulte": "Muhendislik Fakultesi",
+    "bolum": "Makine Muhendisligi",
+    "slug": "makine",
+    "baskan_menu_id": 31181,
+    "baskan_url": "https://www.inonu.edu.tr/makine/menu/31181/bolum-baskani",
+    "bolum_baskani": "Prof. Dr.Rasim BEHÇET"
+  },
+  {
+    "fakulte": "Muhendislik Fakultesi",
+    "bolum": "Metalurji ve Malzeme Muh.",
+    "slug": "kariyermerkezi",
+    "baskan_menu_id": null,
+    "baskan_url": null,
+    "bolum_baskani": null
+  },
+  {
+    "fakulte": "Muhendislik Fakultesi",
+    "bolum": "Maden Muhendisligi",
+    "slug": "maden",
+    "baskan_menu_id": 18041,
+    "baskan_url": "https://www.inonu.edu.tr/maden/menu/18041/bolum-baskani",
+    "bolum_baskani": "Prof. Dr.Didem EREN SARICI"
+  },
+  {
+    "fakulte": "Muhendislik Fakultesi",
+    "bolum": "Yazilim Muhendisligi",
+    "slug": "yazilim",
+    "baskan_menu_id": 31750,
+    "baskan_url": "https://www.inonu.edu.tr/yazilim/menu/31750/bolum-baskani",
+    "bolum_baskani": "Doç. Dr.Kenan İNCE"
+  },
+  {
+    "fakulte": "Saglik Bilimleri Fakultesi",
+    "bolum": "Beslenme ve Diyetetik",
+    "slug": "beslenmevediyetetik",
+    "baskan_menu_id": null,
+    "baskan_url": null,
+    "bolum_baskani": null
+  },
+  {
+    "fakulte": "Saglik Bilimleri Fakultesi",
+    "bolum": "Cocuk Bakimi ve Genclik Hizmetleri",
+    "slug": "cocuk.bakimi",
+    "baskan_menu_id": null,
+    "baskan_url": null,
+    "bolum_baskani": null
+  },
+  {
+    "fakulte": "Saglik Bilimleri Fakultesi",
+    "bolum": "Ergoterapi",
+    "slug": null,
+    "baskan_menu_id": null,
+    "baskan_url": null,
+    "bolum_baskani": null
+  },
+  {
+    "fakulte": "Saglik Bilimleri Fakultesi",
+    "bolum": "Fizyoterapi ve Rehabilitasyon",
+    "slug": null,
+    "baskan_menu_id": null,
+    "baskan_url": null,
+    "bolum_baskani": null
+  },
+  {
+    "fakulte": "Saglik Bilimleri Fakultesi",
+    "bolum": "Saglik Yonetimi",
+    "slug": null,
+    "baskan_menu_id": null,
+    "baskan_url": null,
+    "bolum_baskani": null
+  },
+  {
+    "fakulte": "Saglik Bilimleri Fakultesi",
+    "bolum": "Sosyal Hizmet",
+    "slug": null,
+    "baskan_menu_id": null,
+    "baskan_url": null,
+    "bolum_baskani": null
+  },
+  {
+    "fakulte": "Spor Bilimleri Fakultesi",
+    "bolum": "Beden Egitimi ve Spor Ogretmenligi",
+    "slug": null,
+    "baskan_menu_id": null,
+    "baskan_url": null,
+    "bolum_baskani": null
+  },
+  {
+    "fakulte": "Spor Bilimleri Fakultesi",
+    "bolum": "Rekreasyon",
+    "slug": null,
+    "baskan_menu_id": null,
+    "baskan_url": null,
+    "bolum_baskani": null
+  },
+  {
+    "fakulte": "Spor Bilimleri Fakultesi",
+    "bolum": "Spor Yonetimi",
+    "slug": null,
+    "baskan_menu_id": null,
+    "baskan_url": null,
+    "bolum_baskani": null
+  },
+  {
+    "fakulte": "Spor Bilimleri Fakultesi",
+    "bolum": "Antrenorluk Egitimi",
+    "slug": "antrenorluk",
+    "baskan_menu_id": 11538,
+    "baskan_url": "https://www.inonu.edu.tr/antrenorluk/menu/11538/bolum-baskani",
+    "bolum_baskani": "Prof. Dr.Muhammed Emin KAFKAS"
+  },
+  {
+    "fakulte": "Tip Fakultesi",
+    "bolum": "Dahili Tip Bilimleri",
+    "slug": "dahili",
+    "baskan_menu_id": null,
+    "baskan_url": null,
+    "bolum_baskani": null
+  },
+  {
+    "fakulte": "Tip Fakultesi",
+    "bolum": "Cerrahi Tip Bilimleri",
+    "slug": "cerrahi",
+    "baskan_menu_id": null,
+    "baskan_url": null,
+    "bolum_baskani": null
+  },
+  {
+    "fakulte": "Tip Fakultesi",
+    "bolum": "Temel Tip Bilimleri",
+    "slug": "temeltip",
+    "baskan_menu_id": null,
+    "baskan_url": null,
+    "bolum_baskani": null
+  }
+]

@@ -339,6 +339,12 @@ MYO_TARGETS: list[UrlTarget] = _myo_targets()
 BIRIM_TARGETS: list[UrlTarget] = [
     # SKS
     UrlTarget(
+        key="sks_yemekhane_menu", label="SKS Yemekhane Günlük Menü",
+        url="https://www.inonu.edu.tr/sks/menu/1677/yemek-listesi",
+        crawl_type=CrawlType.HTML_JS, frequency=CrawlFrequency.DAILY, priority=1,
+        js_wait_ms=3000,
+    ),
+    UrlTarget(
         key="sks_duyuru", label="SKS Duyuruları",
         url="https://panel.inonu.edu.tr/servlet/announcement?type=list&lang=tr&page={page}&unit=sks",
         crawl_type=CrawlType.API_JSON, frequency=CrawlFrequency.DAILY, priority=1,

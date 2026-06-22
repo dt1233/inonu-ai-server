@@ -95,6 +95,8 @@ def _avesis_staff_to_text(staff_list: list[dict]) -> str:
         parts = [p.get("ad_soyad", "")]
         if p.get("unvan"):
             parts.append(p["unvan"])
+        if p.get("idari_gorev"):
+            parts.append(f"İdari Görev: {p['idari_gorev']}")
         if p.get("bolum"):
             parts.append(f"Bölüm: {p['bolum']}")
         if p.get("fakulte"):

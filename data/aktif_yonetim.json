@@ -1,0 +1,23 @@
+{
+  "guncelleme_tarihi": "2024-11-01",
+  "universite": "İnönü Üniversitesi",
+  "yonetim": {
+    "rektor": {
+      "unvan_ad_soyad": "NUSRET AKPOLAT"
+    },
+    "rektor_yardimcilari": [
+      {
+        "unvan_ad_soyad": "ALI ÖZER"
+      },
+      {
+        "unvan_ad_soyad": "MEHMET SAĞLAM"
+      },
+      {
+        "unvan_ad_soyad": "SÜLEYMAN NIHAT ŞAD"
+      }
+    ],
+    "genel_sekreter": {
+      "unvan_ad_soyad": "Abuzer KALKAN"
+    }
+  }
+}

@@ -1,0 +1,100 @@
+[
+  {
+    "fakulte": "Dis Hekimligi Fakultesi",
+    "slug": "dishekimligi",
+    "dekan_menu_id": 2221,
+    "dekan_url": "https://www.inonu.edu.tr/dishekimligi/menu/2221/dekan",
+    "dekan": "Prof. Dr.Oğuzhan ALTUN"
+  },
+  {
+    "fakulte": "Eczacilik Fakultesi",
+    "slug": "eczacilik",
+    "dekan_menu_id": 1038,
+    "dekan_url": "https://www.inonu.edu.tr/eczacilik/menu/1038/dekan",
+    "dekan": "Prof.Dr.Emine ŞALVA"
+  },
+  {
+    "fakulte": "Egitim Fakultesi",
+    "slug": "egitim",
+    "dekan_menu_id": 32497,
+    "dekan_url": "https://www.inonu.edu.tr/egitim/menu/32497/dekan",
+    "dekan": "Prof. Dr.Bilal ALTAY"
+  },
+  {
+    "fakulte": "Fen Edebiyat Fakultesi",
+    "slug": "fenedebiyat",
+    "dekan_menu_id": null,
+    "dekan_url": null,
+    "dekan": null
+  },
+  {
+    "fakulte": "Guzel Sanatlar ve Tasarim Fakultesi",
+    "slug": "gsf",
+    "dekan_menu_id": 1485,
+    "dekan_url": "https://www.inonu.edu.tr/gsf/menu/1485/dekan",
+    "dekan": "Prof. Dr.Yüksel GÖĞEBAKAN"
+  },
+  {
+    "fakulte": "Hemsirelik Fakultesi",
+    "slug": "hemsirelik",
+    "dekan_menu_id": 1117,
+    "dekan_url": "https://www.inonu.edu.tr/hemsirelik/menu/1117/dekan",
+    "dekan": "Prof. Dr.Serap PARLAR KILIÇ"
+  },
+  {
+    "fakulte": "Hukuk Fakultesi",
+    "slug": "hukuk",
+    "dekan_menu_id": 5271,
+    "dekan_url": "https://www.inonu.edu.tr/hukuk/menu/5271/dekan",
+    "dekan": "Prof. Dr.Bünyamin AKDEMİR"
+  },
+  {
+    "fakulte": "Iktisadi ve Idari Bilimler Fakultesi",
+    "slug": "iibf",
+    "dekan_menu_id": 3565,
+    "dekan_url": "https://www.inonu.edu.tr/iibf/menu/3565/dekan",
+    "dekan": "Prof. Dr.Gökhan TUNCEL"
+  },
+  {
+    "fakulte": "Ilahiyat Fakultesi",
+    "slug": "ilahiyat",
+    "dekan_menu_id": 1675,
+    "dekan_url": "https://www.inonu.edu.tr/ilahiyat/menu/1675/dekan",
+    "dekan": "Prof. Dr.Mehmet KUBAT"
+  },
+  {
+    "fakulte": "Iletisim Fakultesi",
+    "slug": "iletisim",
+    "dekan_menu_id": null,
+    "dekan_url": null,
+    "dekan": null
+  },
+  {
+    "fakulte": "Muhendislik Fakultesi",
+    "slug": "muhendislik",
+    "dekan_menu_id": 948,
+    "dekan_url": "https://www.inonu.edu.tr/muhendislik/menu/948/dekan",
+    "dekan": "Prof. Dr.Mehmet Burhan"
+  },
+  {
+    "fakulte": "Saglik Bilimleri Fakultesi",
+    "slug": "saglikbilimleri",
+    "dekan_menu_id": null,
+    "dekan_url": null,
+    "dekan": null
+  },
+  {
+    "fakulte": "Spor Bilimleri Fakultesi",
+    "slug": "sporbilimleri",
+    "dekan_menu_id": 2487,
+    "dekan_url": "https://www.inonu.edu.tr/sporbilimleri/menu/2487/dekan",
+    "dekan": null
+  },
+  {
+    "fakulte": "Tip Fakultesi",
+    "slug": "tip",
+    "dekan_menu_id": 1104,
+    "dekan_url": "https://www.inonu.edu.tr/tip/menu/1104/dekan",
+    "dekan": "Prof. Dr.Mehmet ASLAN"
+  }
+]

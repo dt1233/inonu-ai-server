@@ -109,6 +109,26 @@ async def _run_and_index(label: str, mode: str) -> None:
     # Her durumda ham veriyi diske yaz (Takım 2 için gerekli)
     _save_results_to_disk(results, [])
 
+    if mode in ("weekly", "full"):
+        try:
+            # rebuild_pipeline.py ana dizinde, onu import etmek için sys.path ekle
+            parent_dir = str(Path(__file__).parent.parent.parent)
+            if parent_dir not in sys.path:
+                sys.path.append(parent_dir)
+            from rebuild_pipeline import PipelineOrchestrator
+            
+            logger.info("Yönetim rolleri ve AVESIS senkronizasyonu başlatılıyor (rebuild_pipeline)...")
+            orch = PipelineOrchestrator()
+            orch.gather_roles()
+            orch.update_databases()
+            
+            # Diskten (senkronize edilmiş) en taze veriyi geri yükle
+            with open(CRAWL_RESULTS_FILE, "r", encoding="utf-8") as f:
+                results = json.load(f)
+            logger.info("Rol senkronizasyonu tamamlandı. Chunking'e geçiliyor.")
+        except Exception as e:
+            logger.error(f"Rebuild pipeline hatası: {e}")
+
     chunker = Chunker()
     chunks = chunker.chunk_all(results)
 
