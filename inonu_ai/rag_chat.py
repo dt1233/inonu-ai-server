@@ -2,6 +2,10 @@
 # -*- coding: utf-8 -*-
 
 import os
+
+# OOM hatasını önlemek için RAG araması sırasında bge-m3'ü CPU'da çalışmaya zorluyoruz
+os.environ["BGE_DEVICE"] = "cpu"
+
 import requests
 import json
 from loguru import logger

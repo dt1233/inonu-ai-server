@@ -21,15 +21,17 @@ DENSE_DIM   = 1024
 _model: Optional[BGEM3FlagModel] = None
 
 
+import os
+
 def get_model() -> BGEM3FlagModel:
     """bge-m3 embedding modelini yükle (singleton)."""
     global _model
     if _model is None:
-        device = "cuda" if torch.cuda.is_available() else "cpu"
+        device = os.getenv("BGE_DEVICE", "cuda" if torch.cuda.is_available() else "cpu")
         logger.info(f"bge-m3 yükleniyor [{device.upper()}, FP16]…")
         _model = BGEM3FlagModel(
             _settings.embedding_model,
-            use_fp16=True,
+            use_fp16=(device == "cuda"),
             device=device,
         )
         logger.info("bge-m3 yüklendi ✓")
