@@ -32,8 +32,16 @@ def generate_answer(query: str, retrieved_docs: list) -> str:
     
     user_prompt = f"KAYNAKLAR:\n{context}\n\nSORU: {query}"
     
+    # SGLang / vLLM sunucusundan aktif modelin adını otomatik al
+    try:
+        models_resp = requests.get("http://localhost:30000/v1/models", timeout=5)
+        models_resp.raise_for_status()
+        active_model = models_resp.json()["data"][0]["id"]
+    except:
+        active_model = "default"
+
     payload = {
-        "model": "default",
+        "model": active_model,
         "messages": [
             {"role": "system", "content": system_prompt},
             {"role": "user", "content": user_prompt}
@@ -48,7 +56,7 @@ def generate_answer(query: str, retrieved_docs: list) -> str:
         result = response.json()
         return result["choices"][0]["message"]["content"]
     except Exception as e:
-        return f"[Hata] SGLang sunucusuna bağlanılamadı: {e}"
+        return f"[Hata] LLM sunucusuna bağlanılamadı: {e}"
 
 def main():
     print("="*60)
