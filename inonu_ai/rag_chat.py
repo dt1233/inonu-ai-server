@@ -32,24 +32,23 @@ def generate_answer(query: str, retrieved_docs: list) -> str:
     
     user_prompt = f"KAYNAKLAR:\n{context}\n\nSORU: {query}"
     
-    # ChatML (Qwen) formatını manuel oluşturuyoruz (Chat template parser hatasını engellemek için)
-    prompt = f"<|im_start|>system\n{system_prompt}<|im_end|>\n<|im_start|>user\n{user_prompt}<|im_end|>\n<|im_start|>assistant\n"
-
     payload = {
-        "text": prompt,
-        "sampling_params": {
-            "temperature": 0.2,
-            "max_new_tokens": 512
-        }
+        "model": "default",
+        "messages": [
+            {"role": "system", "content": system_prompt},
+            {"role": "user", "content": user_prompt}
+        ],
+        "temperature": 0.2,
+        "max_tokens": 512
     }
     
     try:
-        response = requests.post("http://localhost:30000/generate", json=payload, timeout=60)
+        response = requests.post("http://localhost:30000/v1/chat/completions", json=payload, timeout=60)
         response.raise_for_status()
         result = response.json()
-        return result.get("text", "")
+        return result["choices"][0]["message"]["content"]
     except Exception as e:
-        return f"[Hata] LLM sunucusuna bağlanılamadı: {e}"
+        return f"[Hata] API sunucusuna bağlanılamadı: {e}"
 
 def main():
     print("="*60)
