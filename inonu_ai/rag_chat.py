@@ -32,29 +32,22 @@ def generate_answer(query: str, retrieved_docs: list) -> str:
     
     user_prompt = f"KAYNAKLAR:\n{context}\n\nSORU: {query}"
     
-    # SGLang / vLLM sunucusundan aktif modelin adını otomatik al
-    try:
-        models_resp = requests.get("http://localhost:30000/v1/models", timeout=5)
-        models_resp.raise_for_status()
-        active_model = models_resp.json()["data"][0]["id"]
-    except:
-        active_model = "default"
+    # ChatML (Qwen) formatını manuel oluşturuyoruz (Chat template parser hatasını engellemek için)
+    prompt = f"<|im_start|>system\n{system_prompt}<|im_end|>\n<|im_start|>user\n{user_prompt}<|im_end|>\n<|im_start|>assistant\n"
 
     payload = {
-        "model": active_model,
-        "messages": [
-            {"role": "system", "content": system_prompt},
-            {"role": "user", "content": user_prompt}
-        ],
-        "temperature": 0.2,
-        "max_tokens": 512
+        "text": prompt,
+        "sampling_params": {
+            "temperature": 0.2,
+            "max_new_tokens": 512
+        }
     }
     
     try:
-        response = requests.post(SGLANG_URL, json=payload, timeout=30)
+        response = requests.post("http://localhost:30000/generate", json=payload, timeout=60)
         response.raise_for_status()
         result = response.json()
-        return result["choices"][0]["message"]["content"]
+        return result.get("text", "")
     except Exception as e:
         return f"[Hata] LLM sunucusuna bağlanılamadı: {e}"
 
