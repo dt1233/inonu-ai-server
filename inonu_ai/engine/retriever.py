@@ -24,7 +24,8 @@ class Retriever:
             # 2. Qdrant'ta Dense arama yap
             response = self.client.query_points(
                 collection_name=self.collection_name,
-                query=("dense", dense_vec),
+                query=dense_vec,
+                using="dense",
                 limit=top_k,
                 with_payload=True
             )
