@@ -20,12 +20,32 @@ class Retriever:
         embeddings = encode_batch([query])
         dense_vec = embeddings["dense"][0]
         
+        from qdrant_client import models
+        
         try:
-            # 2. Qdrant'ta Dense arama yap
+            # 2. Qdrant'ta Hybrid (Dense + Sparse) arama yap
+            sparse_dict = embeddings["sparse"][0]
+            indices = [int(k) for k in sparse_dict.keys()]
+            values = [float(v) for v in sparse_dict.values()]
+            
             response = self.client.query_points(
                 collection_name=self.collection_name,
-                query=dense_vec,
-                using="dense",
+                prefetch=[
+                    models.Prefetch(
+                        query=dense_vec,
+                        using="dense",
+                        limit=20,
+                    ),
+                    models.Prefetch(
+                        query=models.SparseVector(
+                            indices=indices,
+                            values=values,
+                        ),
+                        using="sparse",
+                        limit=20,
+                    )
+                ],
+                query=models.FusionQuery(fusion=models.Fusion.RRF),
                 limit=top_k,
                 with_payload=True
             )
