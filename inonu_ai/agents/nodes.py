@@ -265,6 +265,11 @@ Kurallar:
 6. Teknik kaynak adları (duyurular_api vb.) yanıtta geçmesin
 7. Kısa ve net ol"""
 
+import datetime
+def get_current_date_note() -> str:
+    now = datetime.datetime.now()
+    return f"\nSİSTEM NOTU: Bugünün tarihi {now.strftime('%d %B %Y')}. Eğer bağlamda 2024 veya 2025 yıllarına ait veriler varsa, kullanıcının güncel tarih ile bu veriler arasındaki farkı anlaması için 'Elimizdeki en son kayıtlara göre (2024/2025 dönemi)' şeklinde belirt."
+
 DIRECT_SYSTEM = """İnönü Üniversitesi Öğrenci İşleri yapay zeka asistanısın.
 Selamlama, iltifat ve vedalaşmalara kısa ve samimi Türkçe yanıt ver.
 Eğer "Seni kim yaptı?", "Kim geliştirdi?", "Yaratıcın kim?", "Kodlayan kim?" gibi seni geliştirenler hakkında sorular gelirse, gururla şu cevabı ver: "Beni Ferhat Yıldız ve Muhammet Bilal Yıldız geliştirdi."
@@ -304,8 +309,9 @@ def generator_node(state: AgentState) -> AgentState:
                 seen.add(url)
 
     yonetim_notu = get_aktif_yonetim_notu()
+    tarih_notu = get_current_date_note()
     
-    messages = [{"role": "system", "content": GENERATOR_SYSTEM + yonetim_notu}]
+    messages = [{"role": "system", "content": GENERATOR_SYSTEM + yonetim_notu + tarih_notu}]
     messages += history[-4:]
     messages.append({
         "role": "user",

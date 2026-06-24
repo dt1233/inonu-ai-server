@@ -81,7 +81,10 @@ def main():
 
     while True:
         try:
-            soru = input("Soru: ").strip()
+            import sys
+            sys.stdout.write("Soru: ")
+            sys.stdout.flush()
+            soru = sys.stdin.buffer.readline().decode('utf-8', errors='ignore').strip()
         except (KeyboardInterrupt, EOFError):
             print("\nGörüşmek üzere!")
             break
