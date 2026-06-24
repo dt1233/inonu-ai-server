@@ -63,7 +63,10 @@ def get_model() -> BGEM3FlagModel:
 
 
 def get_qdrant() -> QdrantClient:
-    return QdrantClient(host=QDRANT_HOST, port=QDRANT_PORT)
+    # Docker olmadan lokal disk (SQLite) üzerinden çalışması için path kullanıyoruz.
+    db_path = os.path.join(os.getcwd(), "qdrant_storage")
+    os.makedirs(db_path, exist_ok=True)
+    return QdrantClient(path=db_path)
 
 
 def ensure_collection(client: QdrantClient, reset: bool = False) -> None:

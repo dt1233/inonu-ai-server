@@ -316,12 +316,9 @@ class AsyncLLMClient:
 # ─────────────────────────────────────────────────────────────────
 
 def _extract_json_from_response(text: str) -> Optional[list[dict]]:
-    """LLM yanıtından JSON dizisini çıkar."""
-    if not text:
-        return None
-
-    # <think>...</think> bloklarını temizle
-    text = re.sub(r"<think>.*?</think>", "", text, flags=re.DOTALL)
+    """Metin içerisinden JSON dizisini çıkar."""
+    # Önce <think>...</think> bloğunu (varsa) tamamen temizle
+    text = re.sub(r'<think>.*?</think>', '', text, flags=re.DOTALL).strip()
 
     # JSON bloğu bul
     patterns = [

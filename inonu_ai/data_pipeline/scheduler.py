@@ -50,10 +50,8 @@ DATA_DIR.mkdir(exist_ok=True)
 def _get_max_ann_id() -> int:
     try:
         from qdrant_client import QdrantClient
-        client = QdrantClient(
-            host=os.getenv("QDRANT_HOST", "localhost"),
-            port=int(os.getenv("QDRANT_PORT", "6333")),
-        )
+        db_path = os.path.join(os.getcwd(), "qdrant_storage")
+        client = QdrantClient(path=db_path)
         results, _ = client.scroll(
             collection_name=os.getenv("QDRANT_COLLECTION", "inonu_docs"),
             scroll_filter=None, limit=1,
