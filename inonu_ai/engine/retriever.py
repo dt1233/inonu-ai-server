@@ -22,15 +22,15 @@ class Retriever:
         
         try:
             # 2. Qdrant'ta Dense arama yap
-            results = self.client.search(
+            response = self.client.query_points(
                 collection_name=self.collection_name,
-                query_vector=("dense", dense_vec),
+                query=("dense", dense_vec),
                 limit=top_k,
                 with_payload=True
             )
             
             docs = []
-            for hit in results:
+            for hit in response.points:
                 docs.append({
                     "score": hit.score,
                     "text": hit.payload.get("text", ""),
