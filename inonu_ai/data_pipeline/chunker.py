@@ -158,7 +158,16 @@ class Chunker:
             }
 
             icerik   = rec.get("content") or ""
-            ana_metin = f"{title}\n\n{icerik}".strip() if title else icerik
+            
+            # YENİ EKLENEN: Tarih ve birim bilgisini direkt metnin içine gömüyoruz
+            tarih = rec.get("updated", "")[:10]  # Sadece YYYY-MM-DD kısmını al
+            birim_adi = rec.get("birim_label", "")
+            
+            ust_bilgi = f"Duyuru Başlığı: {title}"
+            if tarih: ust_bilgi += f"\nTarih: {tarih}"
+            if birim_adi: ust_bilgi += f"\nYayınlayan Birim: {birim_adi}"
+            
+            ana_metin = f"{ust_bilgi}\n\nİçerik:\n{icerik}".strip()
 
             all_chunks.extend(
                 self._chunk_text(ana_metin, source_url, "duyurular_api", ann_id, metadata)
