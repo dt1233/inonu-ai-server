@@ -158,16 +158,7 @@ class Chunker:
             }
 
             icerik   = rec.get("content") or ""
-            
-            # YENİ EKLENEN: Tarih ve birim bilgisini direkt metnin içine gömüyoruz
-            tarih = rec.get("updated", "")[:10]  # Sadece YYYY-MM-DD kısmını al
-            birim_adi = rec.get("birim_label", "")
-            
-            ust_bilgi = f"Duyuru Başlığı: {title}"
-            if tarih: ust_bilgi += f"\nTarih: {tarih}"
-            if birim_adi: ust_bilgi += f"\nYayınlayan Birim: {birim_adi}"
-            
-            ana_metin = f"{ust_bilgi}\n\nİçerik:\n{icerik}".strip()
+            ana_metin = icerik
 
             all_chunks.extend(
                 self._chunk_text(ana_metin, source_url, "duyurular_api", ann_id, metadata)
@@ -344,14 +335,34 @@ class Chunker:
                     if len(sub.strip()) >= MIN_CHUNK_LEN:
                         final_texts.append(sub.strip())
 
-        return [
-            Chunk(
-                text        = t,
+        chunks_list = []
+        for i, t in enumerate(final_texts):
+            # MUAZZAM DETAY: Uzun metin bölündüyse, HER BİR parçanın başına tarihi ve başlığı mühürle!
+            baglam = ""
+            if metadata.get("kategori") == "duyuru":
+                baglam += f"Duyuru Başlığı: {metadata.get('baslik', '')}\n"
+                tarih = metadata.get("guncellendi", "")[:10]
+                if tarih: baglam += f"Tarih: {tarih}\n"
+                birim = metadata.get("birim", "")
+                if birim: baglam += f"Yayınlayan Birim: {birim}\n"
+                if len(final_texts) > 1:
+                    baglam += f"(Uzun duyurunun {i+1}. bölümü)\n"
+                baglam += "\nİçerik:\n"
+            elif metadata.get("category") == "statik":
+                baglam += f"Sayfa: {metadata.get('label', '')}\n"
+                if len(final_texts) > 1:
+                    baglam += f"(Sayfanın {i+1}. bölümü)\n"
+                baglam += "\n"
+
+            final_t = f"{baglam}{t}".strip() if baglam else t
+
+            chunks_list.append(Chunk(
+                text        = final_t,
                 source_url  = source_url,
                 source_key  = source_key,
                 doc_id      = doc_id,
                 chunk_index = i,
                 metadata    = {**metadata, "chunk_index": i, "total_chunks": len(final_texts)},
-            )
-            for i, t in enumerate(final_texts)
-        ]
+            ))
+
+        return chunks_list
