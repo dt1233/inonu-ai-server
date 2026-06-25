@@ -34,7 +34,7 @@ class Settings(BaseSettings):
 
     # ── SGLang / LLM ───────────────────────────────────────
     sglang_base_url: str = Field(default="http://localhost:30000/v1")
-    sglang_model: str = Field(default="/home/yapayzeka/models/Qwen3-8B")
+    sglang_model: str = Field(default="/home/yapayzeka/models/Qwen3-8B-inonu")
 
     # ── Qdrant ──────────────────────────────────────────────
     qdrant_host: str = Field(default="localhost")

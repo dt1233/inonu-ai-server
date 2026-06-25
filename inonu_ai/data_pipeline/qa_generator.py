@@ -315,31 +315,72 @@ class AsyncLLMClient:
 # QA ÜRETİMİ VE KALİTE FİLTRESİ
 # ─────────────────────────────────────────────────────────────────
 
-def _extract_json_from_response(text: str) -> Optional[list[dict]]:
-    """Metin içerisinden JSON dizisini çıkar."""
-    # Önce <think>...</think> bloğunu (varsa) tamamen temizle
-    text = re.sub(r'<think>.*?</think>', '', text, flags=re.DOTALL).strip()
+def _fix_json_string(text: str) -> str:
+    """Yaygın JSON bozukluklarını düzelt."""
+    # Trailing comma: ,] veya ,} düzelt
+    text = re.sub(r',\s*([\]\}])', r'\1', text)
+    # Tek tırnak -> çift tırnak
+    text = text.replace("'", '"')
+    # Kontrol karakterlerini temizle
+    text = re.sub(r'[\x00-\x1f]+', ' ', text)
+    return text
 
-    # JSON bloğu bul
+
+def _extract_json_from_response(text: str) -> Optional[list[dict]]:
+    """Metin içerisinden JSON dizisini çıkar (Güçlendirilmiş)."""
+    # 1. <think>...</think> bloğunu (varsa) tamamen temizle
+    text = re.sub(r'<think>.*?</think>', '', text, flags=re.DOTALL).strip()
+    # Bazen model </think> tagını kapatmadan bırakır, o kısmı da temizle
+    if '<think>' in text:
+        text = text.split('</think>')[-1].strip() if '</think>' in text else re.sub(r'<think>.*', '', text, flags=re.DOTALL).strip()
+
+    # 2. JSON bloğu bul (birden fazla strateji)
     patterns = [
         r"```json\s*(\[.*?\])\s*```",
         r"```\s*(\[.*?\])\s*```",
-        r"(\[.*\])",
+        r"(\[\s*\{.*?\}\s*\])",    # [{...}] kalıbı (daha spesifik)
     ]
     for pattern in patterns:
         match = re.search(pattern, text, re.DOTALL)
         if match:
+            candidate = match.group(1)
+            # Direkt dene
             try:
-                return json.loads(match.group(1))
+                result = json.loads(candidate)
+                if isinstance(result, list):
+                    return result
+            except json.JSONDecodeError:
+                pass
+            # Düzeltilmiş haliyle dene
+            try:
+                result = json.loads(_fix_json_string(candidate))
+                if isinstance(result, list):
+                    return result
             except json.JSONDecodeError:
                 continue
 
-    # Son çare: tüm metni JSON olarak parse et
+    # 3. Tüm metni JSON olarak parse et
+    for attempt_text in [text.strip(), _fix_json_string(text.strip())]:
+        try:
+            result = json.loads(attempt_text)
+            if isinstance(result, list):
+                return result
+        except json.JSONDecodeError:
+            pass
+
+    # 4. Son çare: satır satır { } blokları topla
     try:
-        result = json.loads(text.strip())
-        if isinstance(result, list):
-            return result
-    except json.JSONDecodeError:
+        items = []
+        for m in re.finditer(r'\{[^{}]*"soru"[^{}]*"cevap"[^{}]*\}', text, re.DOTALL):
+            try:
+                obj = json.loads(_fix_json_string(m.group()))
+                if isinstance(obj, dict) and "soru" in obj and "cevap" in obj:
+                    items.append(obj)
+            except json.JSONDecodeError:
+                continue
+        if items:
+            return items
+    except Exception:
         pass
 
     return None
@@ -394,7 +435,7 @@ async def generate_qa_for_chunk(
         {"role": "user", "content": prompt},
     ]
 
-    response = await client.generate(messages, max_tokens=1500, temperature=0.7)
+    response = await client.generate(messages, max_tokens=1500, temperature=0.3)
     if not response:
         return []
 

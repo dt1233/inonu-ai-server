@@ -20,7 +20,7 @@ from loguru import logger
 
 CHUNK_SIZE    = 1000
 CHUNK_OVERLAP = 150
-MIN_CHUNK_LEN = 80
+MIN_CHUNK_LEN = 40
 
 
 # ─────────────────────────────────────────────────────────────────

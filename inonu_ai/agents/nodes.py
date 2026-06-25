@@ -9,7 +9,7 @@ import re
 
 import json
 import os
-from openai import OpenAI
+from engine.sglang_client import llm
 from data_pipeline.indexer import Indexer, encode_batch
 from tools.reranker import rerank
 from .state import AgentState
@@ -49,44 +49,11 @@ SKIP_URL_PATTERNS = [
     "servlet/content", "servlet/staff", "servlet/menu",
 ]
 
-_client  = None
-_indexer = None
-
-def get_client() -> OpenAI:
-    global _client
-    if _client is None:
-        _client = OpenAI(base_url=SGLANG_BASE_URL, api_key="EMPTY")
-    return _client
-
 def get_indexer() -> Indexer:
     global _indexer
     if _indexer is None:
         _indexer = Indexer()
     return _indexer
-
-
-REPLACEMENTS = [
-    (r"<think>.*?</think>",         "",       re.DOTALL),
-    (r"(?i)\bSen\s+[İIiı]n[oö]nü", "İnönü",  0),
-    (r"(?i)\b[İIiı]nanu\b",        "İnönü",  0),
-    (r"\bInönü\b",                  "İnönü",  0),
-    (r"(?m)^Sen\s+",                "",       0),
-]
-
-def clean(text: str) -> str:
-    for pattern, repl, flags in REPLACEMENTS:
-        text = re.sub(pattern, repl, text, flags=flags)
-    return text.strip()
-
-
-def llm(messages: list, max_tokens: int = 200, temperature: float = 0.1) -> str:
-    resp = get_client().chat.completions.create(
-        model=SGLANG_MODEL,
-        messages=messages,
-        max_tokens=max_tokens,
-        temperature=temperature
-    )
-    return clean(resp.choices[0].message.content or "")
 
 
 # ─── NODE 1: Router ───────────────────────────────────────────────

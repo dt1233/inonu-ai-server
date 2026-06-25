@@ -3,6 +3,7 @@ import json
 from loguru import logger
 from qdrant_client import QdrantClient
 from engine.embedding import encode_batch
+from tools.reranker import rerank
 
 class Retriever:
     def __init__(self):
@@ -46,14 +47,20 @@ class Retriever:
                     )
                 ],
                 query=models.FusionQuery(fusion=models.Fusion.RRF),
-                limit=top_k,
+                limit=20,
                 with_payload=True
             )
             
+            # Re-Ranker ile en iyi top_k belgeyi seç
+            reranked_points = rerank(query, response.points, top_n=top_k)
+            
             docs = []
-            for hit in response.points:
+            for hit in reranked_points:
+                # Eger hit objesi qdrant'tan gelen bir obje ise score'u olabilir,
+                # ama degilse (fallback vs), hasattr ile korumaya alalim.
+                score_val = hit.score if hasattr(hit, 'score') else 0.0
                 docs.append({
-                    "score": hit.score,
+                    "score": score_val,
                     "text": hit.payload.get("text", ""),
                     "source_url": hit.payload.get("source_url", ""),
                     "source_key": hit.payload.get("source_key", "")

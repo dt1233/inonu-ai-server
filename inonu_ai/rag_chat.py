@@ -8,8 +8,33 @@ os.environ["BGE_DEVICE"] = "cpu"
 
 import requests
 import json
+import datetime
 from loguru import logger
 from engine.retriever import Retriever
+
+def get_aktif_yonetim_notu() -> str:
+    path = os.path.join(os.path.dirname(os.path.dirname(__file__)), "data", "aktif_yonetim.json")
+    if not os.path.exists(path):
+        return ""
+    try:
+        with open(path, "r", encoding="utf-8") as f:
+            data = json.load(f)
+        yonetim = data.get("yonetim", {})
+        rek = yonetim.get("rektor", {}).get("unvan_ad_soyad", "")
+        rek_yrd = [y.get("unvan_ad_soyad", "") for y in yonetim.get("rektor_yardimcilari", [])]
+        gs = yonetim.get("genel_sekreter", {}).get("unvan_ad_soyad", "")
+        
+        notu = "\n\nGÜNCEL BİLGİ NOTU (BU BİLGİ KESİNDİR VE ASLA DEĞİŞTİRİLEMEZ):\n"
+        notu += f"- İnönü Üniversitesi Aktif Rektörü: {rek}\n"
+        notu += f"- Rektör Yardımcıları: {', '.join(rek_yrd)}\n"
+        notu += f"- Genel Sekreter: {gs}\n"
+        return notu
+    except Exception:
+        return ""
+
+def get_current_date_note() -> str:
+    now = datetime.datetime.now()
+    return f"\nSİSTEM NOTU: Bugünün tarihi {now.strftime('%d %B %Y')}. Eğer bağlamda 2024 veya 2025 yıllarına ait veriler varsa, kullanıcının güncel tarih ile bu veriler arasındaki farkı anlaması için 'Elimizdeki en son kayıtlara göre (2024/2025 dönemi)' şeklinde belirt."
 
 SGLANG_URL = "http://localhost:30000/v1/chat/completions"
 
@@ -20,6 +45,9 @@ def generate_answer(query: str, retrieved_docs: list) -> str:
         context += f"--- Kaynak {idx} ({doc['source_url']}) ---\n{doc['text']}\n\n"
     
     # 2. RAG Prompt'unu hazırla
+    yonetim_notu = get_aktif_yonetim_notu()
+    tarih_notu = get_current_date_note()
+    
     system_prompt = (
         "Sen İnönü Üniversitesi'nin resmi yapay zeka asistanısın. Adın 'İnönü Asistan'. "
         "Seni İnönü Üniversitesi Dijital Dönüşüm Ofisi koordinatörlüğünde "
@@ -28,7 +56,7 @@ def generate_answer(query: str, retrieved_docs: list) -> str:
         "Aşağıda verilen KAYNAKLAR kısmındaki bilgileri kullanarak kullanıcının sorusunu yanıtla. "
         "Eğer verilen kaynaklarda cevap yoksa veya emin değilsen 'Üzgünüm, bu konu hakkında bilgim yok.' de. "
         "Kendi kendine bilgi uydurma veya PDF linkleri icat etme."
-    )
+    ) + yonetim_notu + tarih_notu
     
     user_prompt = f"KAYNAKLAR:\n{context}\n\nSORU: {query}"
     
