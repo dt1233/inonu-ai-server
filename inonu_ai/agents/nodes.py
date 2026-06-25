@@ -84,11 +84,7 @@ def llm(messages: list, max_tokens: int = 200, temperature: float = 0.1) -> str:
         model=SGLANG_MODEL,
         messages=messages,
         max_tokens=max_tokens,
-        temperature=temperature,
-        extra_body={
-            "chat_template_kwargs": {"enable_thinking": False},
-            "skip_special_tokens": True,
-        },
+        temperature=temperature
     )
     return clean(resp.choices[0].message.content or "")
 
@@ -186,84 +182,46 @@ def query_rewriter_node(state: AgentState) -> AgentState:
     return {**state, "rewritten_question": rewritten}
 
 
-# ─── NODE 3: Retriever (HyDE + Re-Rank) ──────────────────────────
-HYDE_PROMPT = """Bir üniversite bilgi tabanında arama yapacaksın.
-Verilen sorunun cevabı nasıl görünürdü diye kısa ve bilgilendirici
-bir hipotetik cevap yaz (2-3 cümle).
-Bu cevap, veritabanında benzer içerikleri bulmak için kullanılacak."""
-
 def retriever_node(state: AgentState) -> AgentState:
     soru = state.get("rewritten_question") or state["question"]
 
-    hyde_cevap = llm(
-        messages=[
-            {"role": "system", "content": HYDE_PROMPT},
-            {"role": "user",   "content": f"Soru: {soru}\nHipotetik cevap:"},
-        ],
-        max_tokens=150,
-        temperature=0.3,
-    )
-
-    keyword_prompt = """Verilen sorudaki en belirleyici ÖZEL İSİMLERİ (kişi adı, mekan, ders) ve UNVANLARI (Rektör, Rektör Yardımcısı, Dekan) çıkar.
-Eğer soru unvan veya özel isim içermiyorsa (örneğin "ne zaman açılacak", "kaç personel var") sadece "GENEL" yaz.
-"Rektör Yardımcısı" ifadesini ayırmadan tek bir kelime grubu olarak çıkar.
-"kim, ne, nerede, üniversite, İnönü" gibi kelimeleri ASLA yazma."""
-    
-    keywords = llm([
-        {"role": "system", "content": keyword_prompt},
-        {"role": "user", "content": soru}
-    ], max_tokens=20, temperature=0.0).strip()
-
-    out_hyde = encode_batch([hyde_cevap])
-    dense_vec = out_hyde["dense"][0]
-
     from qdrant_client.models import Prefetch, SparseVector, FusionQuery, Fusion
 
-    if keywords == "GENEL" or not keywords or len(keywords) < 3:
-        res = get_indexer().client.query_points(
-            collection_name=_settings.qdrant_collection,
-            query=dense_vec,
-            using="dense",
-            limit=TOP_K_RETRIEVE,
-            with_payload=True,
-        )
-    else:
-        out_sparse = encode_batch([keywords])
-        sparse_vec = out_sparse["sparse"][0]
-        
-        from data_pipeline.indexer import _sparse_to_qdrant
-        qdrant_sparse = _sparse_to_qdrant(sparse_vec)
-        
-        res = get_indexer().client.query_points(
-            collection_name=_settings.qdrant_collection,
-            prefetch=[
-                Prefetch(query=dense_vec, using="dense", limit=TOP_K_RETRIEVE),
-                Prefetch(
-                    query=SparseVector(indices=qdrant_sparse["indices"], values=qdrant_sparse["values"]),
-                    using="sparse",
-                    limit=TOP_K_RETRIEVE,
-                )
-            ],
-            query=FusionQuery(fusion=Fusion.RRF),
-            limit=TOP_K_RETRIEVE,
-            with_payload=True,
-        )
+    embeddings = encode_batch([soru])
+    dense_vec = embeddings["dense"][0]
+    sparse_dict = embeddings["sparse"][0]
+
+    indices = [int(k) for k in sparse_dict.keys()]
+    values = [float(v) for v in sparse_dict.values()]
+
+    res = get_indexer().client.query_points(
+        collection_name=_settings.qdrant_collection,
+        prefetch=[
+            Prefetch(query=dense_vec, using="dense", limit=TOP_K_RETRIEVE),
+            Prefetch(
+                query=SparseVector(indices=indices, values=values),
+                using="sparse",
+                limit=TOP_K_RETRIEVE,
+            )
+        ],
+        query=FusionQuery(fusion=Fusion.RRF),
+        limit=TOP_K_RETRIEVE,
+        with_payload=True,
+    )
 
     reranked = rerank(soru, res.points, top_n=TOP_K_RERANK)
     return {**state, "documents": reranked}
 
 
 # ─── NODE 4: Generator ────────────────────────────────────────────
-GENERATOR_SYSTEM = """Rol: İnönü Üniversitesi Öğrenci İşleri yapay zeka asistanısın.
+GENERATOR_SYSTEM = """Sen İnönü Üniversitesi'nin resmi yapay zeka asistanısın. Adın 'İnönü Asistan'.
+Seni İnönü Üniversitesi Dijital Dönüşüm Ofisi koordinatörlüğünde Ferhat Yıldız ve Muhammet Bilal Yıldız geliştirdi.
 
 Kurallar:
-1. Yalnızca Türkçe yaz
-2. Yalnızca verilen BAĞLAM bilgisini ve GÜNCEL BİLGİ NOTU'nu kullan, asla uydurma
-3. GÜNCEL BİLGİ NOTU'ndaki isimler kesindir, bağlamda eski bir isim görsen bile bunu kullanma
-4. Bağlamda cevap yoksa: "Bu konuda bilgim bulunmuyor." yaz
-5. Üniversite adını daima "İnönü Üniversitesi" yaz
-6. Teknik kaynak adları (duyurular_api vb.) yanıtta geçmesin
-7. Kısa ve net ol"""
+1. SADECE sana verilen KAYNAKLAR kısmındaki bilgileri kullanarak cevap ver, kendi kendine bilgi uydurma.
+2. Kaynaklarda cevap yoksa: "Üzgünüm, bu konu hakkında bilgim yok." de.
+3. GÜNCEL BİLGİ NOTU kısmındaki isimleri (Rektör vb.) daima doğru kabul et.
+4. Net, kibar ve Türkçe yanıt ver."""
 
 import datetime
 def get_current_date_note() -> str:
@@ -316,9 +274,8 @@ def generator_node(state: AgentState) -> AgentState:
     messages.append({
         "role": "user",
         "content": (
-            f"BAĞLAM:\n{baglam}\n\n"
-            f"SORU: {soru}\n\n"
-            f"YANIT (Türkçe, üniversite adı 'İnönü Üniversitesi'):"
+            f"KAYNAKLAR:\n{baglam}\n\n"
+            f"SORU: {soru}"
         )
     })
 
