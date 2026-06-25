@@ -462,41 +462,37 @@ async def _process_ann(item: dict, crawler: AsyncWebCrawler) -> dict:
         "attachments": [],
     }
 
-    if url_field:
+    # 1. Eğer doğrudan bir PDF linkiyse
+    if url_field and ".pdf" in url_field.lower():
         record["sourceUrl"] = url_field
-        if ".pdf" in url_field.lower():
-            pdf = await _crawl_pdf(url_field, ann_id, "A", crawler)
-            record["content"] = "Bu duyuru doğrudan bir PDF dosyasıdır."
-            record["attachments"].append({
-                "url": url_field, "type": "pdf",
-                "content": pdf["pdfText"] or "[PDF Okunamadı]",
-            })
-        else:
-            markdown, pdf_links = await _crawl_html_js(url_field, crawler)
-            record["content"]   = markdown or "[İçerik alınamadı]"
-            for idx, href in enumerate(pdf_links, 1):
-                pdf = await _crawl_pdf(href, ann_id, f"A{idx}", crawler)
-                record["attachments"].append({
-                    "url": href, "type": "pdf",
-                    "content": pdf["pdfText"] or "[PDF Okunamadı]",
-                })
+        pdf = await _crawl_pdf(url_field, ann_id, "A", crawler)
+        record["content"] = "Bu duyuru doğrudan bir PDF dosyasıdır."
+        record["attachments"].append({
+            "url": url_field, "type": "pdf",
+            "content": pdf["pdfText"] or "[PDF Okunamadı]",
+        })
         return record
 
-    detail_url           = detail_tpl.format(id=ann_id)
-    record["sourceUrl"]  = detail_url
-    detail_data          = await _crawl_json(detail_url, crawler)
+    # 2. Önce kesinlikle API'den veriyi çek (JS gerektirmez, %100 güvenli HTML döndürür)
+    detail_url = detail_tpl.format(id=ann_id)
+    record["sourceUrl"] = url_field if url_field else detail_url
+    detail_data = await _crawl_json(detail_url, crawler)
 
-    if detail_data is None:
-        record["content"] = "[Detay içeriği alınamadı]"
-        return record
+    raw_html = ""
+    if detail_data and isinstance(detail_data, dict):
+        raw_html = detail_data.get("text") or detail_data.get("content") or ""
 
-    raw_html   = (
-        detail_data.get("text") or detail_data.get("content") or ""
-        if isinstance(detail_data, dict)
-        else ""
-    )
-    clean, pdf_links    = _html_to_text(raw_html)
-    record["content"]   = clean or None
+    clean, pdf_links = _html_to_text(raw_html)
+
+    # 3. Eğer API boş döndüyse ve elimizde url_field varsa, o zaman zorunlu olarak web'i JS ile tara
+    if not clean.strip() and url_field and url_field.startswith("http"):
+        markdown, extra_pdfs = await _crawl_html_js(url_field, crawler)
+        clean = markdown or "[İçerik alınamadı]"
+        pdf_links.extend(extra_pdfs)
+        # remove duplicate pdf links
+        pdf_links = list(dict.fromkeys(pdf_links))
+
+    record["content"] = clean or None
 
     for idx, href in enumerate(pdf_links, 1):
         if href.startswith("file://"):
