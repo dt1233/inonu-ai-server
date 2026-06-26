@@ -5,6 +5,14 @@
 bge-m3 ile dense + sparse vektör üretimi
 """
 
+import os
+
+# ── HuggingFace'in internete bağlanmasını engelle ──────────
+# Model zaten yerel önbellekte mevcut; her başlatmada HF Hub'a
+# bağlanmaya çalışması sunucuyu dakikalarca askıda bırakıyordu.
+os.environ.setdefault("HF_HUB_OFFLINE", "1")
+os.environ.setdefault("TRANSFORMERS_OFFLINE", "1")
+
 from typing import Optional
 
 import torch
@@ -21,7 +29,7 @@ DENSE_DIM   = 1024
 _model: Optional[BGEM3FlagModel] = None
 
 
-import os
+
 
 def get_model() -> BGEM3FlagModel:
     """bge-m3 embedding modelini yükle (singleton)."""

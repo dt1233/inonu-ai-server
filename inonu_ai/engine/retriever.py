@@ -1,9 +1,43 @@
 import os
+import re
 import json
+from datetime import datetime
 from loguru import logger
 from qdrant_client import QdrantClient
 from engine.embedding import encode_batch
 from tools.reranker import rerank
+
+# ── Zaman duyarlı sorgu zenginleştirme ──────────────────────
+_TIME_KEYWORDS = [
+    'sınav', 'büt', 'final', 'vize', 'kayıt', 'mezun', 'takvim',
+    'dönem', 'yaz okulu', 'staj', 'başvuru', 'tarih', 'ne zaman',
+    'açılacak', 'kapanacak', 'son gün', 'süre', 'başla', 'bitir',
+    'bütünleme', 'ders seçim', 'not giriş', 'mazeret',
+]
+
+def _get_current_academic_year() -> str:
+    """Güncel akademik yılı döndür (Eylül→Ağustos döngüsü)."""
+    now = datetime.now()
+    if now.month >= 9:
+        return f"{now.year}-{now.year + 1}"
+    return f"{now.year - 1}-{now.year}"
+
+def _augment_query(query: str) -> str:
+    """
+    Zaman duyarlı sorulara otomatik olarak güncel akademik yılı ekler.
+    Soruda zaten bir yıl varsa dokunmaz.
+    """
+    q = query.lower()
+    # Soruda zaten 4 haneli yıl varsa dokunma
+    if re.search(r'20\d{2}', query):
+        return query
+    # Zaman duyarlı anahtar kelime var mı?
+    if any(kw in q for kw in _TIME_KEYWORDS):
+        year = _get_current_academic_year()
+        augmented = f"{query} {year} eğitim öğretim yılı güncel"
+        logger.info(f"Sorgu zenginleştirildi: '{query}' → '{augmented}'")
+        return augmented
+    return query
 
 class Retriever:
     def __init__(self):
@@ -17,8 +51,9 @@ class Retriever:
     def search(self, query: str, top_k: int = 3) -> list[dict]:
         logger.info(f"Soru aranıyor: {query}")
         
-        # 1. Soruyu vektöre çevir
-        embeddings = encode_batch([query])
+        # 1. Soruyu vektöre çevir (zaman duyarlı sorgular zenginleştirilir)
+        search_query = _augment_query(query)
+        embeddings = encode_batch([search_query])
         dense_vec = embeddings["dense"][0]
         
         from qdrant_client import models
