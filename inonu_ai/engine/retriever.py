@@ -25,21 +25,21 @@ _FACULTY_MAP = [
     ("mühendislik",        "mühendislik fakültesi"),
     ("hukuk",              "hukuk fakültesi"),
     ("tıp fakültesi",      "tıp fakültesi"),
-    ("diş hekimliği",      "diş hekimliği"),
+    ("diş hekimliği",      "diş hekimliği fakültesi"),
     ("eğitim fakültesi",   "eğitim fakültesi"),
-    ("fen edebiyat",       "fen edebiyat"),
+    ("fen edebiyat",       "fen edebiyat fakültesi"),
     ("edebiyat fakültesi", "edebiyat fakültesi"),
     ("iktisadi",           "iktisadi ve idari"),
     ("ilahiyat",           "ilahiyat fakültesi"),
     ("iletişim fakültesi", "iletişim fakültesi"),
-    ("sağlık bilimleri",   "sağlık bilimleri"),
-    ("spor bilimleri",     "spor bilimleri"),
+    ("sağlık bilimleri",   "sağlık bilimleri fakültesi"),
+    ("spor bilimleri",     "spor bilimleri fakültesi"),
     ("ziraat",             "ziraat fakültesi"),
     ("eczacılık",          "eczacılık fakültesi"),
-    ("güzel sanatlar",     "güzel sanatlar"),
+    ("güzel sanatlar",     "güzel sanatlar fakültesi"),
     ("hemşirelik",         "hemşirelik fakültesi"),
     ("meslek yüksekokulu", "meslek yüksekokulu"),
-    ("konservatuvar",      "konservatuvar"),
+    ("konservatuvar",      "devlet konservatuvarı"),
 ]
 
 def _extract_faculties(query: str) -> list[str]:
@@ -134,29 +134,24 @@ class Retriever:
                     source_url = p.payload.get("source_url", "?")
                     fakulte_meta = p.payload.get("fakulte", "")
                     
-                    # 1) İstenen fakülte metinde veya metaveride geçmeli
-                    has_requested = any(fac in text_lower or fac in fakulte_meta.lower() for fac in req_facs)
-                    
-                    if not has_requested:
-                        logger.debug(f"  ❌ [{i}] ELENDİ (fakülte yok) → {source_url[:80]}")
-                        continue
-                    
-                    # 2) Belgenin başlık/üst kısmında (ilk 300 kar) rakip fakülte geçiyorsa
-                    #    bu belge o fakülteye aittir, reddet!
+                    # Belgenin başlık/üst kısmında (ilk 300 kar) veya metaverisinde RAKİP fakülte geçiyorsa
+                    # bu belge KESİNLİKLE başka fakülteye aittir, reddet!
                     header = text_lower[:300]
-                    competing_in_header = [h for h in competing_headers if h in header]
+                    competing_in_header = [h for h in competing_headers if h in header or h in fakulte_meta.lower()]
                     
                     if competing_in_header:
                         logger.debug(f"  ❌ [{i}] ELENDİ (başlıkta rakip: {competing_in_header}) → {source_url[:80]}")
                         continue
                     
+                    # Eğer belge başka bir fakülteye ait DEĞİLSE (rakip yoksa), içeri alıyoruz.
+                    # Bu sayede içinde "mühendislik" geçmeyen ama tüm üniversiteyi kapsayan GENEL belgeler elenmez!
                     valid_points.append(p)
                     logger.debug(f"  ✅ [{i}] GEÇTİ  → {source_url[:80]}")
                         
                 logger.info(f"🔎 Filtre sonucu: {len(response.points)} → {len(valid_points)} belge kaldı")
                 
                 if not valid_points:
-                    logger.warning(f"Fakülte filtresine takıldı! '{req_facs}' içeren belge bulunamadı.")
+                    logger.warning(f"Fakülte filtresine takıldı! '{req_facs}' için uygun belge bulunamadı.")
             else:
                 # Kullanıcı spesifik fakülte sormamışsa hepsini al
                 valid_points = response.points
