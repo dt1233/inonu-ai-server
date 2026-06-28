@@ -56,7 +56,7 @@ def generate_answer(query: str, retrieved_docs: list) -> str:
         "Sana sağlanan KAYNAKLAR metinlerindeki verileri analiz ederek kullanıcının sorusunu yanıtlamak.\n\n"
         "KURALLAR:\n"
         "1. Kaynaklardaki metinler tablolardan veya PDF'lerden düz metne çevrilmiş olabilir. Parçalanmış kelimeleri ve tarihleri mantıksal olarak birleştirerek oku.\n"
-        "2. Kullanıcının sorusuna doğrudan cevap veren bir cümle yoksa bile, kaynaklardan çıkarabildiğin en yakın ve faydalı bilgiyi derle.\n"
+        "2. DİKKAT: Kullanıcı belirli bir fakülte, bölüm veya yıl soruyorsa (örn: Mühendislik) ve kaynaklarda başka bir fakültenin (örn: Hukuk, Tıp) bilgisi varsa, ASLA o bilgileri kullanıcıya istenen fakülteymiş gibi sunma! Açıkça 'Kaynaklarda ... Fakültesi ile ilgili bilgi bulunmamaktadır' de.\n"
         "3. Kendi kendine bilgi uydurma veya sahte link/adres üretme. Sadece KAYNAKLAR'a dayan."
     ) + yonetim_notu + tarih_notu
     
