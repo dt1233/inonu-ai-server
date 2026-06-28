@@ -15,17 +15,37 @@ _TIME_KEYWORDS = [
     'bütünleme', 'ders seçim', 'not giriş', 'mazeret',
 ]
 
-_FACULTIES = [
-    "mühendislik", "hukuk", "tıp", "diş hekimliği", "eğitim", "fen",
-    "edebiyat", "iktisadi", "ilahiyat", "iletişim", "sağlık", "spor",
-    "ziraat", "eczacılık", "güzel sanatlar", "hemşirelik", "ilahiyat",
-    "meslek yüksekokulu", "devlet konservatuvarı"
+# ─── Fakülte Tanıma Sistemi ───
+# Her tuple: (sorgu_anahtarı, başlık_deseni)
+# - sorgu_anahtarı: Kullanıcının sorusunda bu geçerse filtre aktifleşir
+#   (Kısa ve belirsiz kelimeler tam yazılır: "eğitim" değil "eğitim fakültesi")
+# - başlık_deseni: Belge başlığında (ilk 300 kar) sahiplik tespiti için kullanılır
+#   ("eğitim öğretim yılı" gibi genel ifadeler yanlış eşleşme yapmasın diye tam isim)
+_FACULTY_MAP = [
+    ("mühendislik",        "mühendislik fakültesi"),
+    ("hukuk",              "hukuk fakültesi"),
+    ("tıp fakültesi",      "tıp fakültesi"),
+    ("diş hekimliği",      "diş hekimliği"),
+    ("eğitim fakültesi",   "eğitim fakültesi"),
+    ("fen edebiyat",       "fen edebiyat"),
+    ("edebiyat fakültesi", "edebiyat fakültesi"),
+    ("iktisadi",           "iktisadi ve idari"),
+    ("ilahiyat",           "ilahiyat fakültesi"),
+    ("iletişim fakültesi", "iletişim fakültesi"),
+    ("sağlık bilimleri",   "sağlık bilimleri"),
+    ("spor bilimleri",     "spor bilimleri"),
+    ("ziraat",             "ziraat fakültesi"),
+    ("eczacılık",          "eczacılık fakültesi"),
+    ("güzel sanatlar",     "güzel sanatlar"),
+    ("hemşirelik",         "hemşirelik fakültesi"),
+    ("meslek yüksekokulu", "meslek yüksekokulu"),
+    ("konservatuvar",      "konservatuvar"),
 ]
 
 def _extract_faculties(query: str) -> list[str]:
     """Sorgudaki fakülte/birim isimlerini yakalar."""
     q = query.lower()
-    return [fac for fac in _FACULTIES if fac in q]
+    return [qk for qk, _ in _FACULTY_MAP if qk in q]
 
 def _get_current_academic_year() -> str:
     """Güncel akademik yılı döndür (Eylül→Ağustos döngüsü)."""
@@ -106,23 +126,32 @@ class Retriever:
                 logger.info(f"🔎 Fakülte filtresi aktif: aranan = {req_facs}")
                 logger.info(f"🔎 Qdrant'tan gelen toplam belge: {len(response.points)}")
                 
+                # Rakip fakültelerin BAŞLIK desenlerini belirle (tam isimler kullanılır)
+                competing_headers = [hp for qk, hp in _FACULTY_MAP if qk not in req_facs]
+                
                 for i, p in enumerate(response.points):
                     text_lower = p.payload.get("text", "").lower()
                     source_url = p.payload.get("source_url", "?")
                     fakulte_meta = p.payload.get("fakulte", "")
                     
-                    # İstenen fakültelerden en az biri metinde veya metaveride geçmeli
-                    is_valid = False
-                    for fac in req_facs:
-                        if fac in text_lower or fac in fakulte_meta.lower():
-                            is_valid = True
-                            break
-                            
-                    if is_valid:
-                        valid_points.append(p)
-                        logger.debug(f"  ✅ [{i}] GEÇTİ  → {source_url[:80]}")
-                    else:
-                        logger.debug(f"  ❌ [{i}] ELENDİ → {source_url[:80]} | ilk 100 kar: {text_lower[:100]}")
+                    # 1) İstenen fakülte metinde veya metaveride geçmeli
+                    has_requested = any(fac in text_lower or fac in fakulte_meta.lower() for fac in req_facs)
+                    
+                    if not has_requested:
+                        logger.debug(f"  ❌ [{i}] ELENDİ (fakülte yok) → {source_url[:80]}")
+                        continue
+                    
+                    # 2) Belgenin başlık/üst kısmında (ilk 300 kar) rakip fakülte geçiyorsa
+                    #    bu belge o fakülteye aittir, reddet!
+                    header = text_lower[:300]
+                    competing_in_header = [h for h in competing_headers if h in header]
+                    
+                    if competing_in_header:
+                        logger.debug(f"  ❌ [{i}] ELENDİ (başlıkta rakip: {competing_in_header}) → {source_url[:80]}")
+                        continue
+                    
+                    valid_points.append(p)
+                    logger.debug(f"  ✅ [{i}] GEÇTİ  → {source_url[:80]}")
                         
                 logger.info(f"🔎 Filtre sonucu: {len(response.points)} → {len(valid_points)} belge kaldı")
                 
