@@ -151,7 +151,7 @@ class Retriever:
                 logger.info(f"🔎 Filtre sonucu: {len(response.points)} → {len(valid_points)} belge kaldı")
                 
                 if not valid_points:
-                    logger.warning(f"Fakülte filtresine takıldı! '{req_facs}' için uygun belge bulunamadı.")
+                    logger.warning(f"Fakülte filtresine takıldı! '{req_facs}' için uygun belge bulunamadı.")                        
             else:
                 # Kullanıcı spesifik fakülte sormamışsa hepsini al
                 valid_points = response.points
@@ -164,6 +164,13 @@ class Retriever:
                 # Eger hit objesi qdrant'tan gelen bir obje ise score'u olabilir,
                 # ama degilse (fallback vs), hasattr ile korumaya alalim.
                 score_val = hit.score if hasattr(hit, 'score') else 0.0
+                
+                # ÇÖP BELGE FİLTRESİ: Re-ranker skoru çok düşükse (< 0.15), LLM'in kafasını
+                # karıştırmaması ve halüsinasyon görmemesi için bu belgeyi at.
+                if score_val < 0.25:
+                    logger.debug(f"  🗑️ Belge elendi (Skor çok düşük: {score_val:.3f})")
+                    continue
+                    
                 docs.append({
                     "score": score_val,
                     "text": hit.payload.get("text", ""),
