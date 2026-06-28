@@ -15,6 +15,18 @@ _TIME_KEYWORDS = [
     'bütünleme', 'ders seçim', 'not giriş', 'mazeret',
 ]
 
+_FACULTIES = [
+    "mühendislik", "hukuk", "tıp", "diş hekimliği", "eğitim", "fen",
+    "edebiyat", "iktisadi", "ilahiyat", "iletişim", "sağlık", "spor",
+    "ziraat", "eczacılık", "güzel sanatlar", "hemşirelik", "ilahiyat",
+    "meslek yüksekokulu", "devlet konservatuvarı"
+]
+
+def _extract_faculties(query: str) -> list[str]:
+    """Sorgudaki fakülte/birim isimlerini yakalar."""
+    q = query.lower()
+    return [fac for fac in _FACULTIES if fac in q]
+
 def _get_current_academic_year() -> str:
     """Güncel akademik yılı döndür (Eylül→Ağustos döngüsü)."""
     now = datetime.now()
@@ -70,7 +82,7 @@ class Retriever:
                     models.Prefetch(
                         query=dense_vec,
                         using="dense",
-                        limit=20,
+                        limit=60,
                     ),
                     models.Prefetch(
                         query=models.SparseVector(
@@ -78,16 +90,41 @@ class Retriever:
                             values=values,
                         ),
                         using="sparse",
-                        limit=20,
+                        limit=60,
                     )
                 ],
                 query=models.FusionQuery(fusion=models.Fusion.RRF),
-                limit=20,
+                limit=60,
                 with_payload=True
             )
             
+            # --- FAKÜLTE KESİN FİLTRESİ (HARD FILTER) ---
+            req_facs = _extract_faculties(query)
+            valid_points = []
+            
+            if req_facs:
+                for p in response.points:
+                    text_lower = p.payload.get("text", "").lower()
+                    fakulte_lower = p.payload.get("fakulte", "").lower()
+                    
+                    # İstenen fakültelerden en az biri metinde veya metaveride geçmeli
+                    is_valid = False
+                    for fac in req_facs:
+                        if fac in text_lower or fac in fakulte_lower:
+                            is_valid = True
+                            break
+                            
+                    if is_valid:
+                        valid_points.append(p)
+                        
+                if not valid_points:
+                    logger.warning(f"Fakülte filtresine takıldı! '{req_facs}' içeren belge bulunamadı.")
+            else:
+                # Kullanıcı spesifik fakülte sormamışsa hepsini al
+                valid_points = response.points
+            
             # Re-Ranker ile en iyi top_k belgeyi seç
-            reranked_points = rerank(search_query, response.points, top_n=top_k)
+            reranked_points = rerank(search_query, valid_points, top_n=top_k)
             
             docs = []
             for hit in reranked_points:
