@@ -56,11 +56,15 @@ def generate_answer(query: str, retrieved_docs: list) -> str:
         "Sana sağlanan KAYNAKLAR metinlerindeki verileri analiz ederek kullanıcının sorusunu yanıtlamak.\n\n"
         "KURALLAR:\n"
         "1. Kaynaklardaki metinler tablolardan veya PDF'lerden düz metne çevrilmiş olabilir. Parçalanmış kelimeleri ve tarihleri mantıksal olarak birleştirerek oku.\n"
-        "2. DİKKAT: Kullanıcı belirli bir fakülte, bölüm veya yıl soruyorsa (örn: Mühendislik) ve kaynaklarda başka bir fakültenin (örn: Hukuk, Tıp) bilgisi varsa, ASLA o bilgileri kullanıcıya istenen fakülteymiş gibi sunma! Açıkça 'Kaynaklarda ... Fakültesi ile ilgili bilgi bulunmamaktadır' de.\n"
+        "2. ÇOK ÖNEMLİ KURAL: Kullanıcı spesifik bir fakülte veya bölüm soruyorsa (örneğin: 'Mühendislik Fakültesi'), kaynaklardaki metinlerin o fakülteye ait olup olmadığını mutlaka KONTROL ET. Eğer kaynak metni 'Hukuk Fakültesi', 'Diş Hekimliği' gibi BAŞKA bir fakülteye aitse, o metindeki tarihleri KESİNLİKLE KULLANMA! Eğer istenen fakülteye ait bir bilgi kaynaklarda net olarak yoksa, 'Kaynaklarda bu fakülteyle ilgili bilgi bulunmamaktadır' de. Uydurma yapma!\n"
         "3. Kendi kendine bilgi uydurma veya sahte link/adres üretme. Sadece KAYNAKLAR'a dayan."
     ) + yonetim_notu + tarih_notu
     
-    user_prompt = f"KAYNAKLAR:\n{context}\n\nSORU: {query}"
+    user_prompt = (
+        f"KAYNAKLAR:\n{context}\n\n"
+        f"SORU: {query}\n\n"
+        "UYARI: Eğer soru belirli bir fakülteyi soruyorsa ve kaynaklar başka bir fakülteye aitse, o bilgileri KESİNLİKLE kullanma ve 'Bilgi bulunamadı' de."
+    )
     
     # API'den aktif modeli otomatik çek
     try:
