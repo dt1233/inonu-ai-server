@@ -103,20 +103,29 @@ class Retriever:
             valid_points = []
             
             if req_facs:
-                for p in response.points:
+                logger.info(f"🔎 Fakülte filtresi aktif: aranan = {req_facs}")
+                logger.info(f"🔎 Qdrant'tan gelen toplam belge: {len(response.points)}")
+                
+                for i, p in enumerate(response.points):
                     text_lower = p.payload.get("text", "").lower()
-                    fakulte_lower = p.payload.get("fakulte", "").lower()
+                    source_url = p.payload.get("source_url", "?")
+                    fakulte_meta = p.payload.get("fakulte", "")
                     
                     # İstenen fakültelerden en az biri metinde veya metaveride geçmeli
                     is_valid = False
                     for fac in req_facs:
-                        if fac in text_lower or fac in fakulte_lower:
+                        if fac in text_lower or fac in fakulte_meta.lower():
                             is_valid = True
                             break
                             
                     if is_valid:
                         valid_points.append(p)
+                        logger.debug(f"  ✅ [{i}] GEÇTİ  → {source_url[:80]}")
+                    else:
+                        logger.debug(f"  ❌ [{i}] ELENDİ → {source_url[:80]} | ilk 100 kar: {text_lower[:100]}")
                         
+                logger.info(f"🔎 Filtre sonucu: {len(response.points)} → {len(valid_points)} belge kaldı")
+                
                 if not valid_points:
                     logger.warning(f"Fakülte filtresine takıldı! '{req_facs}' içeren belge bulunamadı.")
             else:
