@@ -87,7 +87,7 @@ class Retriever:
             )
             
             # Re-Ranker ile en iyi top_k belgeyi seç
-            reranked_points = rerank(query, response.points, top_n=top_k)
+            reranked_points = rerank(search_query, response.points, top_n=top_k)
             
             docs = []
             for hit in reranked_points:
