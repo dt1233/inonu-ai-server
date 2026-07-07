@@ -211,9 +211,10 @@ class Retriever:
     def __init__(self):
         from qdrant_client import QdrantClient
 
-        db_path = os.path.join(os.getcwd(), "qdrant_storage")
+        qdrant_folder = os.getenv("QDRANT_PATH", "qdrant_storage")
+        db_path = os.path.join(os.getcwd(), qdrant_folder)
         if not os.path.exists(db_path):
-            logger.warning("qdrant_storage bulunamadı! Lütfen önce indexer'ı çalıştırın.")
+            logger.warning(f"{qdrant_folder} bulunamadı! Lütfen önce indexer'ı çalıştırın.")
 
         self.client = QdrantClient(path=db_path)
         self.collection_name = os.getenv("QDRANT_COLLECTION", "inonu_docs")
