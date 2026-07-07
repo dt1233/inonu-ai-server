@@ -7,6 +7,7 @@ from __future__ import annotations
 import os
 import traceback
 import uuid
+from typing import Any
 
 from loguru import logger
 from qdrant_client import QdrantClient
@@ -23,8 +24,6 @@ from qdrant_client.models import (
 )
 
 from inonu_ai.engine.embedding import encode_batch
-
-from .chunker import Chunk
 
 COLLECTION_NAME = os.getenv("QDRANT_COLLECTION", "inonu_docs")
 QDRANT_PATH = os.getenv("QDRANT_PATH", "qdrant_storage")
@@ -88,11 +87,11 @@ def ensure_collection(client: QdrantClient, reset: bool = False) -> None:
     _ensure_payload_indexes(client)
 
 
-def _chunk_uid(chunk: Chunk) -> str:
+def _chunk_uid(chunk: Any) -> str:
     return f"{chunk.source_key}:{chunk.doc_id}:{chunk.chunk_index}"
 
 
-def _chunk_debug(chunk: Chunk) -> dict:
+def _chunk_debug(chunk: Any) -> dict:
     metadata = chunk.metadata or {}
     return {
         "source_key": chunk.source_key,
@@ -118,8 +117,8 @@ class Indexer:
         self.client = get_qdrant()
         ensure_collection(self.client, reset=reset)
 
-    def _dedupe_chunks(self, chunks: list[Chunk]) -> list[Chunk]:
-        unique_chunks: list[Chunk] = []
+    def _dedupe_chunks(self, chunks: list[Any]) -> list[Any]:
+        unique_chunks: list[Any] = []
         seen_uids: set[str] = set()
         duplicate_count = 0
 
@@ -135,7 +134,7 @@ class Indexer:
             logger.info(f"Filtered duplicate chunks by UID: {duplicate_count}")
         return unique_chunks
 
-    def index_chunks(self, chunks: list[Chunk], batch_size: int = 64) -> int:
+    def index_chunks(self, chunks: list[Any], batch_size: int = 64) -> int:
         if not chunks:
             logger.info("No chunks to index.")
             return 0

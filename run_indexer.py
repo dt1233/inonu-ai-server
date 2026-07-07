@@ -6,15 +6,42 @@ from __future__ import annotations
 
 import argparse
 import sys
+from dataclasses import dataclass, field
 from pathlib import Path
+from typing import Any
 
 from loguru import logger
 
 sys.path.append(str(Path(__file__).parent))
 
-from inonu_ai.data_pipeline.chunker import Chunk
 from inonu_ai.data_pipeline.indexer import Indexer
 from inonu_ai.data_pipeline.io_utils import load_json
+
+
+@dataclass
+class IndexChunk:
+    """Lightweight chunk contract for indexing prebuilt JSON chunks."""
+
+    text: str
+    source_url: str = ""
+    source_key: str = ""
+    doc_id: str = ""
+    chunk_index: int = 0
+    metadata: dict[str, Any] = field(default_factory=dict)
+    created_at: str = ""
+
+
+def _to_index_chunk(item: dict[str, Any]) -> IndexChunk:
+    metadata = item.get("metadata") or {}
+    return IndexChunk(
+        text=item.get("text") or "",
+        source_url=item.get("source_url") or "",
+        source_key=item.get("source_key") or "",
+        doc_id=str(item.get("doc_id") or ""),
+        chunk_index=int(item.get("chunk_index") or 0),
+        metadata=metadata if isinstance(metadata, dict) else {},
+        created_at=item.get("created_at") or "",
+    )
 
 
 def _configure_logging(log_file: str | None) -> None:
@@ -32,7 +59,7 @@ def _configure_logging(log_file: str | None) -> None:
     logger.info(f"Indexer log file enabled: {log_file}")
 
 
-def _load_chunks(path: Path, limit: int | None) -> list[Chunk]:
+def _load_chunks(path: Path, limit: int | None) -> list[IndexChunk]:
     logger.info(f"Reading chunk file: {path}")
     chunks_data = load_json(str(path), default=[])
     if not chunks_data:
@@ -42,7 +69,7 @@ def _load_chunks(path: Path, limit: int | None) -> list[Chunk]:
         logger.warning(f"Local rehearsal limit enabled: first {limit} chunks will be indexed.")
         chunks_data = chunks_data[:limit]
 
-    chunks = [Chunk(**item) for item in chunks_data]
+    chunks = [_to_index_chunk(item) for item in chunks_data]
     logger.info(f"Loaded chunks into memory: {len(chunks)}")
     return chunks
 
