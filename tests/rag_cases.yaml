@@ -11,4 +11,4 @@
 - question: "Yemekhane menüsü bugün ne?"
   expected_faculty: ""
   forbidden_faculties: []
-  allowed_scopes: ["university"]
+  allowed_scopes: ["university", "faculty", "institute", "school"]
