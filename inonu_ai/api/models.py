@@ -38,6 +38,21 @@ class AskRequest(BaseModel):
     )
 
 
+class SourceItem(BaseModel):
+    """Kaynak öğesi."""
+    source_url: str = Field(default="", description="Kaynak URL'si")
+    pdf_url: str = Field(default="", description="Varsa PDF bağlantısı")
+    title: str = Field(default="", description="Kaynak başlığı")
+    fakulte: str = Field(default="", description="Orijinal fakülte bilgisi")
+    source_fakulte: str = Field(default="", description="URL'den çekilen fakülte")
+    detected_fakulte: str = Field(default="", description="İçerikten tespit edilen fakülte")
+    doc_type: str = Field(default="", description="Doküman türü (announcement, pdf_page vb.)")
+    page_no: Optional[int] = Field(default=None, description="PDF sayfa numarası")
+    score: float = Field(default=0.0, description="Nihai skor")
+    retrieval_score: float = Field(default=0.0, description="Qdrant skoru")
+    rerank_score: Optional[float] = Field(default=None, description="Reranker skoru")
+
+
 class AskResponse(BaseModel):
     """Soru-cevap yanıtı."""
     answer: str = Field(..., description="Yapay zeka yanıtı")
@@ -45,6 +60,7 @@ class AskResponse(BaseModel):
     route: str = Field(..., description="Kullanılan yol (rag/direct)")
     cached: bool = Field(default=False, description="Cache'den mi geldi?")
     response_time: float = Field(..., description="Yanıt süresi (saniye)")
+    sources: list[SourceItem] = Field(default_factory=list, description="Kullanılan kaynaklar")
 
 
 # ─── Oturum Modelleri ──────────────────────────────────────────

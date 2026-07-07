@@ -10,8 +10,6 @@ import re
 import json
 import os
 from engine.sglang_client import llm
-from data_pipeline.indexer import Indexer, encode_batch
-from tools.reranker import rerank
 from .state import AgentState
 from config import get_settings
 
@@ -48,13 +46,6 @@ SKIP_URL_PATTERNS = [
     "type=get", "type=list", "servlet/announcement",
     "servlet/content", "servlet/staff", "servlet/menu",
 ]
-
-def get_indexer() -> Indexer:
-    global _indexer
-    if _indexer is None:
-        _indexer = Indexer()
-    return _indexer
-
 
 # ─── NODE 1: Router ───────────────────────────────────────────────
 ROUTER_PROMPT = """Bir üniversite öğrenci işleri asistanısın.
@@ -149,35 +140,21 @@ def query_rewriter_node(state: AgentState) -> AgentState:
     return {**state, "rewritten_question": rewritten}
 
 
+_retriever = None
+
+def get_retriever():
+    global _retriever
+    if _retriever is None:
+        from engine.retriever import Retriever
+        _retriever = Retriever()
+    return _retriever
+
 def retriever_node(state: AgentState) -> AgentState:
     soru = state.get("rewritten_question") or state["question"]
 
-    from qdrant_client.models import Prefetch, SparseVector, FusionQuery, Fusion
+    docs = get_retriever().search(soru, top_k=TOP_K_RERANK)
 
-    embeddings = encode_batch([soru])
-    dense_vec = embeddings["dense"][0]
-    sparse_dict = embeddings["sparse"][0]
-
-    indices = [int(k) for k in sparse_dict.keys()]
-    values = [float(v) for v in sparse_dict.values()]
-
-    res = get_indexer().client.query_points(
-        collection_name=_settings.qdrant_collection,
-        prefetch=[
-            Prefetch(query=dense_vec, using="dense", limit=TOP_K_RETRIEVE),
-            Prefetch(
-                query=SparseVector(indices=indices, values=values),
-                using="sparse",
-                limit=TOP_K_RETRIEVE,
-            )
-        ],
-        query=FusionQuery(fusion=Fusion.RRF),
-        limit=TOP_K_RETRIEVE,
-        with_payload=True,
-    )
-
-    reranked = rerank(soru, res.points, top_n=TOP_K_RERANK)
-    return {**state, "documents": reranked}
+    return {**state, "documents": docs}
 
 
 # ─── NODE 4: Generator ────────────────────────────────────────────
@@ -217,21 +194,48 @@ def generator_node(state: AgentState) -> AgentState:
         return {**state, "answer": "Bu konuda bilgim bulunmuyor."}
 
     baglam = "\n\n".join(
-        f"[Kaynak {i+1}]\n{p.payload.get('text', '')}"
-        for i, p in enumerate(docs)
+        f"[Kaynak {i+1}]\n{doc.get('text', '')}"
+        for i, doc in enumerate(docs)
     )
 
+    # Yapılandırılmış kaynak listesi oluşturma (duplicate filtrelemeli)
+    structured_sources = []
+    seen_source_keys = set()
     links = []
-    seen  = set()
-    for p in docs:
-        for url in p.payload.get("pdf_links", []):
-            if not url or not url.startswith("http"):
-                continue
-            if any(s in url for s in SKIP_URL_PATTERNS):
-                continue
-            if url not in seen:
-                links.append(url)
-                seen.add(url)
+    
+    for doc in docs:
+        meta = doc.get("metadata", {})
+        
+        # Unique anahtar oluştur (url + page_no)
+        s_url = doc.get("source_url", "")
+        p_url = meta.get("pdf_url", "")
+        page_no = meta.get("page_no")
+        
+        # Eşsizleştirmek için birincil URL'i seç
+        primary_url = p_url if p_url and str(p_url).startswith("http") else s_url
+        if not primary_url or not primary_url.startswith("http") or any(s in primary_url for s in SKIP_URL_PATTERNS):
+            continue
+            
+        dedup_key = f"{primary_url}_{page_no}"
+        
+        if dedup_key not in seen_source_keys:
+            seen_source_keys.add(dedup_key)
+            links.append(primary_url)
+            
+            source_item = {
+                "source_url": s_url,
+                "pdf_url": p_url,
+                "title": meta.get("title", ""),
+                "fakulte": meta.get("fakulte", ""),
+                "source_fakulte": meta.get("source_fakulte", ""),
+                "detected_fakulte": meta.get("detected_fakulte", ""),
+                "doc_type": meta.get("doc_type", ""),
+                "page_no": page_no,
+                "score": doc.get("score", 0.0),
+                "retrieval_score": meta.get("retrieval_score", 0.0),
+                "rerank_score": meta.get("rerank_score")
+            }
+            structured_sources.append(source_item)
 
     yonetim_notu = get_aktif_yonetim_notu()
     tarih_notu = get_current_date_note()
@@ -251,7 +255,7 @@ def generator_node(state: AgentState) -> AgentState:
     if links:
         yanit += "\n\n📎 İlgili belgeler:\n" + "\n".join(f"- {u}" for u in links[:3])
 
-    return {**state, "answer": yanit}
+    return {**state, "answer": yanit, "sources": structured_sources}
 
 
 # ─── NODE 5: Grader ───────────────────────────────────────────────

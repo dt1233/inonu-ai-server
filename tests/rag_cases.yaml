@@ -1,0 +1,14 @@
+- question: "Mühendislik Fakültesi bütleri ne zaman?"
+  expected_faculty: "Mühendislik Fakültesi"
+  forbidden_faculties: ["Hukuk Fakültesi", "Tıp Fakültesi", "Diş Hekimliği Fakültesi"]
+  allowed_scopes: ["faculty", "university"]
+
+- question: "Hukuk Fakültesi bütünleme sınavları ne zaman?"
+  expected_faculty: "Hukuk Fakültesi"
+  forbidden_faculties: ["Mühendislik Fakültesi", "Tıp Fakültesi", "Diş Hekimliği Fakültesi"]
+  allowed_scopes: ["faculty", "university"]
+
+- question: "Yemekhane menüsü bugün ne?"
+  expected_faculty: ""
+  forbidden_faculties: []
+  allowed_scopes: ["university"]

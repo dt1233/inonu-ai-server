@@ -52,14 +52,16 @@ def ask(soru: str) -> str:
     history = build_history_prompt(session_id)
 
     initial = {
-        "question":   soru,
-        "session_id": session_id,
-        "history":    history,
-        "route":      "",
-        "documents":  [],
-        "answer":     "",
-        "grade":      "",
-        "iterations": 0,
+        "question":           soru,
+        "rewritten_question": "",
+        "session_id":         session_id,
+        "history":            history,
+        "route":              "",
+        "documents":          [],
+        "answer":             "",
+        "grade":              "",
+        "iterations":         0,
+        "sources":            [],
     }
     result = graph.invoke(initial)
     yanit  = result.get("answer", "Bu konuda bilgim bulunmuyor.")

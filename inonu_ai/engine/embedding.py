@@ -7,18 +7,13 @@ bge-m3 ile dense + sparse vektör üretimi
 
 import os
 
-# ── HuggingFace'in internete bağlanmasını engelle ──────────
-# Model zaten yerel önbellekte mevcut; her başlatmada HF Hub'a
-# bağlanmaya çalışması sunucuyu dakikalarca askıda bırakıyordu.
-os.environ.setdefault("HF_HUB_OFFLINE", "1")
-os.environ.setdefault("TRANSFORMERS_OFFLINE", "1")
+
 
 from typing import Optional
 
-import torch
-from FlagEmbedding import BGEM3FlagModel
+from fastembed import TextEmbedding, SparseTextEmbedding
 from loguru import logger
-from config import get_settings
+from inonu_ai.config import get_settings
 
 _settings = get_settings()
 
@@ -26,24 +21,19 @@ BATCH_SIZE  = 32
 MAX_LENGTH  = 8192
 DENSE_DIM   = 1024
 
-_model: Optional[BGEM3FlagModel] = None
+_dense_model: Optional[TextEmbedding] = None
+_sparse_model: Optional[SparseTextEmbedding] = None
 
 
-
-
-def get_model() -> BGEM3FlagModel:
-    """bge-m3 embedding modelini yükle (singleton)."""
-    global _model
-    if _model is None:
-        device = os.getenv("BGE_DEVICE", "cuda" if torch.cuda.is_available() else "cpu")
-        logger.info(f"bge-m3 yükleniyor [{device.upper()}, FP16]…")
-        _model = BGEM3FlagModel(
-            _settings.embedding_model,
-            use_fp16=(device == "cuda"),
-            device=device,
-        )
-        logger.info("bge-m3 yüklendi ✓")
-    return _model
+def get_model() -> tuple[TextEmbedding, SparseTextEmbedding]:
+    """bge-m3 ve bm25 embedding modellerini yükle (singleton)."""
+    global _dense_model, _sparse_model
+    if _dense_model is None or _sparse_model is None:
+        logger.info("Modeller yükleniyor (fastembed)...")
+        _dense_model = TextEmbedding(model_name="intfloat/multilingual-e5-large")
+        _sparse_model = SparseTextEmbedding(model_name="Qdrant/bm25")
+        logger.info("Modeller yüklendi ✓")
+    return _dense_model, _sparse_model
 
 
 def encode_batch(texts: list[str]) -> dict:
@@ -56,19 +46,22 @@ def encode_batch(texts: list[str]) -> dict:
     Returns:
         {"dense": [[float, ...], ...], "sparse": [{int: float}, ...]}
     """
-    model = get_model()
+    dense_m, sparse_m = get_model()
     logger.debug(f"Encoding {len(texts)} metin…")
 
-    outputs = model.encode(
-        texts,
-        batch_size=BATCH_SIZE,
-        max_length=MAX_LENGTH,
-        return_dense=True,
-        return_sparse=True,
-        return_colbert_vecs=False,
-    )
+    # generator döndürüyor, list'e çeviriyoruz
+    dense_vecs = list(dense_m.embed(texts, batch_size=BATCH_SIZE))
+    sparse_vecs = list(sparse_m.embed(texts, batch_size=BATCH_SIZE))
+
+    formatted_sparse = []
+    for sp in sparse_vecs:
+        # sp is SparseEmbedding(indices=[...], values=[...])
+        indices = sp.indices.tolist() if hasattr(sp.indices, 'tolist') else list(sp.indices)
+        values = sp.values.tolist() if hasattr(sp.values, 'tolist') else list(sp.values)
+        d = {str(k): float(v) for k, v in zip(indices, values)}
+        formatted_sparse.append(d)
 
     return {
-        "dense":  outputs["dense_vecs"].tolist(),
-        "sparse": outputs["lexical_weights"],
+        "dense": [vec.tolist() if hasattr(vec, 'tolist') else list(vec) for vec in dense_vecs],
+        "sparse": formatted_sparse
     }

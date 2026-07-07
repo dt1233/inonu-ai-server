@@ -212,11 +212,13 @@ async def ask_question(
         "answer":             "",
         "grade":              "",
         "iterations":         0,
+        "sources":            [],
     }
 
     result = graph.invoke(initial)
     yanit = result.get("answer", "Bu konuda bilgim bulunmuyor.")
     route = result.get("route", "rag")
+    sources = result.get("sources", [])
 
     # 3. Oturum ve cache güncelle
     try:
@@ -225,7 +227,7 @@ async def ask_question(
         logger.warning(f"Oturum güncellenemedi: {e}")
 
     try:
-        if route == "rag" and q_vec:
+        if route == "rag" and 'q_vec' in locals() and q_vec:
             set_cache(soru, q_vec, yanit)
     except Exception as e:
         logger.warning(f"Cache yazılamadı: {e}")
@@ -242,6 +244,7 @@ async def ask_question(
         route=route,
         cached=False,
         response_time=elapsed,
+        sources=sources,
     )
 
 

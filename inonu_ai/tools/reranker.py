@@ -22,12 +22,20 @@ _model = None
 def get_reranker():
     global _tokenizer, _model
     if _model is None:
-        logger.info("Re-ranker yükleniyor [CUDA, FP16, Native]...")
-        _tokenizer = AutoTokenizer.from_pretrained(MODEL_PATH)
+        import os
+        device = "cuda" if torch.cuda.is_available() else "cpu"
+        dtype = torch.float16 if device == "cuda" else torch.float32
+        
+        actual_path = MODEL_PATH
+        if not os.path.exists(actual_path) and "/" in actual_path and not actual_path.startswith("BAAI"):
+            actual_path = "BAAI/bge-reranker-v2-m3"
+
+        logger.info(f"Re-ranker yükleniyor [{device.upper()}, {dtype}, Native] {actual_path}...")
+        _tokenizer = AutoTokenizer.from_pretrained(actual_path)
         _model = AutoModelForSequenceClassification.from_pretrained(
-            MODEL_PATH, 
-            torch_dtype=torch.float16
-        ).cuda()
+            actual_path, 
+            torch_dtype=dtype
+        ).to(device)
         _model.eval()
         logger.info("Re-ranker yüklendi ✓")
     return _tokenizer, _model
@@ -45,7 +53,17 @@ def rerank(query: str, points: list, top_n: int = TOP_N) -> list:
         return points
 
     tokenizer, model = get_reranker()
-    texts  = [p.payload.get("text", "") for p in points]
+    device = "cuda" if torch.cuda.is_available() else "cpu"
+    
+    # Dönen doc dict formatındaysa (Adım 6 sonrası), text'i doğrudan al,
+    # değilse qdrant point farzet (eski uyumluluk için).
+    texts = []
+    for p in points:
+        if isinstance(p, dict):
+            texts.append(p.get("text", ""))
+        else:
+            texts.append(p.payload.get("text", "") if hasattr(p, "payload") else "")
+            
     pairs  = [[query, t] for t in texts]
 
     try:
@@ -56,7 +74,7 @@ def rerank(query: str, points: list, top_n: int = TOP_N) -> list:
                 truncation=True, 
                 max_length=512, 
                 return_tensors='pt'
-            ).to('cuda')
+            ).to(device)
             
             # bge-reranker outputs logits of shape (batch_size, 1)
             scores = model(**inputs, return_dict=True).logits.view(-1,).float()

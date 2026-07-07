@@ -4,6 +4,12 @@ __pycache__/
 venv/
 .venv/
 .vscode/
+logs/
+log.txt
+qdrant_storage/
+qdrant_storage_sample/
+qdrant_storage_targeted/
+qdrant_storage_staging/
 
 # Data files
 data/*

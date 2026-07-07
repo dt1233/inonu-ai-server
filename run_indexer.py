@@ -1,54 +1,90 @@
 #!/usr/bin/env python3
 # -*- coding: utf-8 -*-
+"""CLI entrypoint for building the local Qdrant index."""
+
+from __future__ import annotations
+
 import argparse
-import json
 import sys
 from pathlib import Path
 
-# Proje ana dizinini path'e ekle
-sys.path.append(str(Path(__file__).parent))
-
-from inonu_ai.data_pipeline.indexer import Indexer
-from inonu_ai.data_pipeline.chunker import Chunk
 from loguru import logger
 
-def main():
-    parser = argparse.ArgumentParser(description="İnönü AI Vector Database (Qdrant) Deployment Indexer")
-    parser.add_argument("--reset", action="store_true", help="Qdrant koleksiyonundaki eski verileri tamamen siler ve baştan oluşturur (Tavsiye edilen).")
-    parser.add_argument("--file", type=str, default="data/chunks_output.json", help="Yüklenecek chunk dosyası (Varsayılan: data/chunks_output.json)")
+sys.path.append(str(Path(__file__).parent))
+
+from inonu_ai.data_pipeline.chunker import Chunk
+from inonu_ai.data_pipeline.indexer import Indexer
+from inonu_ai.data_pipeline.io_utils import load_json
+
+
+def _configure_logging(log_file: str | None) -> None:
+    if not log_file:
+        return
+    Path(log_file).parent.mkdir(parents=True, exist_ok=True)
+    logger.add(
+        log_file,
+        encoding="utf-8",
+        enqueue=True,
+        backtrace=True,
+        diagnose=True,
+        rotation="50 MB",
+    )
+    logger.info(f"Indexer log file enabled: {log_file}")
+
+
+def _load_chunks(path: Path, limit: int | None) -> list[Chunk]:
+    logger.info(f"Reading chunk file: {path}")
+    chunks_data = load_json(str(path), default=[])
+    if not chunks_data:
+        raise RuntimeError(f"Chunk file is empty or unreadable: {path}")
+
+    if limit is not None:
+        logger.warning(f"Local rehearsal limit enabled: first {limit} chunks will be indexed.")
+        chunks_data = chunks_data[:limit]
+
+    chunks = [Chunk(**item) for item in chunks_data]
+    logger.info(f"Loaded chunks into memory: {len(chunks)}")
+    return chunks
+
+
+def main() -> int:
+    parser = argparse.ArgumentParser(description="Inonu AI Qdrant index builder")
+    parser.add_argument("--reset", action="store_true", help="Delete and recreate the Qdrant collection.")
+    parser.add_argument("--file", type=str, default="data/chunks_output.json", help="Chunk JSON file.")
+    parser.add_argument("--limit", type=int, default=None, help="Index only the first N chunks for local rehearsal.")
+    parser.add_argument("--batch-size", type=int, default=64, help="Embedding/upsert batch size.")
+    parser.add_argument("--log-file", type=str, default=None, help="Write detailed indexer logs to this file.")
     args = parser.parse_args()
 
-    chunk_file = Path(args.file)
-    if not chunk_file.exists():
-        logger.error(f"Hata: {args.file} bulunamadı! Önce veri çekme ve chunking (rebuild_pipeline.py) işlemlerini çalıştırdığınızdan emin olun.")
-        return
+    _configure_logging(args.log_file)
 
-    logger.info(f"Chunk dosyası okunuyor: {chunk_file}")
     try:
-        with open(chunk_file, "r", encoding="utf-8") as f:
-            chunks_data = json.load(f)
-    except Exception as e:
-        logger.error(f"Dosya okuma hatası: {e}")
-        return
+        chunk_file = Path(args.file)
+        if not chunk_file.exists():
+            raise FileNotFoundError(f"Chunk file not found: {chunk_file}")
 
-    # Sözlükleri Chunk veri sınıfına dönüştür
-    chunks = [Chunk(**c) for c in chunks_data]
-    logger.info(f"Toplam {len(chunks)} adet chunk (vektör adayı) hafızaya alındı.")
+        chunks = _load_chunks(chunk_file, args.limit)
 
-    logger.info("Vektör veritabanına bağlanılıyor...")
-    try:
-        # Eğer --reset kullanılmışsa, indexer_init eski koleksiyonu Drop (silme) işlemi yapacaktır
+        logger.info("Connecting to Qdrant...")
         indexer = Indexer(reset=args.reset)
-    except Exception as e:
-        logger.error(f"Qdrant veritabanına bağlanılamadı. Sunucuda Qdrant Docker konteynerinin çalıştığından emin olun. Hata: {e}")
-        return
 
-    logger.info("İndeksleme (Embedding ve Qdrant'a yazma) işlemi başlatılıyor...")
-    written = indexer.index_chunks(chunks)
+        logger.info("Starting embedding and Qdrant upsert...")
+        written = indexer.index_chunks(chunks, batch_size=args.batch_size)
+        point_count = indexer.get_point_count()
 
-    logger.info("="*60)
-    logger.info(f"BAŞARILI: Qdrant koleksiyonuna {written} adet vektör kaydedildi.")
-    logger.info("="*60)
+        logger.info("=" * 60)
+        logger.info(f"INDEX COMPLETE: written={written}, qdrant_point_count={point_count}")
+        logger.info("=" * 60)
+
+        if written <= 0:
+            raise RuntimeError("No vectors were written.")
+        if point_count != written:
+            raise RuntimeError(f"Final point_count mismatch: written={written}, point_count={point_count}")
+        return 0
+    except Exception as exc:
+        logger.exception(f"INDEX FAILED: {exc}")
+        return 1
+
 
 if __name__ == "__main__":
-    main()
+    sys.exit(main())

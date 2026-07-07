@@ -17,3 +17,4 @@ class AgentState(TypedDict):
     answer:             str    # Üretilen yanıt
     grade:              str    # "useful" | "not_useful"
     iterations:         int    # Kaç kez denendiği
+    sources:            list   # Kullanılan kaynak linkleri

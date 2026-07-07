@@ -1,11 +1,19 @@
+#!/usr/bin/env python3
+# -*- coding: utf-8 -*-
+"""
+İNÖNÜ AI │ engine/retriever.py
+Merkezi Retriever — Strict/Fallback Fakülte Filtreleme
+
+Tüm arama hattı buradan geçer.
+CLI (eski) ve API (nodes.py Adım 7) aynı fonksiyonu kullanır.
+"""
+
 import os
 import re
-import json
 from datetime import datetime
 from loguru import logger
-from qdrant_client import QdrantClient
-from engine.embedding import encode_batch
-from tools.reranker import rerank
+
+from data_pipeline.faculty_detector import extract_requested_faculties
 
 # ── Zaman duyarlı sorgu zenginleştirme ──────────────────────
 _TIME_KEYWORDS = [
@@ -15,37 +23,9 @@ _TIME_KEYWORDS = [
     'bütünleme', 'ders seçim', 'not giriş', 'mazeret',
 ]
 
-# ─── Fakülte Tanıma Sistemi ───
-# Her tuple: (sorgu_anahtarı, başlık_deseni)
-# - sorgu_anahtarı: Kullanıcının sorusunda bu geçerse filtre aktifleşir
-#   (Kısa ve belirsiz kelimeler tam yazılır: "eğitim" değil "eğitim fakültesi")
-# - başlık_deseni: Belge başlığında (ilk 300 kar) sahiplik tespiti için kullanılır
-#   ("eğitim öğretim yılı" gibi genel ifadeler yanlış eşleşme yapmasın diye tam isim)
-_FACULTY_MAP = [
-    ("mühendislik",        "mühendislik fakültesi"),
-    ("hukuk",              "hukuk fakültesi"),
-    ("tıp fakültesi",      "tıp fakültesi"),
-    ("diş hekimliği",      "diş hekimliği fakültesi"),
-    ("eğitim fakültesi",   "eğitim fakültesi"),
-    ("fen edebiyat",       "fen edebiyat fakültesi"),
-    ("edebiyat fakültesi", "edebiyat fakültesi"),
-    ("iktisadi",           "iktisadi ve idari"),
-    ("ilahiyat",           "ilahiyat fakültesi"),
-    ("iletişim fakültesi", "iletişim fakültesi"),
-    ("sağlık bilimleri",   "sağlık bilimleri fakültesi"),
-    ("spor bilimleri",     "spor bilimleri fakültesi"),
-    ("ziraat",             "ziraat fakültesi"),
-    ("eczacılık",          "eczacılık fakültesi"),
-    ("güzel sanatlar",     "güzel sanatlar fakültesi"),
-    ("hemşirelik",         "hemşirelik fakültesi"),
-    ("meslek yüksekokulu", "meslek yüksekokulu"),
-    ("konservatuvar",      "devlet konservatuvarı"),
-]
+# ── Retrieval Parametreleri ──────────────────────────────────
+STRICT_MIN_RESULTS = 2
 
-def _extract_faculties(query: str) -> list[str]:
-    """Sorgudaki fakülte/birim isimlerini yakalar."""
-    q = query.lower()
-    return [qk for qk, _ in _FACULTY_MAP if qk in q]
 
 def _get_current_academic_year() -> str:
     """Güncel akademik yılı döndür (Eylül→Ağustos döngüsü)."""
@@ -54,16 +34,15 @@ def _get_current_academic_year() -> str:
         return f"{now.year}-{now.year + 1}"
     return f"{now.year - 1}-{now.year}"
 
+
 def _augment_query(query: str) -> str:
     """
     Zaman duyarlı sorulara otomatik olarak güncel akademik yılı ekler.
     Soruda zaten bir yıl varsa dokunmaz.
     """
     q = query.lower()
-    # Soruda zaten 4 haneli yıl varsa dokunma
     if re.search(r'20\d{2}', query):
         return query
-    # Zaman duyarlı anahtar kelime var mı?
     if any(kw in q for kw in _TIME_KEYWORDS):
         year = _get_current_academic_year()
         augmented = f"{query} {year} eğitim öğretim yılı güncel"
@@ -71,31 +50,192 @@ def _augment_query(query: str) -> str:
         return augmented
     return query
 
+
+# ── Fakülte Filtreleme (Strict / Fallback) ───────────────────
+
+def _get_effective_fakulte(payload: dict) -> str | None:
+    """
+    Bir chunk'ın *gerçek* fakülte sahipliğini belirler.
+    Öncelik sırası:
+      1. detected_fakulte (PDF sayfa bazlı tespit — en güvenilir)
+      2. fakulte veya source_fakulte (crawler metadata)
+    """
+    detected = (payload.get("detected_fakulte") or "").strip()
+    if detected:
+        return detected
+    return (payload.get("fakulte") or payload.get("source_fakulte") or "").strip() or None
+
+
+def _is_chunk_safe_for_query(payload: dict, requested_fakulteler: list[str]) -> bool:
+    """
+    Bir chunk'ın, requested_fakulte listesine güvenle döndürülüp
+    döndürülemeyeceğini belirler.
+
+    Kurallar:
+    1. scope="university" ve detected_fakulte boş → Genel kaynak, GEÇ.
+    2. scope="university" ama detected_fakulte dolu ve rakip → ELEN.
+    3. Chunk'ın efektif fakültesi requested listede → GEÇ.
+    4. Chunk'ın efektif fakültesi requested listede DEĞİL → ELEN.
+    """
+    scope = (payload.get("scope") or "").strip()
+    effective = _get_effective_fakulte(payload)
+
+    # Genel üniversite kaynağı
+    if scope == "university":
+        if not effective:
+            return True  # Genel kaynak, fakülte tespiti yapılamamış → güvenli
+        # University ama sayfada rakip fakülte tespit edilmiş
+        return effective in requested_fakulteler
+
+    # Fakülte/birim bazlı kaynak
+    if not effective:
+        return True  # Fakülte tespiti yapılamadı → eleme yapma, geçir
+
+    return effective in requested_fakulteler
+
+
+def filter_by_fakulte(
+    points: list,
+    requested_fakulteler: list[str],
+) -> dict:
+    """
+    Qdrant point listesini fakülte sahiplik kurallarına göre filtreler.
+
+    Döndürdüğü dict:
+    {
+        "strict": [...],       # Kesin uyumlu chunklar
+        "fallback_used": bool,
+        "owner_mismatch": int,
+        "debug": {...}
+    }
+    """
+    strict_results = []
+    owner_mismatch_count = 0
+
+    for p in points:
+        payload = p.payload if hasattr(p, "payload") else p.get("payload", {})
+        if _is_chunk_safe_for_query(payload, requested_fakulteler):
+            strict_results.append(p)
+        else:
+            owner_mismatch_count += 1
+            effective = _get_effective_fakulte(payload)
+            logger.debug(
+                f"  ❌ Owner mismatch: effective={effective}, "
+                f"requested={requested_fakulteler}, "
+                f"url={payload.get('source_url', '?')[:80]}"
+            )
+
+    fallback_used = False
+
+    # Fallback: strict çok az sonuç verdiyse genel üniversite kaynaklarını ekle
+    if len(strict_results) < STRICT_MIN_RESULTS:
+        logger.info(
+            f"Strict sonuç yetersiz ({len(strict_results)}<{STRICT_MIN_RESULTS}), "
+            f"university fallback devreye giriyor."
+        )
+        fallback_used = True
+        for p in points:
+            payload = p.payload if hasattr(p, "payload") else p.get("payload", {})
+            scope = (payload.get("scope") or "").strip()
+            detected = (payload.get("detected_fakulte") or "").strip()
+
+            if scope == "university" and not detected:
+                if p not in strict_results:
+                    strict_results.append(p)
+
+    debug = {
+        "total_candidates": len(points),
+        "strict_passed": len(strict_results),
+        "owner_mismatch_eliminated": owner_mismatch_count,
+        "fallback_used": fallback_used,
+        "requested_fakulteler": requested_fakulteler,
+    }
+
+    logger.info(
+        f"🔎 Filtre: {debug['total_candidates']} aday → "
+        f"{debug['strict_passed']} geçti, "
+        f"{debug['owner_mismatch_eliminated']} owner mismatch elendi"
+        f"{', fallback kullanıldı' if fallback_used else ''}"
+    )
+
+    return {
+        "strict": strict_results,
+        "fallback_used": fallback_used,
+        "owner_mismatch": owner_mismatch_count,
+        "debug": debug,
+    }
+
+
+def _point_to_doc(hit, rerank_score: float | None = None) -> dict:
+    """
+    Qdrant ScoredPoint → standart doc dict dönüşümü.
+
+    score alanı:
+      - rerank_score verilmişse onu kullanır (reranker logit).
+      - verilmemişse Qdrant/RRF fusion score'unu taşır.
+    metadata içinde her iki skor kaynağı ayrıca saklanır.
+    """
+    payload = hit.payload if hasattr(hit, "payload") else hit.get("payload", {})
+    retrieval_score = hit.score if hasattr(hit, "score") else 0.0
+
+    # Reranker skoru varsa onu ana skor yap; yoksa retrieval score'u taşı.
+    effective_score = rerank_score if rerank_score is not None else retrieval_score
+
+    return {
+        "text": payload.get("text", ""),
+        "score": effective_score,
+        "source_url": payload.get("source_url", ""),
+        "metadata": {
+            "unit": payload.get("unit", ""),
+            "unit_label": payload.get("unit_label", ""),
+            "fakulte": payload.get("fakulte", ""),
+            "source_fakulte": payload.get("source_fakulte", ""),
+            "detected_fakulte": payload.get("detected_fakulte", ""),
+            "scope": payload.get("scope", ""),
+            "doc_type": payload.get("doc_type", ""),
+            "page_no": payload.get("page_no"),
+            "ann_id": payload.get("ann_id"),
+            "title": payload.get("title", ""),
+            "source_url": payload.get("source_url", ""),
+            "pdf_url": payload.get("pdf_url", ""),
+            "content_hash": payload.get("content_hash", ""),
+            "retrieval_score": retrieval_score,
+            "rerank_score": rerank_score,
+        },
+    }
+
+
+# ── Ana Retriever Sınıfı ─────────────────────────────────────
+
 class Retriever:
     def __init__(self):
+        from qdrant_client import QdrantClient
+
         db_path = os.path.join(os.getcwd(), "qdrant_storage")
         if not os.path.exists(db_path):
             logger.warning("qdrant_storage bulunamadı! Lütfen önce indexer'ı çalıştırın.")
-            
+
         self.client = QdrantClient(path=db_path)
         self.collection_name = os.getenv("QDRANT_COLLECTION", "inonu_docs")
 
     def search(self, query: str, top_k: int = 3) -> list[dict]:
         logger.info(f"Soru aranıyor: {query}")
-        
-        # 1. Soruyu vektöre çevir (zaman duyarlı sorgular zenginleştirilir)
+
+        # 1. Sorguyu zenginleştir ve vektöre çevir
+        from engine.embedding import encode_batch
+        from tools.reranker import rerank
+        from qdrant_client import models
+
         search_query = _augment_query(query)
         embeddings = encode_batch([search_query])
         dense_vec = embeddings["dense"][0]
-        
-        from qdrant_client import models
-        
+
         try:
-            # 2. Qdrant'ta Hybrid (Dense + Sparse) arama yap
+            # 2. Hybrid (Dense + Sparse) arama
             sparse_dict = embeddings["sparse"][0]
             indices = [int(k) for k in sparse_dict.keys()]
             values = [float(v) for v in sparse_dict.values()]
-            
+
             response = self.client.query_points(
                 collection_name=self.collection_name,
                 prefetch=[
@@ -117,73 +257,33 @@ class Retriever:
                 limit=60,
                 with_payload=True
             )
-            
-            # --- FAKÜLTE KESİN FİLTRESİ (HARD FILTER) ---
-            req_facs = _extract_faculties(query)
-            valid_points = []
-            
-            if req_facs:
-                logger.info(f"🔎 Fakülte filtresi aktif: aranan = {req_facs}")
-                logger.info(f"🔎 Qdrant'tan gelen toplam belge: {len(response.points)}")
-                
-                # Rakip fakültelerin BAŞLIK desenlerini belirle (tam isimler kullanılır)
-                competing_headers = [hp for qk, hp in _FACULTY_MAP if qk not in req_facs]
-                
-                for i, p in enumerate(response.points):
-                    text_lower = p.payload.get("text", "").lower()
-                    source_url = p.payload.get("source_url", "?")
-                    fakulte_meta = p.payload.get("fakulte", "")
-                    
-                    # Belgenin başlık/üst kısmında (ilk 300 kar) veya metaverisinde RAKİP fakülte geçiyorsa
-                    # bu belge KESİNLİKLE başka fakülteye aittir, reddet!
-                    header = text_lower[:300]
-                    competing_in_header = [h for h in competing_headers if h in header or h in fakulte_meta.lower()]
-                    
-                    if competing_in_header:
-                        logger.debug(f"  ❌ [{i}] ELENDİ (başlıkta rakip: {competing_in_header}) → {source_url[:80]}")
-                        continue
-                    
-                    # Eğer belge başka bir fakülteye ait DEĞİLSE (rakip yoksa), içeri alıyoruz.
-                    # Bu sayede içinde "mühendislik" geçmeyen ama tüm üniversiteyi kapsayan GENEL belgeler elenmez!
-                    valid_points.append(p)
-                    logger.debug(f"  ✅ [{i}] GEÇTİ  → {source_url[:80]}")
-                        
-                logger.info(f"🔎 Filtre sonucu: {len(response.points)} → {len(valid_points)} belge kaldı")
-                
-                if not valid_points:
-                    logger.warning(f"Fakülte filtresine takıldı! '{req_facs}' için uygun belge bulunamadı.")                        
+
+            # 3. Fakülte Strict/Fallback filtresi
+            requested = extract_requested_faculties(query)
+            if requested:
+                logger.info(f"🔎 Fakülte filtresi aktif: {requested}")
+                filter_result = filter_by_fakulte(response.points, requested)
+                valid_points = filter_result["strict"]
             else:
-                # Kullanıcı spesifik fakülte sormamışsa hepsini al
                 valid_points = response.points
-            
-            # Re-Ranker ile en iyi top_k belgeyi seç
+
+            # 4. Re-Ranker
             reranked_points = rerank(search_query, valid_points, top_n=top_k)
-            
-            docs = []
-            for hit in reranked_points:
-                # Eger hit objesi qdrant'tan gelen bir obje ise score'u olabilir,
-                # ama degilse (fallback vs), hasattr ile korumaya alalim.
-                score_val = hit.score if hasattr(hit, 'score') else 0.0
-                
-                # ÇÖP BELGE FİLTRESİ: Re-ranker skoru çok düşükse (< 0.15), LLM'in kafasını
-                # karıştırmaması ve halüsinasyon görmemesi için bu belgeyi at.
-                if score_val < 0.25:
-                    logger.debug(f"  🗑️ Belge elendi (Skor çok düşük: {score_val:.3f})")
-                    continue
-                    
-                docs.append({
-                    "score": score_val,
-                    "text": hit.payload.get("text", ""),
-                    "source_url": hit.payload.get("source_url", ""),
-                    "source_key": hit.payload.get("source_key", "")
-                })
-            
+
+            # 5. Doc dönüşümü
+            # NOT: Skor eşiği (threshold) burada uygulanmaz.
+            # RRF fusion score ve reranker logit score farklı ölçeklerdedir.
+            # Reranker skoru ayrıştırıldığında (Adım 7) threshold reranker
+            # logit'ine uygulanabilir. Şu an filtresiz geçirilir.
+            docs = [_point_to_doc(hit) for hit in reranked_points]
+
             logger.info(f"{len(docs)} adet ilgili metin bulundu.")
             return docs
-            
+
         except Exception as e:
             logger.error(f"Arama sırasında hata: {e}")
             return []
+
 
 if __name__ == "__main__":
     retriever = Retriever()

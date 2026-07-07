@@ -64,20 +64,39 @@ def _get_max_ann_id() -> int:
     return 0
 
 
-def _save_results_to_disk(results: dict, chunks: list) -> None:
-    """Ham crawler sonuçlarını ve chunk'ları JSON olarak diske yaz."""
-    # 1. Ham crawler çıktısı (Takım 2 girdisi)
-    CRAWL_RESULTS_FILE.write_text(
-        json.dumps(results, ensure_ascii=False, indent=2), encoding="utf-8"
-    )
-    logger.info(f"Ham veri kaydedildi: {CRAWL_RESULTS_FILE} ({CRAWL_RESULTS_FILE.stat().st_size / 1024:.0f} KB)")
+from .io_utils import load_json, atomic_write_json, merge_records
 
-    # 2. Chunk'lar (Takım 4 / Qdrant girdisi)
-    chunk_dicts = [asdict(c) for c in chunks]
-    CHUNKS_OUTPUT_FILE.write_text(
-        json.dumps(chunk_dicts, ensure_ascii=False, indent=2), encoding="utf-8"
-    )
-    logger.info(f"Chunk'lar kaydedildi: {CHUNKS_OUTPUT_FILE} ({CHUNKS_OUTPUT_FILE.stat().st_size / 1024:.0f} KB)")
+def _save_results_to_disk(results: dict, chunks: list) -> None:
+    """Ham crawler sonuçlarını ve chunk'ları JSON olarak diske yaz (Safe Merge ile)."""
+    # 1. Ham crawler çıktısı
+    path_crawl = str(CRAWL_RESULTS_FILE)
+    existing_results = load_json(path_crawl, default={"announcements": [], "static_contents": [], "avesis_staff": []})
+    
+    if not isinstance(existing_results, dict):
+        existing_results = {"announcements": [], "static_contents": [], "avesis_staff": []}
+        
+    merged_results = {}
+    for k in ["announcements", "static_contents", "avesis_staff"]:
+        existing_list = existing_results.get(k, [])
+        incoming_list = results.get(k, [])
+        logger.info(f"Kategori '{k}' birleştiriliyor...")
+        merged_results[k] = merge_records(existing_list, incoming_list)
+        
+    atomic_write_json(path_crawl, merged_results)
+    logger.info(f"Ham veri güvenle kaydedildi: {path_crawl} ({CRAWL_RESULTS_FILE.stat().st_size / 1024:.0f} KB)")
+
+    # 2. Chunk'lar
+    if chunks:
+        path_chunks = str(CHUNKS_OUTPUT_FILE)
+        existing_chunks = load_json(path_chunks, default=[])
+        if not isinstance(existing_chunks, list):
+            existing_chunks = []
+        
+        chunk_dicts = [asdict(c) for c in chunks]
+        logger.info("Chunk'lar birleştiriliyor...")
+        merged_chunks = merge_records(existing_chunks, chunk_dicts)
+        atomic_write_json(path_chunks, merged_chunks)
+        logger.info(f"Chunk'lar güvenle kaydedildi: {path_chunks} ({CHUNKS_OUTPUT_FILE.stat().st_size / 1024:.0f} KB)")
 
 
 # ─────────────────────────────────────────────────────────────────
@@ -121,8 +140,8 @@ async def _run_and_index(label: str, mode: str) -> None:
             orch.update_databases()
             
             # Diskten (senkronize edilmiş) en taze veriyi geri yükle
-            with open(CRAWL_RESULTS_FILE, "r", encoding="utf-8") as f:
-                results = json.load(f)
+            from .io_utils import load_json
+            results = load_json(str(CRAWL_RESULTS_FILE), default={})
             logger.info("Rol senkronizasyonu tamamlandı. Chunking'e geçiliyor.")
         except Exception as e:
             logger.error(f"Rebuild pipeline hatası: {e}")

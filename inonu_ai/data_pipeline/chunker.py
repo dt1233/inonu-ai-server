@@ -140,41 +140,90 @@ def _sss_to_text(sss_dict: dict) -> str:
 class Chunker:
 
     def chunk_announcements(self, records: list[dict]) -> list[Chunk]:
-        """Duyuru kayıtlarını chunk'la."""
+        """Duyuru ve eklerini chunk'la."""
         all_chunks: list[Chunk] = []
 
         for rec in records:
-            ann_id     = rec.get("id", "")
-            title      = rec.get("title", "")
-            source_url = rec.get("sourceUrl", f"duyuru:{ann_id}")
-            metadata   = {
-                "kategori":  "duyuru",
-                "baslik":    title,
-                "guncellendi": rec.get("updated", ""),
-                "ann_id":    ann_id,
-                "unit":      rec.get("unit", ""),
-                "birim":     rec.get("birim_label", ""),
-                "fakulte":   rec.get("fakulte", ""),
+            unit = rec.get("unit", "")
+            ann_id = rec.get("ann_id") or rec.get("id", "")
+            
+            # Ana duyuru metnini chunk'la
+            ana_metin = rec.get("content") or ""
+            source_key = f"announcement:{unit}"
+            
+            # Ortak metadata
+            base_meta = {
+                "unit": unit,
+                "unit_label": rec.get("unit_label", ""),
+                "fakulte": rec.get("fakulte", ""),
+                "source_fakulte": rec.get("source_fakulte", ""),
+                "detected_fakulte": rec.get("detected_fakulte", ""),
+                "scope": rec.get("scope", "unknown"),
+                "doc_type": "announcement",
+                "page_no": None,
+                "page_count": None,
+                "ann_id": ann_id,
+                "title": rec.get("title", ""),
+                "published_at": rec.get("published_at", "") or rec.get("updated", ""),
+                "source_url": rec.get("source_url") or rec.get("sourceUrl", ""),
+                "pdf_url": "",
+                "content_hash": rec.get("content_hash", "")
             }
 
-            icerik   = rec.get("content") or ""
-            ana_metin = icerik
-
-            all_chunks.extend(
-                self._chunk_text(ana_metin, source_url, "duyurular_api", ann_id, metadata)
-            )
+            if ana_metin.strip() and ana_metin not in ("[İçerik alınamadı]", "Bu duyuru doğrudan bir PDF dosyasıdır."):
+                all_chunks.extend(
+                    self._chunk_text(ana_metin, base_meta["source_url"], source_key, str(ann_id), base_meta.copy())
+                )
 
             for i, att in enumerate(rec.get("attachments", [])):
-                att_text = att.get("content", "")
-                if not att_text or att_text in ("[PDF Okunamadı]", "[İçerik alınamadı]"):
-                    continue
-                all_chunks.extend(self._chunk_text(
-                    f"{title} (Ek {i + 1})\n\n{att_text}",
-                    att.get("url", source_url),
-                    "duyurular_api",
-                    f"{ann_id}_att{i}",
-                    {**metadata, "type": "pdf_attachment", "att_index": i},
-                ))
+                pages = att.get("pages")
+                if pages:
+                    for page in pages:
+                        # Skip empty/ocr_required
+                        if page.get("pdf_text_quality") != "text" or not page.get("content"):
+                            continue
+                            
+                        page_no = page.get("page_no")
+                        page_source_key = f"pdf_page:{unit}:{ann_id}:{page_no}"
+                        
+                        page_meta = {
+                            "unit": page.get("unit", unit),
+                            "unit_label": page.get("unit_label", base_meta["unit_label"]),
+                            "fakulte": page.get("fakulte", base_meta["fakulte"]),
+                            "source_fakulte": page.get("source_fakulte", base_meta["source_fakulte"]),
+                            "detected_fakulte": page.get("detected_fakulte", ""),
+                            "scope": page.get("scope", base_meta["scope"]),
+                            "doc_type": "pdf_page",
+                            "page_no": page_no,
+                            "page_count": page.get("page_count"),
+                            "ann_id": ann_id,
+                            "title": page.get("title", base_meta["title"]),
+                            "published_at": page.get("published_at", base_meta["published_at"]),
+                            "source_url": page.get("source_url", base_meta["source_url"]),
+                            "pdf_url": page.get("pdf_url", att.get("url", "")),
+                            "content_hash": page.get("content_hash", "")
+                        }
+                        
+                        all_chunks.extend(
+                            self._chunk_text(page.get("content"), page_meta["pdf_url"] or page_meta["source_url"], page_source_key, f"{ann_id}_p{page_no}", page_meta)
+                        )
+                else:
+                    # Legacy fallback
+                    att_text = att.get("content", "")
+                    if not att_text or att_text in ("[PDF Okunamadı]", "[İçerik alınamadı]"):
+                        continue
+                    att_meta = base_meta.copy()
+                    att_meta["doc_type"] = "pdf_attachment"
+                    att_meta["pdf_url"] = att.get("url", "")
+                    att_source_key = f"pdf_attachment:{unit}:{ann_id}:{i}"
+                    
+                    all_chunks.extend(self._chunk_text(
+                        f"{base_meta['title']} (Ek {i + 1})\n\n{att_text}",
+                        att_meta["pdf_url"] or att_meta["source_url"],
+                        att_source_key,
+                        f"{ann_id}_att{i}",
+                        att_meta
+                    ))
 
         logger.info(f"Duyuru chunk: {len(records)} kayıt → {len(all_chunks)} chunk")
         return all_chunks
@@ -191,11 +240,24 @@ class Chunker:
             label      = rec.get("label", key)
             source_url = rec.get("url", "")
             content    = rec.get("content")
+            fakulte = rec.get("extra", {}).get("fakulte", "")
             metadata   = {
-                "category": "statik",
-                "label":    label,
-                "key":      key,
-                "fakulte":  rec.get("extra", {}).get("fakulte", ""),
+                "unit": key,
+                "unit_label": label,
+                "fakulte": fakulte,
+                "source_fakulte": fakulte,
+                "detected_fakulte": "",
+                "scope": "faculty" if fakulte else "university",
+                "doc_type": "static",
+                "page_no": None,
+                "page_count": None,
+                "ann_id": None,
+                "title": label,
+                "published_at": "",
+                "source_url": source_url,
+                "pdf_url": "",
+                "content_hash": "",
+                "key": key
             }
 
             if isinstance(content, list):
@@ -209,7 +271,8 @@ class Chunker:
             else:
                 continue
 
-            all_chunks.extend(self._chunk_text(text, source_url, key, key, metadata))
+            source_key = f"static:{key}"
+            all_chunks.extend(self._chunk_text(text, source_url, source_key, key, metadata))
 
         logger.info(f"Statik chunk: {len(records)} kayıt → {len(all_chunks)} chunk")
         return all_chunks
@@ -236,17 +299,30 @@ class Chunker:
             unit_id  = rec.get("extra", {}).get("unit_id", "")
             fakulte  = rec.get("extra", {}).get("fakulte", "")
             metadata_base = {
-                "category": "avesis_personel",
-                "label":    label,
-                "key":      key,
-                "unit_id":  unit_id,
-                "fakulte":  fakulte,
+                "unit": unit_id or key,
+                "unit_label": label,
+                "fakulte": fakulte,
+                "source_fakulte": fakulte,
+                "detected_fakulte": "",
+                "scope": "faculty" if fakulte else "university",
+                "doc_type": "avesis",
+                "page_no": None,
+                "page_count": None,
+                "ann_id": None,
+                "title": f"{label} Personel",
+                "published_at": "",
+                "source_url": source_url,
+                "pdf_url": "",
+                "content_hash": "",
+                "key": key,
+                "unit_id": unit_id
             }
 
             # Strateji 1: Birim geneli chunk (tüm kadro tek blok)
             full_text = f"{label} — Akademik Kadro\n\n{_avesis_staff_to_text(staff_list)}"
+            source_key = f"avesis:{unit_id or key}"
             all_chunks.extend(
-                self._chunk_text(full_text, source_url, key, key, metadata_base)
+                self._chunk_text(full_text, source_url, source_key, key, metadata_base)
             )
 
             # Strateji 2: Kişi başına ayrı mini chunk (isim araması için)
@@ -260,15 +336,17 @@ class Chunker:
                     "ad_soyad":  person.get("ad_soyad", ""),
                     "avesis_id": person.get("avesis_id", ""),
                 }
-                # Kişi metni genellikle tek chunk'a sığar
-                all_chunks.append(Chunk(
-                    text        = person_text,
-                    source_url  = person.get("profil_url", source_url),
-                    source_key  = key,
-                    doc_id      = f"{key}_p{i}",
-                    chunk_index = 0,
-                    metadata    = {**person_metadata, "chunk_index": 0, "total_chunks": 1},
-                ))
+                # Kişi metni genellikle tek chunk'a sığar, ama context seal alması için _chunk_text'ten geçmeli
+                person_source_key = f"avesis_person:{person.get('avesis_id') or i}"
+                all_chunks.extend(
+                    self._chunk_text(
+                        text=person_text,
+                        source_url=person.get("profil_url", source_url),
+                        source_key=person_source_key,
+                        doc_id=f"{key}_p{i}",
+                        metadata=person_metadata
+                    )
+                )
 
         logger.info(
             f"AVESİS chunk: {len(records)} birim → {len(all_chunks)} chunk "
@@ -337,22 +415,36 @@ class Chunker:
 
         chunks_list = []
         for i, t in enumerate(final_texts):
-            # MUAZZAM DETAY: Uzun metin bölündüyse, HER BİR parçanın başına tarihi ve başlığı mühürle!
-            baglam = ""
-            if metadata.get("kategori") == "duyuru":
-                baglam += f"Duyuru Başlığı: {metadata.get('baslik', '')}\n"
-                tarih = metadata.get("guncellendi", "")[:10]
-                if tarih: baglam += f"Tarih: {tarih}\n"
-                birim = metadata.get("birim", "")
-                if birim: baglam += f"Yayınlayan Birim: {birim}\n"
-                if len(final_texts) > 1:
-                    baglam += f"(Uzun duyurunun {i+1}. bölümü)\n"
-                baglam += "\nİçerik:\n"
-            elif metadata.get("category") == "statik":
-                baglam += f"Sayfa: {metadata.get('label', '')}\n"
-                if len(final_texts) > 1:
-                    baglam += f"(Sayfanın {i+1}. bölümü)\n"
-                baglam += "\n"
+            seal_lines = []
+            
+            scope = metadata.get("scope")
+            if scope: seal_lines.append(f"Kapsam: {scope}")
+                
+            unit_label = metadata.get("unit_label")
+            if unit_label: seal_lines.append(f"Kaynak Birim: {unit_label}")
+                
+            fakulte = metadata.get("fakulte")
+            if fakulte: seal_lines.append(f"Ana Fakülte: {fakulte}")
+                
+            source_fakulte = metadata.get("source_fakulte")
+            if source_fakulte: seal_lines.append(f"Kaynak Fakülte: {source_fakulte}")
+                
+            detected_fakulte = metadata.get("detected_fakulte")
+            if detected_fakulte: seal_lines.append(f"Tespit Edilen Fakülte: {detected_fakulte}")
+                
+            title = metadata.get("title")
+            if title: seal_lines.append(f"Başlık: {title}")
+                
+            doc_type = metadata.get("doc_type")
+            if doc_type: seal_lines.append(f"Belge Tipi: {doc_type}")
+                
+            page_no = metadata.get("page_no")
+            if page_no: seal_lines.append(f"Sayfa No: {page_no}")
+
+            baglam = "\n".join(seal_lines) + "\n\nİçerik:\n" if seal_lines else ""
+
+            if len(final_texts) > 1:
+                baglam = baglam.replace("\n\nİçerik:", f"\n(Uzun belgenin {i+1}. bölümü)\n\nİçerik:")
 
             final_t = f"{baglam}{t}".strip() if baglam else t
 

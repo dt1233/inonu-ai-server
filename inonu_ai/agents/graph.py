@@ -89,6 +89,7 @@ def run(question: str) -> str:
         "answer":             "",
         "grade":              "",
         "iterations":         0,
+        "sources":            [],
     }
     result = graph.invoke(initial)
     return result.get("answer", "Bu konuda bilgim bulunmuyor.")

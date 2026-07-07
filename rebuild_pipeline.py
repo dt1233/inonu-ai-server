@@ -2,6 +2,7 @@ import json
 import re
 import asyncio
 from pathlib import Path
+from inonu_ai.data_pipeline.io_utils import load_json, atomic_write_json
 
 # --- CORE LOGIC (SINGLE RESPONSIBILITY) ---
 
@@ -63,17 +64,13 @@ class JSONFileRoleDataSource(RoleDataSource):
         if not self.file_path.exists():
             return roles
         
-        try:
-            with open(self.file_path, "r", encoding="utf-8") as f:
-                data = json.load(f)
-                for item in data:
-                    name = item.get(self.name_key)
-                    if name and name.strip() and name != "Bulunamadı":
-                        unit = item.get(self.role_key, "").strip()
-                        role_title = f"{unit} {self.default_role_suffix}".strip()
-                        roles[name] = role_title
-        except Exception as e:
-            print(f"Hata ({self.file_path}): {e}")
+        data = load_json(self.file_path, default=[])
+        for item in data:
+            name = item.get(self.name_key)
+            if name and name.strip() and name != "Bulunamadı":
+                unit = item.get(self.role_key, "").strip()
+                role_title = f"{unit} {self.default_role_suffix}".strip()
+                roles[name] = role_title
         return roles
 
 class AvesisUpdater:
@@ -86,8 +83,7 @@ class AvesisUpdater:
             print("avesis_results.json bulunamadı.")
             return 0
             
-        with open(self.avesis_path, "r", encoding="utf-8") as f:
-            data = json.load(f)
+        data = load_json(self.avesis_path, default=[])
             
         updated_count = 0
         if data and isinstance(data, list):
@@ -105,8 +101,7 @@ class AvesisUpdater:
                         updated_count += 1
                         break # Aynı hoca birden fazla kez bulunursa ilkini alır
                         
-        with open(self.avesis_path, "w", encoding="utf-8") as f:
-            json.dump(data, f, ensure_ascii=False, indent=2)
+        atomic_write_json(self.avesis_path, data)
             
         return updated_count
 
@@ -150,13 +145,11 @@ class CrawlResultsUpdater:
             print("Senkronizasyon için crawl_results.json bulunamadı.")
             return
             
-        with open(crawl_path, "r", encoding="utf-8") as f:
-            crawl_data = json.load(f)
+        crawl_data = load_json(crawl_path, default={})
             
         # 1. Avesis Staff İdari Görev Senkronizasyonu
         if Path(avesis_path).exists():
-            with open(avesis_path, "r", encoding="utf-8") as f:
-                avesis_data = json.load(f)
+            avesis_data = load_json(avesis_path, default=[])
                 
             if avesis_data and isinstance(avesis_data, list):
                 updated_staff = avesis_data[0].get('content', [])
@@ -173,8 +166,7 @@ class CrawlResultsUpdater:
         # 2. Yönetim ve İdari Personel Rehberinin Eklenmesi
         yonetim_path = "data/inonu_universitesi_yonetim_rehberi.json"
         if Path(yonetim_path).exists():
-            with open(yonetim_path, "r", encoding="utf-8") as f:
-                yonetim_data = json.load(f)
+            yonetim_data = load_json(yonetim_path, default={})
             
             markdown_content = CrawlResultsUpdater._format_yonetim_rehberi(yonetim_data)
             
@@ -198,8 +190,8 @@ class CrawlResultsUpdater:
         else:
             print(f"{yonetim_path} bulunamadı, yönetim rehberi atlanıyor.")
                             
-        with open(crawl_path, "w", encoding="utf-8") as f:
-            json.dump(crawl_data, f, ensure_ascii=False, indent=2)
+        from inonu_ai.data_pipeline.io_utils import atomic_write_json
+        atomic_write_json(crawl_path, crawl_data)
 
 class PipelineOrchestrator:
     """Tüm süreci yöneten ana sınıf (Facade Pattern)."""
@@ -219,14 +211,14 @@ class PipelineOrchestrator:
         aktif_path = Path("data/aktif_yonetim.json")
         if aktif_path.exists():
             try:
-                with open(aktif_path, "r", encoding="utf-8") as f:
-                    aktif = json.load(f)
-                    yonetim = aktif.get("yonetim", {})
-                    rek = yonetim.get("rektor", {}).get("unvan_ad_soyad")
-                    if rek: self.roles[rek] = "Rektör"
-                    for r in yonetim.get("rektor_yardimcilari", []):
-                        if r.get("unvan_ad_soyad"):
-                            self.roles[r["unvan_ad_soyad"]] = "Rektör Yardımcısı"
+                from inonu_ai.data_pipeline.io_utils import load_json
+                aktif = load_json(str(aktif_path), default={})
+                yonetim = aktif.get("yonetim", {})
+                rek = yonetim.get("rektor", {}).get("unvan_ad_soyad")
+                if rek: self.roles[rek] = "Rektör"
+                for r in yonetim.get("rektor_yardimcilari", []):
+                    if r.get("unvan_ad_soyad"):
+                        self.roles[r["unvan_ad_soyad"]] = "Rektör Yardımcısı"
             except Exception as e:
                 print(f"Aktif yönetim okuma hatası: {e}")
 
