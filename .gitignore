@@ -20,3 +20,4 @@ data/*
 !data/aktif_yonetim.json
 chunks_output.json
 crawl_results.json
+LLaMA-Factory/
