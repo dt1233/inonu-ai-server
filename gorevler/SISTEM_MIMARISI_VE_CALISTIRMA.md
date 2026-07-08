@@ -15,32 +15,24 @@ Sistemin tam kalbinde ana servisler arka planda sürekli çalışmalıdır:
 | **Qdrant (Vektör DB)** | `6333` | Tüm üniversite verilerinin (48.000 chunk) vektör olarak tutulduğu veritabanı. | `qdrant_storage` (Lokal disk tabanlı çalışır) |
 | **FastAPI / REST API** | `8000` | Sistem ile dış dünyayı bağlayan asıl Web API katmanı. | `inonu_ai/api/main.py` |
 
-## 3. Çalıştırma Talimatları (Adım Adım)
+## 3. İki İzole Sanal Ortam Mimarisi (Kritik Mimari Karar)
 
-Tüm komutları sunucuya bağlandıktan sonra, **sadece `(lf_egitim)` ortamında** çalıştırmalısınız. (Eski `venv` klasörünü kullanmayın!)
+Sistem profesyonel standartlara (Clean Architecture & Isolation) çekilmiş olup, **iki farklı izole Conda ortamında** çalışacak şekilde ayrılmıştır:
 
-### Adım 1: Doğru Ortama Geçiş
+1. **`sglang_env` Ortamı:** **SADECE** SGLang yapay zeka inference (çıkarım) sunucusunu barındırır.
+2. **`lf_egitim` Ortamı:** RAG arama motorunu, Crawler'ı, Qdrant vektör indekslemeyi ve FastAPI'yi barındırır.
+
+**Neden İki Ayrı Ortam Kullanıyoruz?**
+Yapay Zeka (LLM Inference) motorları (SGLang, vLLM) çok spesifik ve ağır CUDA/PyTorch bağımlılıklarına sahiptir. Uygulama tarafındaki (RAG) kütüphaneler (örneğin LangChain, FastAPI veya PDF ayrıştırıcılar) güncellendiğinde LLM motorunun çökmemesi için, sunucu ile uygulama katmanının bağımlılıkları birbirinden fiziksel olarak yalıtılmıştır.
+
+## 4. Çalıştırma Talimatları (Adım Adım)
+
+### Adım 1: Yapay Zeka Sunucusunu Başlatma (SGLang)
+Sistemin beynini **`sglang_env`** ortamında, 30000 portunda arka planda başlatın:
 ```bash
-conda activate lf_egitim
+conda activate sglang_env
 cd ~/inonu-proje/inonuasilproje/inonu_ai
-```
 
-### Adım 2: Çöp Ortamların Temizliği (Sadece İlk Kurulumda)
-Sunucudaki karışıklığı önlemek için eski ve çalışmayan ortam klasörleri silinmelidir:
-```bash
-# SADECE lf_egitim kullanılacağı için, eski manuel venv'yi siliyoruz:
-rm -rf ~/inonu-proje/inonu_ai/venv
-```
-
-### Adım 3: Qdrant Vektör Veritabanını Sıfırlama ve İndeksleme
-Eski bozuk indeksler yerine temizlenmiş chunks dosyasından yepyeni bir Qdrant indeksi yaratmak için:
-```bash
-HF_HUB_OFFLINE=1 python run_indexer.py --reset
-```
-
-### Adım 4: Yapay Zeka Motorunu (SGLang) Başlatma
-Sistemin beyni olan modeli 30000 portunda arka planda çalıştırın:
-```bash
 HF_HUB_OFFLINE=1 nohup python -m sglang.launch_server \
   --model-path /home/yapayzeka/models/Qwen3-8B-inonu \
   --port 30000 \
@@ -49,12 +41,28 @@ HF_HUB_OFFLINE=1 nohup python -m sglang.launch_server \
   --mem-fraction-static 0.85 \
   > ~/sglang.log 2>&1 &
 ```
-*(Bu komut SGLang'ı başlatır. Yaklaşık 2 dakika sonra `curl http://localhost:30000/v1/models` ile test edilebilir).*
+*(Logları `tail -f ~/sglang.log` ile izleyin. "Uvicorn running on http://0.0.0.0:30000" veya "Ready" mesajını görünce çıkın).*
 
-### Adım 5: Sistemi Test Etme (RAG Sohbeti)
-Motor çalıştıktan sonra, komut satırından RAG tabanlı soruları test etmek için:
+### Adım 2: RAG ve API Uygulamasına Geçiş
+Model çalıştıktan sonra, tüm RAG testleri ve API işlemleri için asıl geliştirme ortamına dönün:
 ```bash
-python inonu_ai/rag_chat.py
+conda activate lf_egitim
+cd ~/inonu-proje/inonuasilproje/inonu_ai
+```
+
+### Adım 3: Qdrant Vektör Veritabanını İndeksleme (Gerekliyse)
+Veri tabanını sıfırdan oluşturmak için:
+```bash
+# SADECE lf_egitim içindeyken!
+HF_HUB_OFFLINE=1 python run_indexer.py --reset
+```
+
+### Adım 4: Sistemi Test Etme (İnteraktif RAG Sohbeti)
+LLM hazır, RAG hazır. Terminal üzerinden ajanımızla konuşmak için:
+```bash
+# SADECE lf_egitim içindeyken!
+export QDRANT_COLLECTION=inonu_docs_staging
+python ../tests/interactive_rag.py
 ```
 
 ## 4. Dosyaların Görevleri (Dosya Haritası)

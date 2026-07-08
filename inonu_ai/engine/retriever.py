@@ -13,7 +13,7 @@ import re
 from datetime import datetime
 from loguru import logger
 
-from data_pipeline.faculty_detector import extract_requested_faculties
+from data_pipeline.faculty_detector import extract_requested_faculties, normalize_turkish_text
 
 # ── Zaman duyarlı sorgu zenginleştirme ──────────────────────
 _TIME_KEYWORDS = [
@@ -25,6 +25,25 @@ _TIME_KEYWORDS = [
 
 # ── Retrieval Parametreleri ──────────────────────────────────
 STRICT_MIN_RESULTS = 2
+OFFICIAL_ACADEMIC_SOURCE_KEYS = {
+    "static:akademik_takvim",
+    "static:bahar_yariyili",
+    "static:guz_yariyili",
+}
+ACADEMIC_URL_MARKERS = [
+    "content?id=1451",
+    "menu/23280",
+    "bahar-yariyili",
+    "guz-yariyili",
+    "akademik-takvim",
+]
+EXAM_TERMS = {
+    "butunleme": ["butunleme", "but", "butleri", "butler"],
+    "final": ["final", "yariyil sonu", "yarıyıl sonu"],
+    "vize": ["vize", "ara sinav", "ara sınav"],
+    "tek_ders": ["tek ders"],
+    "mazeret": ["mazeret"],
+}
 
 
 def _get_current_academic_year() -> str:
@@ -51,6 +70,91 @@ def _augment_query(query: str) -> str:
     return query
 
 
+def _detect_query_policy(query: str) -> dict:
+    norm = normalize_turkish_text(query)
+    exam_type = None
+    for key, terms in EXAM_TERMS.items():
+        normalized_terms = [normalize_turkish_text(t) for t in terms]
+        if any(term in norm for term in normalized_terms):
+            exam_type = key
+            break
+
+    wants_academic_calendar = any(
+        term in norm
+        for term in [
+            "akademik takvim",
+            "bahar yariyili",
+            "bahar yarıyılı",
+            "guz yariyili",
+            "güz yarıyılı",
+        ]
+    )
+    wants_date = any(
+        term in norm
+        for term in [
+            "ne zaman",
+            "tarih",
+            "takvim",
+            "sinav",
+            "sınav",
+            "butunleme",
+            "bütünleme",
+        ]
+    )
+
+    return {
+        "exam_type": exam_type,
+        "wants_academic_calendar": wants_academic_calendar,
+        "wants_date": wants_date,
+    }
+
+
+def _payload_text(payload: dict) -> str:
+    parts = [
+        payload.get("text", ""),
+        payload.get("title", ""),
+        payload.get("source_key", ""),
+        payload.get("key", ""),
+        payload.get("unit", ""),
+        payload.get("unit_label", ""),
+        payload.get("source_url", ""),
+        payload.get("pdf_url", ""),
+    ]
+    return normalize_turkish_text(" ".join(str(p) for p in parts if p))
+
+
+def _is_official_academic_calendar(payload: dict) -> bool:
+    source_key = str(payload.get("source_key") or "")
+    if source_key in OFFICIAL_ACADEMIC_SOURCE_KEYS:
+        return True
+
+    text = _payload_text(payload)
+    if "akademik takvim" in text:
+        return True
+
+    return any(marker in text for marker in ACADEMIC_URL_MARKERS)
+
+
+def _matches_exam_intent(payload: dict, policy: dict) -> bool:
+    exam_type = policy.get("exam_type")
+    if not exam_type:
+        return True
+
+    text = _payload_text(payload)
+    required_terms = [normalize_turkish_text(t) for t in EXAM_TERMS.get(exam_type, [])]
+    return any(term in text for term in required_terms)
+
+
+def _is_general_source_allowed(payload: dict, policy: dict) -> bool:
+    if policy.get("wants_academic_calendar"):
+        return _is_official_academic_calendar(payload)
+
+    if policy.get("exam_type") or policy.get("wants_date"):
+        return _is_official_academic_calendar(payload)
+
+    return True
+
+
 # ── Fakülte Filtreleme (Strict / Fallback) ───────────────────
 
 def _get_effective_fakulte(payload: dict) -> str | None:
@@ -66,7 +170,7 @@ def _get_effective_fakulte(payload: dict) -> str | None:
     return (payload.get("fakulte") or payload.get("source_fakulte") or "").strip() or None
 
 
-def _is_chunk_safe_for_query(payload: dict, requested_fakulteler: list[str]) -> bool:
+def _is_chunk_safe_for_query(payload: dict, requested_fakulteler: list[str], policy: dict | None = None) -> bool:
     """
     Bir chunk'ın, requested_fakulte listesine güvenle döndürülüp
     döndürülemeyeceğini belirler.
@@ -77,11 +181,20 @@ def _is_chunk_safe_for_query(payload: dict, requested_fakulteler: list[str]) -> 
     3. Chunk'ın efektif fakültesi requested listede → GEÇ.
     4. Chunk'ın efektif fakültesi requested listede DEĞİL → ELEN.
     """
+    policy = policy or {}
     scope = (payload.get("scope") or "").strip()
     effective = _get_effective_fakulte(payload)
 
+    if not _matches_exam_intent(payload, policy):
+        return False
+
+    if requested_fakulteler and not effective and scope != "university":
+        return False
+
     # Genel üniversite kaynağı
     if scope == "university":
+        if not _is_general_source_allowed(payload, policy):
+            return False
         if not effective:
             return True  # Genel kaynak, fakülte tespiti yapılamamış → güvenli
         # University ama sayfada rakip fakülte tespit edilmiş
@@ -97,6 +210,7 @@ def _is_chunk_safe_for_query(payload: dict, requested_fakulteler: list[str]) -> 
 def filter_by_fakulte(
     points: list,
     requested_fakulteler: list[str],
+    policy: dict | None = None,
 ) -> dict:
     """
     Qdrant point listesini fakülte sahiplik kurallarına göre filtreler.
@@ -111,10 +225,11 @@ def filter_by_fakulte(
     """
     strict_results = []
     owner_mismatch_count = 0
+    policy = policy or {}
 
     for p in points:
         payload = p.payload if hasattr(p, "payload") else p.get("payload", {})
-        if _is_chunk_safe_for_query(payload, requested_fakulteler):
+        if _is_chunk_safe_for_query(payload, requested_fakulteler, policy):
             strict_results.append(p)
         else:
             owner_mismatch_count += 1
@@ -139,7 +254,7 @@ def filter_by_fakulte(
             scope = (payload.get("scope") or "").strip()
             detected = (payload.get("detected_fakulte") or "").strip()
 
-            if scope == "university" and not detected:
+            if scope == "university" and not detected and _is_general_source_allowed(payload, policy):
                 if p not in strict_results:
                     strict_results.append(p)
 
@@ -219,6 +334,42 @@ class Retriever:
         self.client = QdrantClient(path=db_path)
         self.collection_name = os.getenv("QDRANT_COLLECTION", "inonu_docs")
 
+    def _fetch_official_academic_points(self) -> list:
+        from qdrant_client import models
+
+        points = []
+        seen_ids = set()
+        for source_key in OFFICIAL_ACADEMIC_SOURCE_KEYS:
+            try:
+                result, _ = self.client.scroll(
+                    collection_name=self.collection_name,
+                    scroll_filter=models.Filter(
+                        must=[
+                            models.FieldCondition(
+                                key="source_key",
+                                match=models.MatchValue(value=source_key),
+                            )
+                        ]
+                    ),
+                    limit=20,
+                    with_payload=True,
+                    with_vectors=False,
+                )
+            except Exception as exc:
+                logger.debug(f"Resmi akademik takvim scroll hatası ({source_key}): {exc}")
+                continue
+
+            for point in result:
+                point_id = getattr(point, "id", None)
+                if point_id in seen_ids:
+                    continue
+                seen_ids.add(point_id)
+                points.append(point)
+
+        if points:
+            logger.info(f"Resmi akademik takvim adayları eklendi: {len(points)}")
+        return points
+
     def search(self, query: str, top_k: int = 3) -> list[dict]:
         logger.info(f"Soru aranıyor: {query}")
 
@@ -261,10 +412,19 @@ class Retriever:
 
             # 3. Fakülte Strict/Fallback filtresi
             requested = extract_requested_faculties(query)
+            policy = _detect_query_policy(query)
             if requested:
                 logger.info(f"🔎 Fakülte filtresi aktif: {requested}")
-                filter_result = filter_by_fakulte(response.points, requested)
+                filter_result = filter_by_fakulte(response.points, requested, policy)
                 valid_points = filter_result["strict"]
+            elif policy.get("wants_academic_calendar"):
+                valid_points = [
+                    p for p in response.points
+                    if _is_official_academic_calendar(
+                        p.payload if hasattr(p, "payload") else p.get("payload", {})
+                    )
+                ]
+                logger.info(f"Akademik takvim filtresi: {len(response.points)} aday -> {len(valid_points)} resmi takvim adayı")
             else:
                 valid_points = response.points
 

@@ -155,6 +155,16 @@ REKTORLUK_TARGETS: list[UrlTarget] = [
         url="https://panel.inonu.edu.tr/servlet/content?id=1451&lang=tr",
         crawl_type=CrawlType.API_JSON, frequency=CrawlFrequency.WEEKLY, priority=1,
     ),
+    UrlTarget(
+        key="bahar_yariyili", label="Bahar Yarıyılı Akademik Takvimi",
+        url="https://www.inonu.edu.tr/ogrenci/menu/23280/bahar-yariyili",
+        crawl_type=CrawlType.HTML_STATIC, frequency=CrawlFrequency.WEEKLY, priority=1,
+    ),
+    UrlTarget(
+        key="guz_yariyili", label="Güz Yarıyılı Akademik Takvimi",
+        url="https://www.inonu.edu.tr/ogrenci/menu/23279/guz-yariyili",
+        crawl_type=CrawlType.HTML_STATIC, frequency=CrawlFrequency.WEEKLY, priority=1,
+    ),
 ]
 
 
